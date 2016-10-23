@@ -1,0 +1,361 @@
+﻿#region License
+//Copyright(c) 2016 Dmytro Mukalov
+
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+#endregion
+
+namespace ObjectPort.Tests
+{
+    using Xunit;
+    using System.Linq;
+    using System.Collections.Generic;
+
+    public class EnumerableMembersTests : TestsBase
+    {
+        private struct TestCustomStruct
+        {
+            public string StrField;
+            public int IntField;
+        }
+
+        private class TestCustomClass
+        {
+            public string StrField;
+            public int IntField;
+
+            public override bool Equals(object obj)
+            {
+                var testObj = obj as TestCustomClass;
+                if (obj == null)
+                    return false;
+                return StrField == testObj.StrField && IntField == testObj.IntField;
+            }
+
+            public override int GetHashCode()
+            {
+                return (StrField + IntField.ToString()).GetHashCode();
+            }
+        }
+
+        private static readonly int[] TestEmptyArray = new int[] { };
+        private static readonly int[] TestNullArray = null;
+        private static readonly List<int> TestNullList = null;
+        private static readonly IEnumerable<int> TestNullEnumerable = null;
+        private static readonly int[] TestIntArray = new[] { -345, 54, -456456, 3453455 };
+        private static readonly int?[] TestNullableIntArray = new int?[] { -345, null, -456456, 3453455 };
+        private static readonly string[] TestStringArray = new[] { "Test string 1", null, "Test string 3", "Test string 4" };
+        private static readonly TestCustomStruct[] TestStructArray = new[]
+        {
+            new TestCustomStruct { IntField = TestIntArray[0], StrField = TestStringArray[0] },
+            new TestCustomStruct { IntField = TestIntArray[1], StrField = TestStringArray[1] },
+            new TestCustomStruct { IntField = TestIntArray[2], StrField = TestStringArray[2] },
+            new TestCustomStruct { IntField = TestIntArray[3], StrField = TestStringArray[3] }
+        };
+        private static readonly TestCustomStruct?[] TestNullableStructArray = new TestCustomStruct?[]
+        {
+            new TestCustomStruct { IntField = TestIntArray[0], StrField = TestStringArray[0] },
+            null,
+            new TestCustomStruct { IntField = TestIntArray[2], StrField = TestStringArray[2] },
+            new TestCustomStruct { IntField = TestIntArray[3], StrField = TestStringArray[3] }
+        };
+        private static readonly TestCustomClass[] TestClassArray = new[]
+        {
+            new TestCustomClass { IntField = TestIntArray[0], StrField = TestStringArray[0] },
+            null,
+            new TestCustomClass { IntField = TestIntArray[2], StrField = TestStringArray[2] },
+            new TestCustomClass { IntField = TestIntArray[3], StrField = TestStringArray[3] }
+        };
+
+        [Fact]
+        public void Should_Serialize_Empty_Array()
+        {
+            TestStructField(TestEmptyArray);
+            TestStructProperty(TestEmptyArray);
+            TestClassField(TestEmptyArray);
+            TestClassProperty(TestEmptyArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_Empty_List()
+        {
+            TestStructField(TestEmptyArray.ToList());
+            TestStructProperty(TestEmptyArray.ToList());
+            TestClassField(TestEmptyArray.ToList());
+            TestClassProperty(TestEmptyArray.ToList());
+        }
+
+        [Fact]
+        public void Should_Serialize_Empty_IEnumerable_From_Array()
+        {
+            TestStructField<IEnumerable<int>>(TestEmptyArray);
+            TestStructProperty<IEnumerable<int>>(TestEmptyArray);
+            TestClassField<IEnumerable<int>>(TestEmptyArray);
+            TestClassProperty<IEnumerable<int>>(TestEmptyArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_Empty_IEnumerable_From_List()
+        {
+            TestStructField<IEnumerable<int>>(TestEmptyArray.ToList());
+            TestStructProperty<IEnumerable<int>>(TestEmptyArray.ToList());
+            TestClassField<IEnumerable<int>>(TestEmptyArray.ToList());
+            TestClassProperty<IEnumerable<int>>(TestEmptyArray.ToList());
+        }
+
+        [Fact]
+        public void Should_Serialize_Null_Array()
+        {
+            TestStructField(TestNullArray);
+            TestStructProperty(TestNullArray);
+            TestClassField(TestNullArray);
+            TestClassProperty(TestNullArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_Null_List()
+        {
+            TestStructField(TestNullList);
+            TestStructProperty(TestNullList);
+            TestClassField(TestNullList);
+            TestClassProperty(TestNullList);
+        }
+
+        [Fact]
+        public void Should_Serialize_Null_IEnumerable()
+        {
+            TestStructField(TestNullEnumerable);
+            TestStructProperty(TestNullEnumerable);
+            TestClassField(TestNullEnumerable);
+            TestClassProperty(TestNullEnumerable);
+        }
+
+        [Fact]
+        public void Should_Serialize_Array_Of_Primitives()
+        {
+            TestStructField(TestIntArray);
+            TestStructField(TestStringArray);
+            TestStructProperty(TestIntArray);
+            TestStructProperty(TestStringArray);
+            TestClassField(TestIntArray);
+            TestClassField(TestStringArray);
+            TestClassProperty(TestIntArray);
+            TestClassProperty(TestStringArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_List_Of_Primitives()
+        {
+            TestStructField(TestIntArray.ToList());
+            TestStructField(TestStringArray.ToList());
+            TestStructProperty(TestIntArray.ToList());
+            TestStructProperty(TestStringArray.ToList());
+            TestClassField(TestIntArray.ToList());
+            TestClassField(TestStringArray.ToList());
+            TestClassProperty(TestIntArray.ToList());
+            TestClassProperty(TestStringArray.ToList());
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_Of_Primitives_From_Array()
+        {
+            TestStructField<IEnumerable<int>>(TestIntArray);
+            TestStructField<IEnumerable<string>>(TestStringArray);
+            TestStructProperty<IEnumerable<int>>(TestIntArray);
+            TestStructProperty<IEnumerable<string>>(TestStringArray);
+            TestClassField<IEnumerable<int>>(TestIntArray);
+            TestClassField<IEnumerable<string>>(TestStringArray);
+            TestClassProperty<IEnumerable<int>>(TestIntArray);
+            TestClassProperty<IEnumerable<string>>(TestStringArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_Of_Primitives_From_List()
+        {
+            TestStructField<IEnumerable<int>>(TestIntArray.ToList());
+            TestStructField<IEnumerable<string>>(TestStringArray.ToList());
+            TestStructProperty<IEnumerable<int>>(TestIntArray.ToList());
+            TestStructProperty<IEnumerable<string>>(TestStringArray.ToList());
+            TestClassField<IEnumerable<int>>(TestIntArray.ToList());
+            TestClassField<IEnumerable<string>>(TestStringArray.ToList());
+            TestClassProperty<IEnumerable<int>>(TestIntArray.ToList());
+            TestClassProperty<IEnumerable<string>>(TestStringArray.ToList());
+        }
+
+
+        [Fact]
+        public void Should_Serialize_Array_Of_Struct()
+        {
+            TestStructField(TestStructArray);
+            TestStructProperty(TestStructArray);
+            TestClassField(TestStructArray);
+            TestClassProperty(TestStructArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_List_Of_Struct()
+        {
+            TestStructField(TestStructArray.ToList());
+            TestStructProperty(TestStructArray.ToList());
+            TestClassField(TestStructArray.ToList());
+            TestClassProperty(TestStructArray.ToList());
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_From_Array_Of_Struct()
+        {
+            TestStructField<IEnumerable<TestCustomStruct>>(TestStructArray);
+            TestStructProperty<IEnumerable<TestCustomStruct>>(TestStructArray);
+            TestClassField<IEnumerable<TestCustomStruct>>(TestStructArray);
+            TestClassProperty<IEnumerable<TestCustomStruct>>(TestStructArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_From_List_Of_Struct()
+        {
+            TestStructField<IEnumerable<TestCustomStruct>>(TestStructArray.ToList());
+            TestStructProperty<IEnumerable<TestCustomStruct>>(TestStructArray.ToList());
+            TestClassField<IEnumerable<TestCustomStruct>>(TestStructArray.ToList());
+            TestClassProperty<IEnumerable<TestCustomStruct>>(TestStructArray.ToList());
+        }
+
+        [Fact]
+        public void Should_Serialize_Array_Of_Class()
+        {
+            TestStructField(TestClassArray);
+            TestStructProperty(TestClassArray);
+            TestClassField(TestClassArray);
+            TestClassProperty(TestClassArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_List_Of_Class()
+        {
+            TestStructField(TestClassArray.ToList());
+            TestStructProperty(TestClassArray.ToList());
+            TestClassField(TestClassArray.ToList());
+            TestClassProperty(TestClassArray.ToList());
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_From_Array_Of_Class()
+        {
+            TestStructField<IEnumerable<TestCustomClass>>(TestClassArray);
+            TestStructProperty<IEnumerable<TestCustomClass>>(TestClassArray);
+            TestClassField<IEnumerable<TestCustomClass>>(TestClassArray);
+            TestClassProperty<IEnumerable<TestCustomClass>>(TestClassArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_From_List_Of_Class()
+        {
+            TestStructField<IEnumerable<TestCustomClass>>(TestClassArray.ToList());
+            TestStructProperty<IEnumerable<TestCustomClass>>(TestClassArray.ToList());
+            TestClassField<IEnumerable<TestCustomClass>>(TestClassArray.ToList());
+            TestClassProperty<IEnumerable<TestCustomClass>>(TestClassArray.ToList());
+        }
+
+        [Fact]
+        public void Should_Serialize_Array_Of_Nullable_Primitives()
+        {
+            TestStructField(TestNullableIntArray);
+            TestStructProperty(TestNullableIntArray);
+            TestClassField(TestNullableIntArray);
+            TestClassProperty(TestNullableIntArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_List_Of_Nullable_Primitives()
+        {
+            TestStructField(TestNullableIntArray.ToList());
+            TestStructProperty(TestNullableIntArray.ToList());
+            TestClassField(TestNullableIntArray.ToList());
+            TestClassProperty(TestNullableIntArray.ToList());
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_From_Array_Of_Nullable_Primitives()
+        {
+            TestStructField<IEnumerable<int?>>(TestNullableIntArray);
+            TestStructProperty<IEnumerable<int?>>(TestNullableIntArray);
+            TestClassField<IEnumerable<int?>>(TestNullableIntArray);
+            TestClassProperty<IEnumerable<int?>>(TestNullableIntArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_From_List_Of_Nullable_Primitives()
+        {
+            TestStructField<IEnumerable<int?>>(TestNullableIntArray.ToList());
+            TestStructProperty<IEnumerable<int?>>(TestNullableIntArray.ToList());
+            TestClassField<IEnumerable<int?>>(TestNullableIntArray.ToList());
+            TestClassProperty<IEnumerable<int?>>(TestNullableIntArray.ToList());
+        }
+
+        [Fact]
+        public void Should_Serialize_Array_Of_Nullable_Custom()
+        {
+            TestStructField(TestNullableStructArray);
+            TestStructProperty(TestNullableStructArray);
+            TestClassField(TestNullableStructArray);
+            TestClassProperty(TestNullableStructArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_List_Of_Nullable_Custom()
+        {
+            TestStructField(TestNullableStructArray.ToList());
+            TestStructProperty(TestNullableStructArray.ToList());
+            TestClassField(TestNullableStructArray.ToList());
+            TestClassProperty(TestNullableStructArray.ToList());
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_From_Array_Of_Nullable_Custom()
+        {
+            TestStructField<IEnumerable<TestCustomStruct?>>(TestNullableStructArray);
+            TestStructProperty<IEnumerable<TestCustomStruct?>>(TestNullableStructArray);
+            TestClassField<IEnumerable<TestCustomStruct?>>(TestNullableStructArray);
+            TestClassProperty<IEnumerable<TestCustomStruct?>>(TestNullableStructArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_From_List_Of_Nullable_Custom()
+        {
+            TestStructField<IEnumerable<TestCustomStruct?>>(TestNullableStructArray.ToList());
+            TestStructProperty<IEnumerable<TestCustomStruct?>>(TestNullableStructArray.ToList());
+            TestClassField<IEnumerable<TestCustomStruct?>>(TestNullableStructArray.ToList());
+            TestClassProperty<IEnumerable<TestCustomStruct?>>(TestNullableStructArray.ToList());
+        }
+
+        [Fact]
+        public void Should_Serialize_Array_Of_Polymorphic_Objects()
+        {
+        }
+
+        [Fact]
+        public void Should_Serialize_List_Of_Polymorphic_Objects()
+        {
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_Of_Polymorphic_Objects()
+        {
+        }
+
+    }
+}

@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3E58E647-67C6-46E6-853A-102C5E5CA37C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ObjectPort</RootNamespace>
+    <AssemblyName>ObjectPort</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Builders\ComplexNullableBuilder.cs" />
+    <Compile Include="Builders\EnumerableBuilder.cs" />
+    <Compile Include="Builders\ICompiledActionProvider.cs" />
+    <Compile Include="Builders\PrimitiveNullableBuilder.cs" />
+    <Compile Include="Builders\Primitive\BooleanBuilder.cs" />
+    <Compile Include="Builders\BuilderFactory.cs" />
+    <Compile Include="Builders\Primitive\ByteBuilder.cs" />
+    <Compile Include="Builders\Primitive\CharBuilder.cs" />
+    <Compile Include="Builders\PolymorphicEnumerableBuilder.cs" />
+    <Compile Include="Builders\ComplexBuilder.cs" />
+    <Compile Include="Builders\Primitive\DateTimeBuilder.cs" />
+    <Compile Include="Builders\Primitive\DecimalBuilder.cs" />
+    <Compile Include="Builders\Primitive\DoubleBuilder.cs" />
+    <Compile Include="Builders\EnumBuilder.cs" />
+    <Compile Include="Builders\Primitive\FloatBuilder.cs" />
+    <Compile Include="Builders\Primitive\GuidBuilder.cs" />
+    <Compile Include="Builders\Primitive\IntBuilder.cs" />
+    <Compile Include="Builders\Primitive\LongBuilder.cs" />
+    <Compile Include="Builders\MemberSerializerBuilder.cs" />
+    <Compile Include="Builders\CheckNullBuilder.cs" />
+    <Compile Include="Builders\Primitive\SByteBuilder.cs" />
+    <Compile Include="Builders\Primitive\ShortBuilder.cs" />
+    <Compile Include="Builders\RegularEnumerableBuilder.cs" />
+    <Compile Include="Builders\PrimitiveBuilder.cs" />
+    <Compile Include="Builders\Primitive\StrBuilder.cs" />
+    <Compile Include="Builders\Primitive\TimeSpanBuilder.cs" />
+    <Compile Include="Builders\Primitive\UIntBuilder.cs" />
+    <Compile Include="Builders\Primitive\ULongBuilder.cs" />
+    <Compile Include="Builders\Primitive\UShortBuilder.cs" />
+    <Compile Include="Descriptions\AnonymousTypeDescription.cs" />
+    <Compile Include="Descriptions\FieldDescription.cs" />
+    <Compile Include="Descriptions\MemberDescription.cs" />
+    <Compile Include="Descriptions\PropertyDescription.cs" />
+    <Compile Include="Descriptions\ComplexTypeDescription.cs" />
+    <Compile Include="Common\AdaptiveHashtable.cs" />
+    <Compile Include="Descriptions\TypeDescription.cs" />
+    <Compile Include="Common\ErrorExtensions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serializer.cs" />
+    <Compile Include="SerializerState.cs" />
+    <Compile Include="Common\TypeExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

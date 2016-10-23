@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectPort", "ObjectPort\ObjectPort.csproj", "{3E58E647-67C6-46E6-853A-102C5E5CA37C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectPort.Tests", "Tests\ObjectPort.Tests.csproj", "{9E6B4A9B-ACCE-40BB-9B0A-A7CD072CDED8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3E58E647-67C6-46E6-853A-102C5E5CA37C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E58E647-67C6-46E6-853A-102C5E5CA37C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E58E647-67C6-46E6-853A-102C5E5CA37C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E58E647-67C6-46E6-853A-102C5E5CA37C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E6B4A9B-ACCE-40BB-9B0A-A7CD072CDED8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E6B4A9B-ACCE-40BB-9B0A-A7CD072CDED8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E6B4A9B-ACCE-40BB-9B0A-A7CD072CDED8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E6B4A9B-ACCE-40BB-9B0A-A7CD072CDED8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
