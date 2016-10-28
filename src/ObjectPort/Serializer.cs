@@ -111,6 +111,17 @@ namespace ObjectPort
             TypeDescription description;
             if (state.AllTypeDescriptions.TryGetValue(type, out description))
                 return description;
+
+            if (type.IsDictionaryType())
+            {
+                var dictTypes = type.GetDictionaryArguments();
+                var keyTd = GetTypeDescription(dictTypes.Item1, state);
+                keyTd?.Build();
+                var valTd = GetTypeDescription(dictTypes.Item2, state);
+                valTd?.Build();
+                return null;
+            }
+
             if (type.IsEnumerableType())
             {
                 var elementType = type.GetEnumerableArgument();

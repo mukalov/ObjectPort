@@ -27,6 +27,7 @@ namespace ObjectPort.Builders
     using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
     using System.Runtime.CompilerServices;
 
     internal class RegularEnumerableBuilder<T> : EnumerableBuilder<T>
@@ -103,6 +104,24 @@ namespace ObjectPort.Builders
             for (var i = 0; i < length; i++)
                 result[i] = _elementDeserializer(reader);
             return constructorIndex == ArrayConstructorIndex ? result : ConstructorsByIndex[constructorIndex](result);
+        }
+
+        protected MethodInfo SerializeMethod
+        {
+            get
+            {
+                return SerializeAsArray ?
+                    BuilderSpecificType.GetMethod("SerializeArray", BindingFlags.NonPublic | BindingFlags.Instance) :
+                    BuilderSpecificType.GetMethod("SerializeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance);
+            }
+        }
+
+        protected MethodInfo DeserializeMethod
+        {
+            get
+            {
+                return BuilderSpecificType.GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
+            }
         }
     }
 }

@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonTests.cs" />
+    <Compile Include="DictionaryMembersTests.cs" />
     <Compile Include="EnumerableMembersTests.cs" />
     <Compile Include="EnumMembersTests.cs" />
     <Compile Include="NullableMembersTests.cs" />

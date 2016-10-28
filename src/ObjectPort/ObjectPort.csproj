@@ -42,8 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builders\ComplexNullableBuilder.cs" />
+    <Compile Include="Builders\DictionaryBuilder.cs" />
     <Compile Include="Builders\EnumerableBuilder.cs" />
     <Compile Include="Builders\ICompiledActionProvider.cs" />
+    <Compile Include="Builders\RegularDictionaryBuilder.cs" />
     <Compile Include="Builders\PrimitiveNullableBuilder.cs" />
     <Compile Include="Builders\Primitive\BooleanBuilder.cs" />
     <Compile Include="Builders\BuilderFactory.cs" />

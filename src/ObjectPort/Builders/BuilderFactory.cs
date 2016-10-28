@@ -87,6 +87,21 @@ namespace ObjectPort.Builders
                 {
                     serializerBuilder = new EnumBuilder(type, Enum.GetUnderlyingType(type));
                 }
+                else if (type.IsDictionaryType())
+                {
+                    var dictTypes = type.GetDictionaryArguments();
+                    Debug.Assert(dictTypes != null);
+                    Debug.Assert(state != null);
+                    if (dictTypes.Item2.IsBuiltInType())
+                    {
+                        serializerBuilder = (MemberSerializerBuilder)Activator
+                            .CreateInstance(typeof(RegularDictionaryBuilder<,>)
+                            .MakeGenericType(dictTypes.Item1, dictTypes.Item2), type, dictTypes.Item1, dictTypes.Item2, state);
+                    }
+                    else
+                    {
+                    }
+                }
                 else if (type.IsEnumerableType())
                 {
                     var baseElementType = type.GetEnumerableArgument();
@@ -106,7 +121,9 @@ namespace ObjectPort.Builders
                     }
                 }
                 else if (nestedTypeDescription != null)
+                {
                     serializerBuilder = new CheckNullBuilder<object>(new ComplexBuilder(nestedTypeDescription));
+                }
             }
             return serializerBuilder;
         }

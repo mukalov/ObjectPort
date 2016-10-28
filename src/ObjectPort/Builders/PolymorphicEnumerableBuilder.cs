@@ -31,6 +31,7 @@ namespace ObjectPort.Builders
     using System.Linq;
     using System.Linq.Expressions;
     using System.Runtime.CompilerServices;
+    using System.Reflection;
 
     internal class PolymorphicEnumerableBuilder<T> : EnumerableBuilder<T>
     {
@@ -119,6 +120,25 @@ namespace ObjectPort.Builders
             }
         }
 
+        internal void SerializeEnumerableOfStruct(IEnumerable<T> enumerable, BinaryWriter writer)
+        {
+            if (enumerable == null)
+            {
+                writer.Write(NullLength);
+                return;
+            }
+
+            writer.Write(enumerable.Count());
+            var constructorIndex = ConstructorsByType.GetValue((uint)RuntimeHelpers.GetHashCode(enumerable.GetType())).Index;
+            writer.Write(constructorIndex);
+            foreach (var item in enumerable)
+            {
+                var descrInfo = _elementTypeDescriptionsByHashCode.GetValue((uint)RuntimeHelpers.GetHashCode(item.GetType()));
+                writer.Write(descrInfo.Index);
+                descrInfo.Description.Serialize(writer, item);
+            }
+        }
+
         internal void SerializeArray(IEnumerable<T> enumerable, BinaryWriter writer)
         {
             if (enumerable == null)
@@ -145,6 +165,26 @@ namespace ObjectPort.Builders
             }
         }
 
+        internal void SerializeArrayOfStruct(IEnumerable<T> enumerable, BinaryWriter writer)
+        {
+            if (enumerable == null)
+            {
+                writer.Write(NullLength);
+                return;
+            }
+
+            var array = enumerable as T[] ?? enumerable.ToArray();
+            writer.Write(array.Length);
+            writer.Write(ArrayConstructorIndex);
+            for (var i = 0; i < array.Length; i++)
+            {
+                var item = array[i];
+                var descrInfo = _elementTypeDescriptionsByHashCode.GetValue((uint)RuntimeHelpers.GetHashCode(item.GetType()));
+                writer.Write(descrInfo.Index);
+                descrInfo.Description.Serialize(writer, item);
+            }
+        }
+
         internal IEnumerable<T> Deserialize(BinaryReader reader)
         {
             var length = reader.ReadInt32();
@@ -165,6 +205,44 @@ namespace ObjectPort.Builders
                     result[i] = default(T);
             }
             return constructorIndex == ArrayConstructorIndex ? result : ConstructorsByIndex[constructorIndex](result);
+        }
+
+        internal IEnumerable<T> DeserializeEnumerableOfStruct(BinaryReader reader)
+        {
+            var length = reader.ReadInt32();
+            if (length == NullLength)
+                return null;
+
+            var constructorIndex = reader.ReadUInt16();
+            var result = new T[length];
+            for (var i = 0; i < length; i++)
+            {
+                var index = reader.ReadByte();
+                result[i] = (T)_elementTypeDescriptionsByIndex[index].Deserialize(reader);
+            }
+            return constructorIndex == ArrayConstructorIndex ? result : ConstructorsByIndex[constructorIndex](result);
+        }
+
+        protected MethodInfo SerializeMethod
+        {
+            get
+            {
+                var methodName = string.Empty;
+                if (SerializeAsArray)
+                    methodName = BaseElementType.IsValueType ? "SerializeArrayOfStruct" : "SerializeArray";
+                else
+                    methodName = BaseElementType.IsValueType ? "SerializeEnumerableOfStruct" : "SerializeEnumerable";
+                return BuilderSpecificType.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            }
+        }
+
+        protected MethodInfo DeserializeMethod
+        {
+            get
+            {
+                var methodName = BaseElementType.IsValueType ? "DeserializeEnumerableOfStruct" : "Deserialize";
+                return BuilderSpecificType.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+            }
         }
     }
 }

@@ -31,7 +31,7 @@ namespace ObjectPort.Common
 
     internal static class TypeExtensions
     {
-        public static Boolean IsAnonymousType(this Type type)
+        public static bool IsAnonymousType(this Type type)
         {
             Debug.Assert(type != null);
             return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
@@ -51,7 +51,17 @@ namespace ObjectPort.Common
                 .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
         }
 
-        public static Boolean IsBuiltInType(this Type type)
+        public static bool IsDictionaryType(this Type type)
+        {
+            return
+                type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>)
+                || !"System".Equals(type.Namespace)
+                && type
+                .GetInterfaces()
+                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+        }
+
+        public static bool IsBuiltInType(this Type type)
         {
             Debug.Assert(type != null);
             return "System".Equals(type.Namespace) && !type.IsEnumerableType();
@@ -72,6 +82,16 @@ namespace ObjectPort.Common
             }
 
             return argType;
+        }
+
+        public static Tuple<Type, Type> GetDictionaryArguments(this Type type)
+        {
+            if (!type.IsDictionaryType())
+                return null;
+
+            var args = type.GenericTypeArguments;
+            Debug.Assert(args != null && args.Count() == 2);
+            return new Tuple<Type, Type>(args[0], args[1]);
         }
     }
 }

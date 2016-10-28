@@ -22,7 +22,7 @@
 
 namespace ObjectPort.Builders
 {
-    using ObjectPort.Common;
+    using Common;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -30,63 +30,60 @@ namespace ObjectPort.Builders
     using System.Reflection;
     using System.Runtime.CompilerServices;
 
-
-    internal abstract class EnumerableBuilder<T> : MemberSerializerBuilder
+    internal abstract class DictionaryBuilder<TKey, TVal> : MemberSerializerBuilder
     {
         internal struct Constructor
         {
-            public Func<IEnumerable<T>, IEnumerable<T>> Method;
+            public Func<IDictionary<TKey, TVal>, IDictionary<TKey, TVal>> Method;
             public ushort Index;
         }
 
-        private readonly Type _enumerableType;
-        private readonly bool _isIEnumerable;
+        private readonly Type _dictionaryType;
+        private readonly bool _isIDictionary;
 
         protected const int NullLength = -1;
-        protected Func<IEnumerable<T>, IEnumerable<T>>[] ConstructorsByIndex;
+        protected Func<IDictionary<TKey, TVal>, IDictionary<TKey, TVal>>[] ConstructorsByIndex;
         protected AdaptiveHashtable<Constructor> ConstructorsByType;
         protected const ushort ArrayConstructorIndex = ushort.MaxValue;
         protected Type BuilderSpecificType;
-        protected Type BaseElementType;
+        protected Type KeyType;
+        protected Type BaseValType;
 
-        internal EnumerableBuilder(Type enumerableType, Type baseElementType)
+        internal DictionaryBuilder(Type dictionaryType, Type keyType, Type baseValType)
         {
-            BaseElementType = baseElementType;
+            KeyType = keyType;
+            BaseValType = baseValType;
             BuilderSpecificType = GetType();
-            if (enumerableType.IsGenericType && enumerableType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            if (dictionaryType.IsGenericType && dictionaryType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
             {
-                _enumerableType = baseElementType.MakeArrayType();
-                _isIEnumerable = true;
+                _dictionaryType = typeof(Dictionary<,>).MakeGenericType(keyType, baseValType);
+                _isIDictionary = true;
             }
             else
             {
-                _enumerableType = enumerableType;
-                _isIEnumerable = false;
+                _dictionaryType = dictionaryType;
+                _isIDictionary = false;
             }
 
-            var ienumerableSpecificType = typeof(IEnumerable<>).MakeGenericType(baseElementType);
-            var argExp = Expression.Parameter(ienumerableSpecificType);
-            Func<Type, Expression> getConstructorExp = type => Expression.New(type.GetConstructor(new[] { ienumerableSpecificType }), argExp);
+            var dictionarySpecificType = typeof(IDictionary<,>).MakeGenericType(keyType, baseValType);
+            var argExp = Expression.Parameter(dictionarySpecificType);
+            Func<Type, Expression> getConstructorExp = type => Expression.New(type.GetConstructor(new[] { dictionarySpecificType }), argExp);
 
             var enumerableTypes = new Dictionary<Type, Func<Type, Expression>>
             {
-                [baseElementType.MakeArrayType()] = type => argExp,
-                [typeof(List<>).MakeGenericType(baseElementType)] = getConstructorExp,
-                [typeof(HashSet<>).MakeGenericType(baseElementType)] = getConstructorExp,
-                [typeof(LinkedList<>).MakeGenericType(baseElementType)] = getConstructorExp,
-                [typeof(Queue<>).MakeGenericType(baseElementType)] = getConstructorExp,
-                [typeof(SortedSet<>).MakeGenericType(baseElementType)] = getConstructorExp,
-                [typeof(Stack<>).MakeGenericType(baseElementType)] = getConstructorExp
+                [typeof(Dictionary<,>).MakeGenericType(keyType, baseValType)] = getConstructorExp,
+                [typeof(SortedList<,>).MakeGenericType(keyType, baseValType)] = getConstructorExp,
+                [typeof(SortedDictionary<,>).MakeGenericType(keyType, baseValType)] = getConstructorExp
             };
 
-            ConstructorsByIndex = new Func<IEnumerable<T>, IEnumerable<T>>[enumerableTypes.Count()];
+            ConstructorsByIndex = new Func<IDictionary<TKey, TVal>, IDictionary<TKey, TVal>>[enumerableTypes.Count()];
             ConstructorsByType = new AdaptiveHashtable<Constructor>();
             var index = (ushort)0;
             foreach (var item in enumerableTypes)
             {
                 var specificType = item.Key;
                 var constructorExp = item.Value(specificType);
-                var method = Expression.Lambda<Func<IEnumerable<T>, IEnumerable<T>>>(constructorExp, argExp).Compile();
+                var method = Expression.Lambda<Func<IDictionary<TKey, TVal>, IDictionary<TKey, TVal>>>(constructorExp, argExp).Compile();
                 ConstructorsByIndex[index] = method;
                 ConstructorsByType.AddValue(
                     (uint)RuntimeHelpers.GetHashCode(specificType),
@@ -98,11 +95,19 @@ namespace ObjectPort.Builders
             }
         }
 
-        protected bool SerializeAsArray
+        protected MethodInfo SerializeMethod
         {
             get
             {
-                return _enumerableType.IsArray && !_isIEnumerable;
+                return BuilderSpecificType.GetMethod("Serialize", BindingFlags.NonPublic | BindingFlags.Instance);
+            }
+        }
+
+        protected MethodInfo DeserializeMethod
+        {
+            get
+            {
+                return BuilderSpecificType.GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
             }
         }
 
@@ -110,15 +115,7 @@ namespace ObjectPort.Builders
         {
             get
             {
-                if (_enumerableType.IsArray)
-                {
-                    if (_isIEnumerable)
-                        return typeof(IEnumerable<>).MakeGenericType(BaseElementType);
-                    else
-                        return BaseElementType.MakeArrayType();
-                }
-                else
-                    return _enumerableType;
+                return _dictionaryType;
             }
         }
     }
