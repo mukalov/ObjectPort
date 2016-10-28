@@ -82,6 +82,7 @@ namespace ObjectPort.Tests
             new TestCustomClass { IntField = TestIntArray[3], StrField = TestStringArray[3] }
         };
 
+
         [Fact]
         public void Should_Serialize_Empty_Array()
         {
@@ -107,6 +108,14 @@ namespace ObjectPort.Tests
             TestStructProperty<IEnumerable<int>>(TestEmptyArray);
             TestClassField<IEnumerable<int>>(TestEmptyArray);
             TestClassProperty<IEnumerable<int>>(TestEmptyArray);
+            TestStructField<ICollection<int>>(TestEmptyArray);
+            TestStructProperty<ICollection<int>>(TestEmptyArray);
+            TestClassField<ICollection<int>>(TestEmptyArray);
+            TestClassProperty<ICollection<int>>(TestEmptyArray);
+            TestStructField<IList<int>>(TestEmptyArray);
+            TestStructProperty<IList<int>>(TestEmptyArray);
+            TestClassField<IList<int>>(TestEmptyArray);
+            TestClassProperty<IList<int>>(TestEmptyArray);
         }
 
         [Fact]
@@ -116,6 +125,14 @@ namespace ObjectPort.Tests
             TestStructProperty<IEnumerable<int>>(TestEmptyArray.ToList());
             TestClassField<IEnumerable<int>>(TestEmptyArray.ToList());
             TestClassProperty<IEnumerable<int>>(TestEmptyArray.ToList());
+            TestStructField<ICollection<int>>(TestEmptyArray.ToList());
+            TestStructProperty<ICollection<int>>(TestEmptyArray.ToList());
+            TestClassField<ICollection<int>>(TestEmptyArray.ToList());
+            TestClassProperty<ICollection<int>>(TestEmptyArray.ToList());
+            TestStructField<IList<int>>(TestEmptyArray.ToList());
+            TestStructProperty<IList<int>>(TestEmptyArray.ToList());
+            TestClassField<IList<int>>(TestEmptyArray.ToList());
+            TestClassProperty<IList<int>>(TestEmptyArray.ToList());
         }
 
         [Fact]
@@ -182,6 +199,22 @@ namespace ObjectPort.Tests
             TestClassField<IEnumerable<string>>(TestStringArray);
             TestClassProperty<IEnumerable<int>>(TestIntArray);
             TestClassProperty<IEnumerable<string>>(TestStringArray);
+            TestStructField<ICollection<int>>(TestIntArray);
+            TestStructField<ICollection<string>>(TestStringArray);
+            TestStructProperty<ICollection<int>>(TestIntArray);
+            TestStructProperty<ICollection<string>>(TestStringArray);
+            TestClassField<ICollection<int>>(TestIntArray);
+            TestClassField<ICollection<string>>(TestStringArray);
+            TestClassProperty<ICollection<int>>(TestIntArray);
+            TestClassProperty<ICollection<string>>(TestStringArray);
+            TestStructField<IList<int>>(TestIntArray);
+            TestStructField<IList<string>>(TestStringArray);
+            TestStructProperty<IList<int>>(TestIntArray);
+            TestStructProperty<IList<string>>(TestStringArray);
+            TestClassField<IList<int>>(TestIntArray);
+            TestClassField<IList<string>>(TestStringArray);
+            TestClassProperty<IList<int>>(TestIntArray);
+            TestClassProperty<IList<string>>(TestStringArray);
         }
 
         [Fact]
@@ -195,6 +228,22 @@ namespace ObjectPort.Tests
             TestClassField<IEnumerable<string>>(TestStringArray.ToList());
             TestClassProperty<IEnumerable<int>>(TestIntArray.ToList());
             TestClassProperty<IEnumerable<string>>(TestStringArray.ToList());
+            TestStructField<ICollection<int>>(TestIntArray.ToList());
+            TestStructField<ICollection<string>>(TestStringArray.ToList());
+            TestStructProperty<ICollection<int>>(TestIntArray.ToList());
+            TestStructProperty<ICollection<string>>(TestStringArray.ToList());
+            TestClassField<ICollection<int>>(TestIntArray.ToList());
+            TestClassField<ICollection<string>>(TestStringArray.ToList());
+            TestClassProperty<ICollection<int>>(TestIntArray.ToList());
+            TestClassProperty<ICollection<string>>(TestStringArray.ToList());
+            TestStructField<IList<int>>(TestIntArray.ToList());
+            TestStructField<IList<string>>(TestStringArray.ToList());
+            TestStructProperty<IList<int>>(TestIntArray.ToList());
+            TestStructProperty<IList<string>>(TestStringArray.ToList());
+            TestClassField<IList<int>>(TestIntArray.ToList());
+            TestClassField<IList<string>>(TestStringArray.ToList());
+            TestClassProperty<IList<int>>(TestIntArray.ToList());
+            TestClassProperty<IList<string>>(TestStringArray.ToList());
         }
 
 
@@ -223,6 +272,14 @@ namespace ObjectPort.Tests
             TestStructProperty<IEnumerable<TestCustomStruct>>(TestStructArray);
             TestClassField<IEnumerable<TestCustomStruct>>(TestStructArray);
             TestClassProperty<IEnumerable<TestCustomStruct>>(TestStructArray);
+            TestStructField<ICollection<TestCustomStruct>>(TestStructArray);
+            TestStructProperty<ICollection<TestCustomStruct>>(TestStructArray);
+            TestClassField<ICollection<TestCustomStruct>>(TestStructArray);
+            TestClassProperty<ICollection<TestCustomStruct>>(TestStructArray);
+            TestStructField<IList<TestCustomStruct>>(TestStructArray);
+            TestStructProperty<IList<TestCustomStruct>>(TestStructArray);
+            TestClassField<IList<TestCustomStruct>>(TestStructArray);
+            TestClassProperty<IList<TestCustomStruct>>(TestStructArray);
         }
 
         [Fact]
@@ -232,6 +289,14 @@ namespace ObjectPort.Tests
             TestStructProperty<IEnumerable<TestCustomStruct>>(TestStructArray.ToList());
             TestClassField<IEnumerable<TestCustomStruct>>(TestStructArray.ToList());
             TestClassProperty<IEnumerable<TestCustomStruct>>(TestStructArray.ToList());
+            TestStructField<ICollection<TestCustomStruct>>(TestStructArray.ToList());
+            TestStructProperty<ICollection<TestCustomStruct>>(TestStructArray.ToList());
+            TestClassField<ICollection<TestCustomStruct>>(TestStructArray.ToList());
+            TestClassProperty<ICollection<TestCustomStruct>>(TestStructArray.ToList());
+            TestStructField<IList<TestCustomStruct>>(TestStructArray.ToList());
+            TestStructProperty<IList<TestCustomStruct>>(TestStructArray.ToList());
+            TestClassField<IList<TestCustomStruct>>(TestStructArray.ToList());
+            TestClassProperty<IList<TestCustomStruct>>(TestStructArray.ToList());
         }
 
         [Fact]
@@ -259,6 +324,14 @@ namespace ObjectPort.Tests
             TestStructProperty<IEnumerable<TestCustomClass>>(TestClassArray);
             TestClassField<IEnumerable<TestCustomClass>>(TestClassArray);
             TestClassProperty<IEnumerable<TestCustomClass>>(TestClassArray);
+            TestStructField<ICollection<TestCustomClass>>(TestClassArray);
+            TestStructProperty<ICollection<TestCustomClass>>(TestClassArray);
+            TestClassField<ICollection<TestCustomClass>>(TestClassArray);
+            TestClassProperty<ICollection<TestCustomClass>>(TestClassArray);
+            TestStructField<IList<TestCustomClass>>(TestClassArray);
+            TestStructProperty<IList<TestCustomClass>>(TestClassArray);
+            TestClassField<IList<TestCustomClass>>(TestClassArray);
+            TestClassProperty<IList<TestCustomClass>>(TestClassArray);
         }
 
         [Fact]
@@ -268,6 +341,14 @@ namespace ObjectPort.Tests
             TestStructProperty<IEnumerable<TestCustomClass>>(TestClassArray.ToList());
             TestClassField<IEnumerable<TestCustomClass>>(TestClassArray.ToList());
             TestClassProperty<IEnumerable<TestCustomClass>>(TestClassArray.ToList());
+            TestStructField<ICollection<TestCustomClass>>(TestClassArray.ToList());
+            TestStructProperty<ICollection<TestCustomClass>>(TestClassArray.ToList());
+            TestClassField<ICollection<TestCustomClass>>(TestClassArray.ToList());
+            TestClassProperty<ICollection<TestCustomClass>>(TestClassArray.ToList());
+            TestStructField<IList<TestCustomClass>>(TestClassArray.ToList());
+            TestStructProperty<IList<TestCustomClass>>(TestClassArray.ToList());
+            TestClassField<IList<TestCustomClass>>(TestClassArray.ToList());
+            TestClassProperty<IList<TestCustomClass>>(TestClassArray.ToList());
         }
 
         [Fact]
@@ -295,6 +376,14 @@ namespace ObjectPort.Tests
             TestStructProperty<IEnumerable<int?>>(TestNullableIntArray);
             TestClassField<IEnumerable<int?>>(TestNullableIntArray);
             TestClassProperty<IEnumerable<int?>>(TestNullableIntArray);
+            TestStructField<ICollection<int?>>(TestNullableIntArray);
+            TestStructProperty<ICollection<int?>>(TestNullableIntArray);
+            TestClassField<ICollection<int?>>(TestNullableIntArray);
+            TestClassProperty<ICollection<int?>>(TestNullableIntArray);
+            TestStructField<IList<int?>>(TestNullableIntArray);
+            TestStructProperty<IList<int?>>(TestNullableIntArray);
+            TestClassField<IList<int?>>(TestNullableIntArray);
+            TestClassProperty<IList<int?>>(TestNullableIntArray);
         }
 
         [Fact]
@@ -304,6 +393,14 @@ namespace ObjectPort.Tests
             TestStructProperty<IEnumerable<int?>>(TestNullableIntArray.ToList());
             TestClassField<IEnumerable<int?>>(TestNullableIntArray.ToList());
             TestClassProperty<IEnumerable<int?>>(TestNullableIntArray.ToList());
+            TestStructField<ICollection<int?>>(TestNullableIntArray.ToList());
+            TestStructProperty<ICollection<int?>>(TestNullableIntArray.ToList());
+            TestClassField<ICollection<int?>>(TestNullableIntArray.ToList());
+            TestClassProperty<ICollection<int?>>(TestNullableIntArray.ToList());
+            TestStructField<IList<int?>>(TestNullableIntArray.ToList());
+            TestStructProperty<IList<int?>>(TestNullableIntArray.ToList());
+            TestClassField<IList<int?>>(TestNullableIntArray.ToList());
+            TestClassProperty<IList<int?>>(TestNullableIntArray.ToList());
         }
 
         [Fact]
@@ -331,6 +428,14 @@ namespace ObjectPort.Tests
             TestStructProperty<IEnumerable<TestCustomStruct?>>(TestNullableStructArray);
             TestClassField<IEnumerable<TestCustomStruct?>>(TestNullableStructArray);
             TestClassProperty<IEnumerable<TestCustomStruct?>>(TestNullableStructArray);
+            TestStructField<ICollection<TestCustomStruct?>>(TestNullableStructArray);
+            TestStructProperty<ICollection<TestCustomStruct?>>(TestNullableStructArray);
+            TestClassField<ICollection<TestCustomStruct?>>(TestNullableStructArray);
+            TestClassProperty<ICollection<TestCustomStruct?>>(TestNullableStructArray);
+            TestStructField<IList<TestCustomStruct?>>(TestNullableStructArray);
+            TestStructProperty<IList<TestCustomStruct?>>(TestNullableStructArray);
+            TestClassField<IList<TestCustomStruct?>>(TestNullableStructArray);
+            TestClassProperty<IList<TestCustomStruct?>>(TestNullableStructArray);
         }
 
         [Fact]
@@ -340,6 +445,14 @@ namespace ObjectPort.Tests
             TestStructProperty<IEnumerable<TestCustomStruct?>>(TestNullableStructArray.ToList());
             TestClassField<IEnumerable<TestCustomStruct?>>(TestNullableStructArray.ToList());
             TestClassProperty<IEnumerable<TestCustomStruct?>>(TestNullableStructArray.ToList());
+            TestStructField<ICollection<TestCustomStruct?>>(TestNullableStructArray.ToList());
+            TestStructProperty<ICollection<TestCustomStruct?>>(TestNullableStructArray.ToList());
+            TestClassField<ICollection<TestCustomStruct?>>(TestNullableStructArray.ToList());
+            TestClassProperty<ICollection<TestCustomStruct?>>(TestNullableStructArray.ToList());
+            TestStructField<IList<TestCustomStruct?>>(TestNullableStructArray.ToList());
+            TestStructProperty<IList<TestCustomStruct?>>(TestNullableStructArray.ToList());
+            TestClassField<IList<TestCustomStruct?>>(TestNullableStructArray.ToList());
+            TestClassProperty<IList<TestCustomStruct?>>(TestNullableStructArray.ToList());
         }
 
         [Fact]
