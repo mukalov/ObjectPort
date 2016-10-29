@@ -65,5 +65,19 @@ namespace ObjectPort
             Debug.Assert(_descriptions != null, "_descriptions != null");
             return _descriptions.GetValue((uint)RuntimeHelpers.GetHashCode(type));
         }
+
+        internal IEnumerable<TypeDescription> GetDescriptionsForDerivedTypes(Type type)
+        {
+            foreach (var description in AllTypeDescriptions.Select(i => i.Value).ToArray())
+            {
+                if (description.Type == type
+                    || description.Type.IsAssignableFrom(type)
+                    || description.Type.IsSubclassOf(type)
+                    || type.IsInterface && description.Type.GetInterfaces().Contains(type))
+                {
+                    yield return description;
+                }
+            }
+        }
     }
 }

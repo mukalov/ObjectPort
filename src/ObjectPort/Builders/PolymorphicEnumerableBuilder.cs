@@ -49,25 +49,20 @@ namespace ObjectPort.Builders
         {
             _elementTypeDescriptionsByHashCode = new AdaptiveHashtable<TypeDescriptionWithIndex>();
             var elementTypeDescriptions = new Dictionary<int, TypeDescriptionWithIndex>();
-            foreach (var description in state.AllTypeDescriptions.Select(i => i.Value).ToArray())
+            foreach (var description in state.GetDescriptionsForDerivedTypes(baseElementType))
             {
-                if (description.Type == BaseElementType
-                    || description.Type.IsAssignableFrom(BaseElementType)
-                    || description.Type.IsSubclassOf(BaseElementType))
-                {
-                    _elementTypeDescriptionsByHashCode.AddValue(
-                        (uint)RuntimeHelpers.GetHashCode(description.Type),
-                        new TypeDescriptionWithIndex
-                        {
-                            Description = description
-                        });
+                _elementTypeDescriptionsByHashCode.AddValue(
+                    (uint)RuntimeHelpers.GetHashCode(description.Type),
+                    new TypeDescriptionWithIndex
+                    {
+                        Description = description
+                    });
 
-                    if (!elementTypeDescriptions.ContainsKey(description.Type.GetHashCode()))
-                        elementTypeDescriptions.Add(description.Type.GetHashCode(), new TypeDescriptionWithIndex
-                        {
-                            Description = description
-                        });
-                }
+                if (!elementTypeDescriptions.ContainsKey(description.Type.GetHashCode()))
+                    elementTypeDescriptions.Add(description.Type.GetHashCode(), new TypeDescriptionWithIndex
+                    {
+                        Description = description
+                    });
             }
             _elementTypeDescriptionsByIndex = new TypeDescription[elementTypeDescriptions.Count];
             var index = (byte)0;
@@ -113,7 +108,7 @@ namespace ObjectPort.Builders
                 else
                 {
                     writer.Write(true);
-                    var descrInfo = _elementTypeDescriptionsByHashCode.GetValue((uint)RuntimeHelpers.GetHashCode(item.GetType()));
+                    var descrInfo = _elementTypeDescriptionsByHashCode.GetValueWithException((uint)RuntimeHelpers.GetHashCode(item.GetType()));
                     writer.Write(descrInfo.Index);
                     descrInfo.Description.Serialize(writer, item);
                 }
@@ -133,7 +128,7 @@ namespace ObjectPort.Builders
             writer.Write(constructorIndex);
             foreach (var item in enumerable)
             {
-                var descrInfo = _elementTypeDescriptionsByHashCode.GetValue((uint)RuntimeHelpers.GetHashCode(item.GetType()));
+                var descrInfo = _elementTypeDescriptionsByHashCode.GetValueWithException((uint)RuntimeHelpers.GetHashCode(item.GetType()));
                 writer.Write(descrInfo.Index);
                 descrInfo.Description.Serialize(writer, item);
             }
@@ -158,7 +153,7 @@ namespace ObjectPort.Builders
                 else
                 {
                     writer.Write(true);
-                    var descrInfo = _elementTypeDescriptionsByHashCode.GetValue((uint)RuntimeHelpers.GetHashCode(item.GetType()));
+                    var descrInfo = _elementTypeDescriptionsByHashCode.GetValueWithException((uint)RuntimeHelpers.GetHashCode(item.GetType()));
                     writer.Write(descrInfo.Index);
                     descrInfo.Description.Serialize(writer, item);
                 }
@@ -179,7 +174,7 @@ namespace ObjectPort.Builders
             for (var i = 0; i < array.Length; i++)
             {
                 var item = array[i];
-                var descrInfo = _elementTypeDescriptionsByHashCode.GetValue((uint)RuntimeHelpers.GetHashCode(item.GetType()));
+                var descrInfo = _elementTypeDescriptionsByHashCode.GetValueWithException((uint)RuntimeHelpers.GetHashCode(item.GetType()));
                 writer.Write(descrInfo.Index);
                 descrInfo.Description.Serialize(writer, item);
             }

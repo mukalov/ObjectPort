@@ -26,8 +26,9 @@ namespace ObjectPort.Builders
     using System;
     using System.Linq.Expressions;
     using System.Reflection;
+    using System.IO;
 
-    internal class ComplexBuilder : MemberSerializerBuilder
+    internal class ComplexBuilder<T> : MemberSerializerBuilder, ICompiledActionProvider<T>
     {
         private readonly TypeDescription _typeDescription;
 
@@ -51,6 +52,18 @@ namespace ObjectPort.Builders
         public override Expression GetDeserializerExpression(Type memberType, ParameterExpression readerExpression)
         {
             return _typeDescription.GetDeserializerExpression(readerExpression);
+        }
+
+        public Action<T, BinaryWriter> GetSerializerAction(Type memberType, ParameterExpression valueExp, ParameterExpression writerExp)
+        {
+            return Expression.Lambda<Action<T, BinaryWriter>>(
+                GetSerializerExpression(memberType, valueExp, writerExp), valueExp, writerExp).Compile();
+        }
+
+        public Func<BinaryReader, T> GetDeserializerAction(Type memberType, ParameterExpression readerExp)
+        {
+            return Expression.Lambda<Func<BinaryReader, T>>(
+                GetDeserializerExpression(memberType, readerExp), readerExp).Compile();
         }
     }
 }

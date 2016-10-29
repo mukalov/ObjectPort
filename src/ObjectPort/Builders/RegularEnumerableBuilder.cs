@@ -22,6 +22,7 @@
 
 namespace ObjectPort.Builders
 {
+    using Descriptions;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -36,10 +37,10 @@ namespace ObjectPort.Builders
         private Action<T, BinaryWriter> _elementSerializer;
         private Func<BinaryReader, T> _elementDeserializer;
 
-        public RegularEnumerableBuilder(Type enumerableType, Type baseElementType, SerializerState state)
+        public RegularEnumerableBuilder(Type enumerableType, Type baseElementType, TypeDescription elementTypeDescription, SerializerState state)
             : base(enumerableType, baseElementType)
         {
-            _elementBuilder = BuilderFactory.GetBuilder(baseElementType, null, state);
+            _elementBuilder = BuilderFactory.GetBuilder(baseElementType, elementTypeDescription, state);
         }
 
         public override Expression GetSerializerExpression(Type memberType, Expression getterExp, ParameterExpression writerExp)

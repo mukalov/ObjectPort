@@ -25,6 +25,7 @@ namespace ObjectPort.Tests
     using System.Collections.Generic;
     using Xunit;
 
+    [Collection("ObjectPort")]
     public class DictionaryMembersTests : TestsBase
     {
         private static readonly Dictionary<int, string> TestEmptyDictionary = new Dictionary<int, string>();

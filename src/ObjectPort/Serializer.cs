@@ -44,6 +44,7 @@ namespace ObjectPort
         private static readonly object Locker = new object();
         public static Encoding Encoding = Encoding.UTF8;
 
+
         public static void RegisterTypes(IEnumerable<Type> types)
         {
             lock (Locker)
@@ -92,6 +93,15 @@ namespace ObjectPort
             }
         }
 
+        public static void Clear()
+        {
+            lock (Locker)
+            {
+                var state = new SerializerState();
+                Interlocked.Exchange(ref _state, state);
+            }
+        }
+
         internal static TypeDescription GetTypeDescription(Type type, SerializerState state)
         {
             if (type.IsBuiltInType())
@@ -125,8 +135,11 @@ namespace ObjectPort
             if (type.IsEnumerableType())
             {
                 var elementType = type.GetEnumerableArgument();
-                var td = GetTypeDescription(elementType, state);
-                td?.Build();
+                if (!elementType.IsInterface && !elementType.IsAbstract)
+                {
+                    var td = GetTypeDescription(elementType, state);
+                    td?.Build();
+                }
                 return null;
             }
 

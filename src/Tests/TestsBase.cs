@@ -26,7 +26,7 @@ namespace ObjectPort.Tests
     using System.IO;
     using Xunit;
 
-    public class TestsBase
+    public class TestsBase : IDisposable
     {
         internal class TestClass<T>
         {
@@ -42,6 +42,14 @@ namespace ObjectPort.Tests
 
         internal delegate void ValueSetter<ContainerT>(ref ContainerT obj);
 
+        public TestsBase()
+        {
+        }
+
+        public void Dispose()
+        {
+            Serializer.Clear();
+        }
 
         internal object SerializeDeserializeClass<ContainerT>(Action<ContainerT> setter)
             where ContainerT : new()

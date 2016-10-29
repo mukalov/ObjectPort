@@ -24,6 +24,7 @@ namespace ObjectPort.Tests
 {
     using Xunit;
 
+    [Collection("ObjectPort")]
     public class NullableMembersTests : TestsBase
     {
         internal struct TestCustomStruct

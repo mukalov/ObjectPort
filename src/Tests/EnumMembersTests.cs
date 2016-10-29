@@ -24,6 +24,7 @@ namespace ObjectPort.Tests
 {
     using Xunit;
 
+    [Collection("ObjectPort")]
     public class EnumMembersTests : TestsBase
     {
         private enum TestStdEnum { First, Second, Third };
@@ -59,6 +60,5 @@ namespace ObjectPort.Tests
             TestStructProperty(TestStdEnumVal);
             TestStructProperty(TestDerivedEnumVal);
         }
-
     }
 }

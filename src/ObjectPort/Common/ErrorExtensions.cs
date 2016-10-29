@@ -31,6 +31,11 @@ namespace ObjectPort.Common
             throw new NotSupportedException($"Serialization is not supported for the type {type}");
         }
 
+        public static void NoImplementationsFound(this object obj, Type type)
+        {
+            throw new NotImplementedException($"No implementations found for {type}");
+        }
+
         public static void UnknownTypeId(this object obj, int typeId)
         {
             throw new ArgumentOutOfRangeException($"Unknown type id: {typeId}");

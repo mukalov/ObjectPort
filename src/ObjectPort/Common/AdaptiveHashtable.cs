@@ -74,6 +74,19 @@ namespace ObjectPort.Common
             return default(T);
         }
 
+        public T GetValueWithException(uint key)
+        {
+            var index = key % _length;
+            var item = _values[index, 0];
+            for (var i = 0; i < item.Loaded; i++)
+            {
+                item = _values[index, i];
+                if (item.Key == key)
+                    return item.Value;
+            }
+            throw new ArgumentException($"Key not found {key}");
+        }
+
         public void AddValue(uint key, T value)
         {
             Action<uint> registerIndexHandler = (i) =>
@@ -101,7 +114,7 @@ namespace ObjectPort.Common
                 if (loadFactor < MinimalLoadFactor)
                     throw new InvalidOperationException("Could not rebuild the values");
 
-                if (loadFactor <= loadFactorStep)
+                while (loadFactor <= loadFactorStep)
                     loadFactorStep *= loadFactorStep;
                 loadFactor -= loadFactorStep;
                 if (newLength < LengthTreshold)

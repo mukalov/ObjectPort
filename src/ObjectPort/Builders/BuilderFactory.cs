@@ -26,6 +26,7 @@ namespace ObjectPort.Builders
     using Primitive;
     using Descriptions;
     using System;
+    using System.Linq;
     using System.Collections.Generic;
     using System.Diagnostics;
 
@@ -100,6 +101,7 @@ namespace ObjectPort.Builders
                     }
                     else
                     {
+                        // TODO polymorphic dictionary
                     }
                 }
                 else if (type.IsEnumerableType())
@@ -111,18 +113,40 @@ namespace ObjectPort.Builders
                     {
                         serializerBuilder = (MemberSerializerBuilder)Activator
                             .CreateInstance(typeof(RegularEnumerableBuilder<>)
-                            .MakeGenericType(baseElementType), type, baseElementType, state);
+                            .MakeGenericType(baseElementType), type, baseElementType, null, state);
                     }
                     else
                     {
-                        serializerBuilder = (MemberSerializerBuilder)Activator
-                            .CreateInstance(typeof(PolymorphicEnumerableBuilder<>)
-                            .MakeGenericType(baseElementType), type, baseElementType, state);
+                        var derivedTypes = state.GetDescriptionsForDerivedTypes(baseElementType);
+                        if ((baseElementType.IsInterface || baseElementType.IsAbstract) && !derivedTypes.Any())
+                            type.NoImplementationsFound(baseElementType);
+
+                        if (derivedTypes.Count() > 1 || baseElementType.IsInterface || baseElementType.IsAbstract)
+                        {
+                            serializerBuilder = (MemberSerializerBuilder)Activator
+                                .CreateInstance(typeof(PolymorphicEnumerableBuilder<>)
+                                .MakeGenericType(baseElementType), type, baseElementType, state);
+                        }
+                        else
+                        {
+                            var typeDescription = state.GetDescription(baseElementType);
+                            if (typeDescription == null)
+                                type.TypeNotSupported(baseElementType);
+
+                            serializerBuilder = (MemberSerializerBuilder)Activator
+                                .CreateInstance(typeof(RegularEnumerableBuilder<>)
+                                .MakeGenericType(baseElementType), type, baseElementType, typeDescription, state);
+                        }
                     }
                 }
                 else if (nestedTypeDescription != null)
                 {
-                    serializerBuilder = new CheckNullBuilder<object>(new ComplexBuilder(nestedTypeDescription));
+                    var complexBuilder = (MemberSerializerBuilder)Activator
+                        .CreateInstance(typeof(ComplexBuilder<>)
+                        .MakeGenericType(type), nestedTypeDescription);
+                    serializerBuilder = (MemberSerializerBuilder)Activator
+                        .CreateInstance(typeof(CheckNullBuilder<>)
+                        .MakeGenericType(type), complexBuilder);
                 }
             }
             return serializerBuilder;

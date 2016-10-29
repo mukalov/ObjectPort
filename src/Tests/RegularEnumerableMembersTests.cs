@@ -25,8 +25,10 @@ namespace ObjectPort.Tests
     using Xunit;
     using System.Linq;
     using System.Collections.Generic;
+    using System;
 
-    public class EnumerableMembersTests : TestsBase
+    [Collection("ObjectPort")]
+    public class RegularEnumerableMembersTests : TestsBase
     {
         private struct TestCustomStruct
         {
@@ -81,7 +83,6 @@ namespace ObjectPort.Tests
             new TestCustomClass { IntField = TestIntArray[2], StrField = TestStringArray[2] },
             new TestCustomClass { IntField = TestIntArray[3], StrField = TestStringArray[3] }
         };
-
 
         [Fact]
         public void Should_Serialize_Empty_Array()
@@ -454,21 +455,5 @@ namespace ObjectPort.Tests
             TestClassField<IList<TestCustomStruct?>>(TestNullableStructArray.ToList());
             TestClassProperty<IList<TestCustomStruct?>>(TestNullableStructArray.ToList());
         }
-
-        [Fact]
-        public void Should_Serialize_Array_Of_Polymorphic_Objects()
-        {
-        }
-
-        [Fact]
-        public void Should_Serialize_List_Of_Polymorphic_Objects()
-        {
-        }
-
-        [Fact]
-        public void Should_Serialize_IEnumerable_Of_Polymorphic_Objects()
-        {
-        }
-
     }
 }
