@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builders\ActionProviderBuilder.cs" />
     <Compile Include="Builders\ComplexNullableBuilder.cs" />
     <Compile Include="Builders\ICompiledActionProvider.cs" />
     <Compile Include="Builders\PolymorphicComplexBuilder.cs" />
@@ -70,7 +71,6 @@
     <Compile Include="Builders\Primitive\UIntBuilder.cs" />
     <Compile Include="Builders\Primitive\ULongBuilder.cs" />
     <Compile Include="Builders\Primitive\UShortBuilder.cs" />
-    <Compile Include="Common\PolymorphicMap.cs" />
     <Compile Include="Descriptions\AnonymousTypeDescription.cs" />
     <Compile Include="Descriptions\FieldDescription.cs" />
     <Compile Include="Descriptions\MemberDescription.cs" />

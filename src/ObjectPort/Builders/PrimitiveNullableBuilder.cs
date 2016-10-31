@@ -27,7 +27,7 @@ namespace ObjectPort.Builders
     using System.Linq.Expressions;
     using System.Reflection;
 
-    internal class PrimitiveNullableBuilder<T> : MemberSerializerBuilder, ICompiledActionProvider<T?>
+    internal class PrimitiveNullableBuilder<T> : ActionProviderBuilder<T?>
         where T : struct
     {
         private readonly Type _elementType;
@@ -59,18 +59,6 @@ namespace ObjectPort.Builders
             var deserializeMethod = type.GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
             var thisExp = Expression.Constant(this, type);
             return Expression.Call(thisExp, deserializeMethod, readerExp);
-        }
-
-        public Action<T?, BinaryWriter> GetSerializerAction(Type memberType, ParameterExpression valueExp, ParameterExpression writerExp)
-        {
-            return Expression.Lambda<Action<T?, BinaryWriter>>(
-                GetSerializerExpression(memberType, valueExp, writerExp), valueExp, writerExp).Compile();
-        }
-
-        public Func<BinaryReader, T?> GetDeserializerAction(Type memberType, ParameterExpression readerExp)
-        {
-            return Expression.Lambda<Func<BinaryReader, T?>>(
-                GetDeserializerExpression(memberType, readerExp), readerExp).Compile();
         }
 
         internal void Serialize(T? nullable, BinaryWriter writer)

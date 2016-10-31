@@ -32,7 +32,7 @@ namespace ObjectPort.Builders
     using System.Reflection;
     using System.Runtime.CompilerServices;
 
-    internal class PolymorphicComplexBuilder<T> : MemberSerializerBuilder, ICompiledActionProvider<T>
+    internal class PolymorphicComplexBuilder<T> : ActionProviderBuilder<T>
         where T : class
     {
         internal class TypeDescriptionWithIndex
@@ -89,26 +89,7 @@ namespace ObjectPort.Builders
             return Expression.TypeAs(valueExp, memberType);
         }
 
-        public Action<T, BinaryWriter> GetSerializerAction(Type memberType, ParameterExpression valueExp, ParameterExpression writerExp)
-        {
-            return Expression.Lambda<Action<T, BinaryWriter>>(
-                GetSerializerExpression(memberType, valueExp, writerExp), valueExp, writerExp).Compile();
-        }
-
-        public Func<BinaryReader, T> GetDeserializerAction(Type memberType, ParameterExpression readerExp)
-        {
-            return Expression.Lambda<Func<BinaryReader, T>>(
-                GetDeserializerExpression(memberType, readerExp), readerExp).Compile();
-        }
-
-        internal void SerializeStruct(T obj, BinaryWriter writer)
-        {
-            var descrInfo = _typeDescriptionsByHashCode.GetValue((uint)RuntimeHelpers.GetHashCode(obj.GetType()));
-            writer.Write(descrInfo.Index);
-            descrInfo.Description.Serialize(writer, obj);
-        }
-
-        internal void SerializeClass(T obj, BinaryWriter writer)
+        internal void Serialize(T obj, BinaryWriter writer)
         {
             if (obj == default(T))
                 writer.Write(false);
@@ -121,13 +102,7 @@ namespace ObjectPort.Builders
             }
         }
 
-        internal T DeserializeStruct(BinaryReader reader)
-        {
-            var index = reader.ReadByte();
-            return (T)_typeDescriptionsByIndex[index].Deserialize(reader);
-        }
-
-        internal T DeserializeClass(BinaryReader reader)
+        internal T Deserialize(BinaryReader reader)
         {
             var result = default(T);
             var isNotNull = reader.ReadBoolean();
@@ -143,8 +118,7 @@ namespace ObjectPort.Builders
         {
             get
             {
-                var methodName = "SerializeClass";
-                return GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+                return GetType().GetMethod("Serialize", BindingFlags.NonPublic | BindingFlags.Instance);
             }
         }
 
@@ -152,8 +126,7 @@ namespace ObjectPort.Builders
         {
             get
             {
-                var methodName = "DeserializeClass";
-                return GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance);
+                return GetType().GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
             }
         }
     }

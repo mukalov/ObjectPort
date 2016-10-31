@@ -27,7 +27,7 @@ namespace ObjectPort.Builders
     using System.IO;
     using System.Linq.Expressions;
 
-    internal class CheckNullBuilder<T> : MemberSerializerBuilder, ICompiledActionProvider<T>
+    internal class CheckNullBuilder<T> : ActionProviderBuilder<T>
     {
         private readonly MemberSerializerBuilder _innerBuilder;
 
@@ -70,18 +70,6 @@ namespace ObjectPort.Builders
                 castedMemberExp,
                 defaultValExp);
             return conditionalExp;
-        }
-
-        public Action<T, BinaryWriter> GetSerializerAction(Type memberType, ParameterExpression valueExp, ParameterExpression writerExp)
-        {
-            return Expression.Lambda<Action<T, BinaryWriter>>(
-                GetSerializerExpression(memberType, valueExp, writerExp), valueExp, writerExp).Compile();
-        }
-
-        public Func<BinaryReader, T> GetDeserializerAction(Type memberType, ParameterExpression readerExp)
-        {
-            return Expression.Lambda<Func<BinaryReader, T>>(
-                GetDeserializerExpression(memberType, readerExp), readerExp).Compile();
         }
     }
 }

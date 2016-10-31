@@ -28,20 +28,8 @@ namespace ObjectPort.Builders
     using System.Linq.Expressions;
     using System.Reflection;
 
-    internal abstract class PrimitiveBuilder<T> : MemberSerializerBuilder, ICompiledActionProvider<T>
+    internal abstract class PrimitiveBuilder<T> : ActionProviderBuilder<T>
     {
-        public Action<T, BinaryWriter> GetSerializerAction(Type memberType, ParameterExpression valueExp, ParameterExpression writerExp)
-        {
-            return Expression.Lambda<Action<T, BinaryWriter>>(
-                GetSerializerExpression(memberType, valueExp, writerExp), valueExp, writerExp).Compile();
-        }
-
-        public Func<BinaryReader, T> GetDeserializerAction(Type memberType, ParameterExpression readerExp)
-        {
-            return Expression.Lambda<Func<BinaryReader, T>>(
-                GetDeserializerExpression(memberType, readerExp), readerExp).Compile();
-        }
-
         public override Expression GetSerializerExpression(Type memberType, Expression getterExp, ParameterExpression writerExp)
         {
             var writeMethod = GetWriteMethod(memberType);

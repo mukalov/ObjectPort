@@ -228,16 +228,11 @@ namespace ObjectPort.Tests
         [Fact]
         public void Shouldnt_Serialize_Array_Of_Polymorphic_Structs_From_Interface()
         {
-            var message = "Key not found";
             Serializer.RegisterTypes(new[] { typeof(TestCustomStructDerived1) });
-            var ex = Assert.Throws<ArgumentException>(() => TestStructField<IEnumerable<IBaseInterface>>(TestPolymorphicArrayOfStructs1.ToList()));
-            Assert.StartsWith(message, ex.Message);
-            ex = Assert.Throws<ArgumentException>(() => TestStructProperty<IEnumerable<IBaseInterface>>(TestPolymorphicArrayOfStructs1.ToList()));
-            Assert.StartsWith(message, ex.Message);
-            ex = Assert.Throws<ArgumentException>(() => TestClassField<IEnumerable<IBaseInterface>>(TestPolymorphicArrayOfStructs1.ToList()));
-            Assert.StartsWith(message, ex.Message);
-            ex = Assert.Throws<ArgumentException>(() => TestClassProperty<IEnumerable<IBaseInterface>>(TestPolymorphicArrayOfStructs1.ToList()));
-            Assert.StartsWith(message, ex.Message);
+            var ex = Assert.Throws<InvalidCastException>(() => TestStructField<IEnumerable<IBaseInterface>>(TestPolymorphicArrayOfStructs1.ToList()));
+            ex = Assert.Throws<InvalidCastException>(() => TestStructProperty<IEnumerable<IBaseInterface>>(TestPolymorphicArrayOfStructs1.ToList()));
+            ex = Assert.Throws<InvalidCastException>(() => TestClassField<IEnumerable<IBaseInterface>>(TestPolymorphicArrayOfStructs1.ToList()));
+            ex = Assert.Throws<InvalidCastException>(() => TestClassProperty<IEnumerable<IBaseInterface>>(TestPolymorphicArrayOfStructs1.ToList()));
         }
 
         [Fact]

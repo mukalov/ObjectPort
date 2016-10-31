@@ -22,36 +22,22 @@
 
 namespace ObjectPort.Builders
 {
-    using Descriptions;
     using System;
-    using System.Linq.Expressions;
-    using System.Reflection;
     using System.IO;
+    using System.Linq.Expressions;
 
-    internal class ComplexBuilder<T> : ActionProviderBuilder<T>
+    internal abstract class ActionProviderBuilder<T> : MemberSerializerBuilder, ICompiledActionProvider<T>
     {
-        private readonly TypeDescription _typeDescription;
-
-        public ComplexBuilder(TypeDescription typeDescription)
+        public Action<T, BinaryWriter> GetSerializerAction(Type memberType, ParameterExpression valueExp, ParameterExpression writerExp)
         {
-            _typeDescription = typeDescription;
+            return Expression.Lambda<Action<T, BinaryWriter>>(
+                GetSerializerExpression(memberType, valueExp, writerExp), valueExp, writerExp).Compile();
         }
 
-        public override Expression GetSerializerExpression(Type memberType, Expression getterExp, ParameterExpression writerExp)
+        public Func<BinaryReader, T> GetDeserializerAction(Type memberType, ParameterExpression readerExp)
         {
-            var tdExp = Expression.Constant(_typeDescription, typeof(TypeDescription));
-            var valueExp = memberType.IsValueType ? Expression.Convert(getterExp, typeof(object)) : getterExp;
-            var serializeSubTypeExp = Expression.Call(
-                tdExp,
-                typeof(TypeDescription).GetMethod("Serialize", BindingFlags.NonPublic | BindingFlags.Instance),
-                writerExp,
-                valueExp);
-            return serializeSubTypeExp;
-        }
-
-        public override Expression GetDeserializerExpression(Type memberType, ParameterExpression readerExpression)
-        {
-            return _typeDescription.GetDeserializerExpression(readerExpression);
+            return Expression.Lambda<Func<BinaryReader, T>>(
+                GetDeserializerExpression(memberType, readerExp), readerExp).Compile();
         }
     }
 }
