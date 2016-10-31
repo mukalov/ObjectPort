@@ -25,13 +25,13 @@ namespace ObjectPort.Builders
     using System;
     using System.Linq.Expressions;
 
-    internal class EnumBuilder : MemberSerializerBuilder
+    internal class EnumBuilder<T> : ActionProviderBuilder<T>
     {
         private readonly MemberSerializerBuilder _baseBuilder; 
         private readonly Type _enumType;
         private readonly Type _enumBaseType;
 
-        internal EnumBuilder(Type enumType, Type enumBaseType)
+        public EnumBuilder(Type enumType, Type enumBaseType)
         {
             _enumType = enumType;
             _enumBaseType = enumBaseType;

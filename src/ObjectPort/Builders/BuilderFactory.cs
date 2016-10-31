@@ -93,7 +93,9 @@ namespace ObjectPort.Builders
             {
                 if (type.IsEnum)
                 {
-                    serializerBuilder = new EnumBuilder(type, Enum.GetUnderlyingType(type));
+                    serializerBuilder = (MemberSerializerBuilder)Activator
+                        .CreateInstance(typeof(EnumBuilder<>)
+                        .MakeGenericType(type), type, Enum.GetUnderlyingType(type));
                 }
                 else if (type.IsDictionaryType())
                 {
