@@ -63,7 +63,7 @@ namespace ObjectPort
         internal TypeDescription GetDescription(Type type)
         {
             Debug.Assert(_descriptions != null, "_descriptions != null");
-            return _descriptions.GetValue((uint)RuntimeHelpers.GetHashCode(type));
+            return _descriptions.TryGetValue((uint)RuntimeHelpers.GetHashCode(type));
         }
 
         internal IEnumerable<TypeDescription> GetDescriptionsForDerivedTypes(Type type)

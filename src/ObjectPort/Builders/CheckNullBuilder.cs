@@ -31,19 +31,6 @@ namespace ObjectPort.Builders
     {
         private readonly MemberSerializerBuilder _innerBuilder;
 
-        public Action<T, BinaryWriter> GetSerializerAction(Type memberType, ParameterExpression valueExp, ParameterExpression writerExp)
-        {
-            return Expression.Lambda<Action<T, BinaryWriter>>(
-                GetSerializerExpression(memberType, valueExp, writerExp), valueExp, writerExp).Compile();
-
-        }
-
-        public Func<BinaryReader, T> GetDeserializerAction(Type memberType, ParameterExpression readerExp)
-        {
-            return Expression.Lambda<Func<BinaryReader, T>>(
-                GetDeserializerExpression(memberType, readerExp), readerExp).Compile();
-        }
-
         public CheckNullBuilder(MemberSerializerBuilder innerBuilder)
         {
             _innerBuilder = innerBuilder;
@@ -77,11 +64,24 @@ namespace ObjectPort.Builders
 
             var readBool = typeof(BinaryReader).GetMethod("ReadBoolean");
             var readExp = Expression.Call(readerExpression, readBool);
+            var castedMemberExp = Expression.TypeAs(_innerBuilder.GetDeserializerExpression(memberType, readerExpression), memberType);
             var conditionalExp = Expression.Condition(
                 Expression.Equal(readExp, Expression.Constant(true, typeof(bool))),
-                _innerBuilder.GetDeserializerExpression(memberType, readerExpression),
+                castedMemberExp,
                 defaultValExp);
             return conditionalExp;
+        }
+
+        public Action<T, BinaryWriter> GetSerializerAction(Type memberType, ParameterExpression valueExp, ParameterExpression writerExp)
+        {
+            return Expression.Lambda<Action<T, BinaryWriter>>(
+                GetSerializerExpression(memberType, valueExp, writerExp), valueExp, writerExp).Compile();
+        }
+
+        public Func<BinaryReader, T> GetDeserializerAction(Type memberType, ParameterExpression readerExp)
+        {
+            return Expression.Lambda<Func<BinaryReader, T>>(
+                GetDeserializerExpression(memberType, readerExp), readerExp).Compile();
         }
     }
 }

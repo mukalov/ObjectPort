@@ -164,6 +164,13 @@ namespace ObjectPort.Tests
             new TestCustomClassDerived1 { IntProp = 7667, StrProp = "Test 8", StrProp1 = "Test 9" }
         };
 
+        private static readonly TestCustomClassDerived1[] TestPolymorphicArrayOfClasses5 = new TestCustomClassDerived1[]
+        {
+            new TestCustomClassDerived1 { IntProp = 34234, StrProp = "Test 1", StrProp1 = "Test 2" },
+            null,
+            new TestCustomClassDerived1 { IntProp = 7667, StrProp = "Test 8", StrProp1 = "Test 9" }
+        };
+
         [Fact]
         public void Should_Serialize_Array_Of_Polymorphic_Structs_From_Interface()
         {
@@ -431,6 +438,16 @@ namespace ObjectPort.Tests
             TestStructProperty<IEnumerable<TestCustomClassDerived1>>(TestPolymorphicArrayOfClasses4.ToList());
             TestClassField<IEnumerable<TestCustomClassDerived1>>(TestPolymorphicArrayOfClasses4.ToList());
             TestClassProperty<IEnumerable<TestCustomClassDerived1>>(TestPolymorphicArrayOfClasses4.ToList());
+        }
+
+        [Fact]
+        public void Should_Serialize_Array_Of_Polymorphic_Class_From_Class()
+        {
+            Serializer.RegisterTypes(new[] { typeof(TestCustomClassDerived1) });
+            TestStructField(TestPolymorphicArrayOfClasses5);
+            TestStructProperty(TestPolymorphicArrayOfClasses5);
+            TestClassField(TestPolymorphicArrayOfClasses5);
+            TestClassProperty(TestPolymorphicArrayOfClasses5);
         }
     }
 }

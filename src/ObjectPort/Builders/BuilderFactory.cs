@@ -54,6 +54,13 @@ namespace ObjectPort.Builders
                 [typeof(TimeSpan)] = new TimeSpanBuilder()
             };
 
+        private static MemberSerializerBuilder WrapWithCheckNullBuilder(Type type, MemberSerializerBuilder builder)
+        {
+            return (MemberSerializerBuilder)Activator
+                .CreateInstance(typeof(CheckNullBuilder<>)
+                .MakeGenericType(type), builder);
+        }
+
         internal static MemberSerializerBuilder GetBuilder(Type type, TypeDescription nestedTypeDescription, SerializerState state)
         {
             var serializerBuilder = default(MemberSerializerBuilder);
@@ -96,7 +103,7 @@ namespace ObjectPort.Builders
                     if (dictTypes.Item2.IsBuiltInType())
                     {
                         serializerBuilder = (MemberSerializerBuilder)Activator
-                            .CreateInstance(typeof(RegularDictionaryBuilder<,>)
+                            .CreateInstance(typeof(DictionaryBuilder<,>)
                             .MakeGenericType(dictTypes.Item1, dictTypes.Item2), type, dictTypes.Item1, dictTypes.Item2, state);
                     }
                     else
@@ -112,42 +119,70 @@ namespace ObjectPort.Builders
                     if (baseElementType.IsBuiltInType())
                     {
                         serializerBuilder = (MemberSerializerBuilder)Activator
-                            .CreateInstance(typeof(RegularEnumerableBuilder<>)
+                            .CreateInstance(typeof(EnumerableBuilder<>)
                             .MakeGenericType(baseElementType), type, baseElementType, null, state);
                     }
                     else
                     {
-                        var derivedTypes = state.GetDescriptionsForDerivedTypes(baseElementType);
-                        if ((baseElementType.IsInterface || baseElementType.IsAbstract) && !derivedTypes.Any())
-                            type.NoImplementationsFound(baseElementType);
+                        var typeDescription = state.GetDescription(baseElementType);
+                        if (typeDescription == null && !baseElementType.IsAbstract && !baseElementType.IsInterface)
+                            type.TypeNotSupported(baseElementType);
 
-                        if (derivedTypes.Count() > 1 || baseElementType.IsInterface || baseElementType.IsAbstract)
+                        try
                         {
                             serializerBuilder = (MemberSerializerBuilder)Activator
-                                .CreateInstance(typeof(PolymorphicEnumerableBuilder<>)
-                                .MakeGenericType(baseElementType), type, baseElementType, state);
-                        }
-                        else
-                        {
-                            var typeDescription = state.GetDescription(baseElementType);
-                            if (typeDescription == null)
-                                type.TypeNotSupported(baseElementType);
-
-                            serializerBuilder = (MemberSerializerBuilder)Activator
-                                .CreateInstance(typeof(RegularEnumerableBuilder<>)
+                                .CreateInstance(typeof(EnumerableBuilder<>)
                                 .MakeGenericType(baseElementType), type, baseElementType, typeDescription, state);
                         }
+                        catch (Exception e)
+                        {
+                            if (e.InnerException != null)
+                                throw e.InnerException;
+                            else
+                                throw;
+                        }
+                    }
+                }
+                else if (type.IsInterface || type.IsAbstract)
+                {
+                    var derivedTypes = state.GetDescriptionsForDerivedTypes(type);
+                    if (!derivedTypes.Any())
+                        type.NoImplementationsFound(type);
+
+                    if (derivedTypes.Count() > 1)
+                    {
+                        serializerBuilder = (MemberSerializerBuilder)Activator
+                            .CreateInstance(typeof(PolymorphicComplexBuilder<>)
+                            .MakeGenericType(type), type, state);
+                    }
+                    else
+                    {
+                        serializerBuilder = (MemberSerializerBuilder)Activator
+                            .CreateInstance(typeof(ComplexBuilder<>)
+                            .MakeGenericType(derivedTypes.First().Type), derivedTypes.First());
+                        serializerBuilder = WrapWithCheckNullBuilder(type, serializerBuilder);
                     }
                 }
                 else if (nestedTypeDescription != null)
                 {
-                    var complexBuilder = (MemberSerializerBuilder)Activator
-                        .CreateInstance(typeof(ComplexBuilder<>)
-                        .MakeGenericType(type), nestedTypeDescription);
-                    serializerBuilder = (MemberSerializerBuilder)Activator
-                        .CreateInstance(typeof(CheckNullBuilder<>)
-                        .MakeGenericType(type), complexBuilder);
+                    var derivedTypes = state.GetDescriptionsForDerivedTypes(type);
+                    if (derivedTypes.Count() > 1)
+                    {
+                        serializerBuilder = (MemberSerializerBuilder)Activator
+                            .CreateInstance(typeof(PolymorphicComplexBuilder<>)
+                            .MakeGenericType(type), type, state);
+                    }
+                    else
+                    {
+                        serializerBuilder = (MemberSerializerBuilder)Activator
+                            .CreateInstance(typeof(ComplexBuilder<>)
+                            .MakeGenericType(type), nestedTypeDescription);
+                        if (!type.IsValueType)
+                            serializerBuilder = WrapWithCheckNullBuilder(type, serializerBuilder);
+                    }
                 }
+                else
+                    type.TypeNotSupported(type);
             }
             return serializerBuilder;
         }

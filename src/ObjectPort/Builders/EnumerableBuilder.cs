@@ -22,16 +22,17 @@
 
 namespace ObjectPort.Builders
 {
-    using ObjectPort.Common;
+    using Common;
+    using Descriptions;
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Runtime.CompilerServices;
 
-
-    internal abstract class EnumerableBuilder<T> : MemberSerializerBuilder
+    internal class EnumerableBuilder<T> : MemberSerializerBuilder
     {
         internal struct Constructor
         {
@@ -39,20 +40,47 @@ namespace ObjectPort.Builders
             public ushort Index;
         }
 
+        protected const int NullLength = -1;
+        protected const ushort ArrayConstructorIndex = ushort.MaxValue;
+
         private readonly Type _enumerableType;
         private readonly bool _isIEnumerable;
+        private readonly MemberSerializerBuilder _elementBuilder;
+        private readonly Func<IEnumerable<T>, IEnumerable<T>>[] _constructorsByIndex;
+        private readonly AdaptiveHashtable<Constructor> _constructorsByType;
+        private readonly Type _builderSpecificType;
+        private readonly Type _baseElementType;
+        private Action<T, BinaryWriter> _elementSerializer;
+        private Func<BinaryReader, T> _elementDeserializer;
 
-        protected const int NullLength = -1;
-        protected Func<IEnumerable<T>, IEnumerable<T>>[] ConstructorsByIndex;
-        protected AdaptiveHashtable<Constructor> ConstructorsByType;
-        protected const ushort ArrayConstructorIndex = ushort.MaxValue;
-        protected Type BuilderSpecificType;
-        protected Type BaseElementType;
-
-        internal EnumerableBuilder(Type enumerableType, Type baseElementType)
+        protected bool SerializeAsArray
         {
-            BaseElementType = baseElementType;
-            BuilderSpecificType = GetType();
+            get
+            {
+                return _enumerableType.IsArray && !_isIEnumerable;
+            }
+        }
+
+        protected Type DeserializedType
+        {
+            get
+            {
+                if (_enumerableType.IsArray)
+                {
+                    if (_isIEnumerable)
+                        return typeof(IEnumerable<>).MakeGenericType(_baseElementType);
+                    else
+                        return _baseElementType.MakeArrayType();
+                }
+                else
+                    return _enumerableType;
+            }
+        }
+
+        public EnumerableBuilder(Type enumerableType, Type baseElementType, TypeDescription elementTypeDescription, SerializerState state)
+        {
+            _baseElementType = baseElementType;
+            _builderSpecificType = GetType();
             if (enumerableType.IsGenericType && enumerableType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
             {
                 _enumerableType = baseElementType.MakeArrayType();
@@ -79,16 +107,16 @@ namespace ObjectPort.Builders
                 [typeof(Stack<>).MakeGenericType(baseElementType)] = getConstructorExp
             };
 
-            ConstructorsByIndex = new Func<IEnumerable<T>, IEnumerable<T>>[enumerableTypes.Count()];
-            ConstructorsByType = new AdaptiveHashtable<Constructor>();
+            _constructorsByIndex = new Func<IEnumerable<T>, IEnumerable<T>>[enumerableTypes.Count()];
+            _constructorsByType = new AdaptiveHashtable<Constructor>();
             var index = (ushort)0;
             foreach (var item in enumerableTypes)
             {
                 var specificType = item.Key;
                 var constructorExp = item.Value(specificType);
                 var method = Expression.Lambda<Func<IEnumerable<T>, IEnumerable<T>>>(constructorExp, argExp).Compile();
-                ConstructorsByIndex[index] = method;
-                ConstructorsByType.AddValue(
+                _constructorsByIndex[index] = method;
+                _constructorsByType.AddValue(
                     (uint)RuntimeHelpers.GetHashCode(specificType),
                     new Constructor
                     {
@@ -96,29 +124,88 @@ namespace ObjectPort.Builders
                         Method = method
                     });
             }
+            _elementBuilder = BuilderFactory.GetBuilder(baseElementType, elementTypeDescription, state);
         }
 
-        protected bool SerializeAsArray
+        public override Expression GetSerializerExpression(Type memberType, Expression getterExp, ParameterExpression writerExp)
         {
-            get
+            var elementExp = Expression.Parameter(_baseElementType, "element");
+            _elementSerializer = ((ICompiledActionProvider<T>)_elementBuilder).GetSerializerAction(_baseElementType, elementExp, writerExp);
+            var valueExp = getterExp;
+            var thisExp = Expression.Constant(this, _builderSpecificType);
+            return Expression.Call(thisExp, SerializeMethod, valueExp, writerExp);
+        }
+
+        public override Expression GetDeserializerExpression(Type memberType, ParameterExpression readerExp)
+        {
+            _elementDeserializer = ((ICompiledActionProvider<T>)_elementBuilder).GetDeserializerAction(_baseElementType, readerExp);
+            var thisExp = Expression.Constant(this, _builderSpecificType);
+            var valueExp = Expression.Call(thisExp, DeserializeMethod, readerExp);
+            return Expression.TypeAs(valueExp, DeserializedType);
+        }
+
+        internal void SerializeEnumerable(IEnumerable<T> enumerable, BinaryWriter writer)
+        {
+            if (enumerable == null)
             {
-                return _enumerableType.IsArray && !_isIEnumerable;
+                writer.Write(NullLength);
+                return;
+            }
+
+            writer.Write(enumerable.Count());
+            var constructorIndex = _constructorsByType.TryGetValue((uint)RuntimeHelpers.GetHashCode(enumerable.GetType())).Index;
+            writer.Write(constructorIndex);
+            foreach (var item in enumerable)
+            {
+                _elementSerializer(item, writer);
             }
         }
 
-        protected Type DeserializedType
+        internal void SerializeArray(IEnumerable<T> enumerable, BinaryWriter writer)
+        {
+            if (enumerable == null)
+            {
+                writer.Write(NullLength);
+                return;
+            }
+            var array = enumerable as T[] ?? enumerable.ToArray();
+            writer.Write(array.Length);
+            writer.Write(ArrayConstructorIndex);
+            for (var i = 0; i < array.Length; i++)
+            {
+                var item = array[i];
+                _elementSerializer(item, writer);
+            }
+        }
+
+        internal IEnumerable<T> Deserialize(BinaryReader reader)
+        {
+            var length = reader.ReadInt32();
+            if (length == NullLength)
+                return null;
+
+            var constructorIndex = reader.ReadUInt16();
+            var result = new T[length];
+            for (var i = 0; i < length; i++)
+                result[i] = _elementDeserializer(reader);
+            return constructorIndex == ArrayConstructorIndex ? result : _constructorsByIndex[constructorIndex](result);
+        }
+
+        protected MethodInfo SerializeMethod
         {
             get
             {
-                if (_enumerableType.IsArray)
-                {
-                    if (_isIEnumerable)
-                        return typeof(IEnumerable<>).MakeGenericType(BaseElementType);
-                    else
-                        return BaseElementType.MakeArrayType();
-                }
-                else
-                    return _enumerableType;
+                return SerializeAsArray ?
+                    _builderSpecificType.GetMethod("SerializeArray", BindingFlags.NonPublic | BindingFlags.Instance) :
+                    _builderSpecificType.GetMethod("SerializeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance);
+            }
+        }
+
+        protected MethodInfo DeserializeMethod
+        {
+            get
+            {
+                return _builderSpecificType.GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
             }
         }
     }

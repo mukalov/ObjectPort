@@ -43,9 +43,9 @@ namespace ObjectPort.Builders
             var valueExp = memberType.IsValueType ? Expression.Convert(getterExp, typeof(object)) : getterExp;
             var serializeSubTypeExp = Expression.Call(
                 tdExp,
-                typeof(TypeDescription).GetMethod("SerializeAllPropertiesToStream", BindingFlags.NonPublic | BindingFlags.Instance),
-                valueExp,
-                writerExp);
+                typeof(TypeDescription).GetMethod("Serialize", BindingFlags.NonPublic | BindingFlags.Instance),
+                writerExp,
+                valueExp);
             return serializeSubTypeExp;
         }
 

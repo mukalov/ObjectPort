@@ -42,16 +42,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builders\ComplexNullableBuilder.cs" />
-    <Compile Include="Builders\DictionaryBuilder.cs" />
-    <Compile Include="Builders\EnumerableBuilder.cs" />
     <Compile Include="Builders\ICompiledActionProvider.cs" />
-    <Compile Include="Builders\RegularDictionaryBuilder.cs" />
+    <Compile Include="Builders\PolymorphicComplexBuilder.cs" />
+    <Compile Include="Builders\DictionaryBuilder.cs" />
     <Compile Include="Builders\PrimitiveNullableBuilder.cs" />
     <Compile Include="Builders\Primitive\BooleanBuilder.cs" />
     <Compile Include="Builders\BuilderFactory.cs" />
     <Compile Include="Builders\Primitive\ByteBuilder.cs" />
     <Compile Include="Builders\Primitive\CharBuilder.cs" />
-    <Compile Include="Builders\PolymorphicEnumerableBuilder.cs" />
     <Compile Include="Builders\ComplexBuilder.cs" />
     <Compile Include="Builders\Primitive\DateTimeBuilder.cs" />
     <Compile Include="Builders\Primitive\DecimalBuilder.cs" />
@@ -65,13 +63,14 @@
     <Compile Include="Builders\CheckNullBuilder.cs" />
     <Compile Include="Builders\Primitive\SByteBuilder.cs" />
     <Compile Include="Builders\Primitive\ShortBuilder.cs" />
-    <Compile Include="Builders\RegularEnumerableBuilder.cs" />
+    <Compile Include="Builders\EnumerableBuilder.cs" />
     <Compile Include="Builders\PrimitiveBuilder.cs" />
     <Compile Include="Builders\Primitive\StrBuilder.cs" />
     <Compile Include="Builders\Primitive\TimeSpanBuilder.cs" />
     <Compile Include="Builders\Primitive\UIntBuilder.cs" />
     <Compile Include="Builders\Primitive\ULongBuilder.cs" />
     <Compile Include="Builders\Primitive\UShortBuilder.cs" />
+    <Compile Include="Common\PolymorphicMap.cs" />
     <Compile Include="Descriptions\AnonymousTypeDescription.cs" />
     <Compile Include="Descriptions\FieldDescription.cs" />
     <Compile Include="Descriptions\MemberDescription.cs" />

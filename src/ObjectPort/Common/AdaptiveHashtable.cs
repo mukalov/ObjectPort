@@ -61,7 +61,7 @@ namespace ObjectPort.Common
             _loadedIndexes = new List<uint>();
         }
 
-        public T GetValue(uint key)
+        public T TryGetValue(uint key)
         {
             var index = key % _length;
             var item = _values[index, 0];
@@ -74,7 +74,7 @@ namespace ObjectPort.Common
             return default(T);
         }
 
-        public T GetValueWithException(uint key)
+        public T GetValue(uint key)
         {
             var index = key % _length;
             var item = _values[index, 0];

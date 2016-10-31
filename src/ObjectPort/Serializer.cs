@@ -37,7 +37,7 @@ namespace ObjectPort
     // serializer configurable encoding
     // serializer parameter for type id
     // alphabetical order for members
-    // optimize complex enumerable for struct (check for null)
+    //+ optimize complex enumerable for struct (check for null)
     public sealed class Serializer
     {
         private static SerializerState _state = new SerializerState();

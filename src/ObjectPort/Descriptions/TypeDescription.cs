@@ -66,7 +66,7 @@ namespace ObjectPort.Descriptions
 
         internal void Serialize(BinaryWriter writer, object obj)
         {
-            SerializeAllPropertiesToStream(obj, writer);
+            _serializer.Invoke(obj, writer);
         }
 
         internal object Deserialize(BinaryReader reader)
@@ -129,11 +129,6 @@ namespace ObjectPort.Descriptions
                 deserializerExp = Expression.TypeAs(GetDeserializerExpression(readerExp), typeof(object));
             var lamdaExp = Expression.Lambda<Func<BinaryReader, object>>(deserializerExp, readerExp);
             _deserializer = lamdaExp.Compile();
-        }
-
-        private void SerializeAllPropertiesToStream(object obj, BinaryWriter writer)
-        {
-            _serializer.Invoke(obj, writer);
         }
     }
 }
