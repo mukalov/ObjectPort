@@ -29,6 +29,7 @@ namespace ObjectPort.Builders
     using System.Linq;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Reflection;
 
     internal class BuilderFactory
     {
@@ -61,6 +62,26 @@ namespace ObjectPort.Builders
                 .MakeGenericType(type), builder);
         }
 
+        private static MemberSerializerBuilder CreateBuilder(Type builderType, IEnumerable<Type> argTypes, params object[] constructorArgs)
+        {
+            try
+            {
+                return (MemberSerializerBuilder)Activator.CreateInstance(builderType.MakeGenericType(argTypes.ToArray()), constructorArgs);
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException != null)
+                    throw e.InnerException;
+                else
+                    throw;
+            }
+        }
+
+        private static MemberSerializerBuilder CreateBuilder(Type builderType, Type argType, params object[] constructorArgs)
+        {
+            return CreateBuilder(builderType, new[] { argType }, constructorArgs);
+        }
+
         internal static MemberSerializerBuilder GetBuilder(Type type, TypeDescription nestedTypeDescription, SerializerState state)
         {
             var serializerBuilder = default(MemberSerializerBuilder);
@@ -71,15 +92,11 @@ namespace ObjectPort.Builders
                 {
                     if (nullableUnderlyingType.IsBuiltInType())
                     {
-                        serializerBuilder = (MemberSerializerBuilder)Activator
-                            .CreateInstance(typeof(PrimitiveNullableBuilder<>)
-                            .MakeGenericType(nullableUnderlyingType), nullableUnderlyingType);
+                        serializerBuilder = CreateBuilder(typeof(PrimitiveNullableBuilder<>), nullableUnderlyingType, nullableUnderlyingType);
                     }
                     else
                     {
-                        serializerBuilder = (MemberSerializerBuilder)Activator
-                            .CreateInstance(typeof(ComplexNullableBuilder<>)
-                            .MakeGenericType(nullableUnderlyingType), nullableUnderlyingType, state);
+                        serializerBuilder = CreateBuilder(typeof(ComplexNullableBuilder<>), nullableUnderlyingType, nullableUnderlyingType, state);
                     }
                 }
                 else
@@ -93,9 +110,7 @@ namespace ObjectPort.Builders
             {
                 if (type.IsEnum)
                 {
-                    serializerBuilder = (MemberSerializerBuilder)Activator
-                        .CreateInstance(typeof(EnumBuilder<>)
-                        .MakeGenericType(type), type, Enum.GetUnderlyingType(type));
+                    serializerBuilder = CreateBuilder(typeof(EnumBuilder<>), type, type, Enum.GetUnderlyingType(type));
                 }
                 else if (type.IsDictionaryType())
                 {
@@ -104,9 +119,7 @@ namespace ObjectPort.Builders
                     Debug.Assert(state != null);
                     if (dictTypes.Item2.IsBuiltInType())
                     {
-                        serializerBuilder = (MemberSerializerBuilder)Activator
-                            .CreateInstance(typeof(DictionaryBuilder<,>)
-                            .MakeGenericType(dictTypes.Item1, dictTypes.Item2), type, dictTypes.Item1, dictTypes.Item2, state);
+                        serializerBuilder = CreateBuilder(typeof(DictionaryBuilder<,>), new[] { dictTypes.Item1, dictTypes.Item2 }, type, dictTypes.Item1, dictTypes.Item2, state);
                     }
                     else
                     {
@@ -120,9 +133,7 @@ namespace ObjectPort.Builders
                     Debug.Assert(state != null);
                     if (baseElementType.IsBuiltInType())
                     {
-                        serializerBuilder = (MemberSerializerBuilder)Activator
-                            .CreateInstance(typeof(EnumerableBuilder<>)
-                            .MakeGenericType(baseElementType), type, baseElementType, null, state);
+                        serializerBuilder = CreateBuilder(typeof(EnumerableBuilder<>), baseElementType, type, baseElementType, null, state);
                     }
                     else
                     {
@@ -130,19 +141,7 @@ namespace ObjectPort.Builders
                         if (typeDescription == null && !baseElementType.IsAbstract && !baseElementType.IsInterface)
                             type.TypeNotSupported(baseElementType);
 
-                        try
-                        {
-                            serializerBuilder = (MemberSerializerBuilder)Activator
-                                .CreateInstance(typeof(EnumerableBuilder<>)
-                                .MakeGenericType(baseElementType), type, baseElementType, typeDescription, state);
-                        }
-                        catch (Exception e)
-                        {
-                            if (e.InnerException != null)
-                                throw e.InnerException;
-                            else
-                                throw;
-                        }
+                        serializerBuilder = CreateBuilder(typeof(EnumerableBuilder<>), baseElementType, type, baseElementType, typeDescription, state);
                     }
                 }
                 else if (type.IsInterface || type.IsAbstract)
@@ -153,15 +152,11 @@ namespace ObjectPort.Builders
 
                     if (derivedTypes.Count() > 1)
                     {
-                        serializerBuilder = (MemberSerializerBuilder)Activator
-                            .CreateInstance(typeof(PolymorphicComplexBuilder<>)
-                            .MakeGenericType(type), type, state);
+                        serializerBuilder = CreateBuilder(typeof(PolymorphicComplexBuilder<>), type, type, state);
                     }
                     else
                     {
-                        serializerBuilder = (MemberSerializerBuilder)Activator
-                            .CreateInstance(typeof(ComplexBuilder<>)
-                            .MakeGenericType(derivedTypes.First().Type), derivedTypes.First());
+                        serializerBuilder = CreateBuilder(typeof(ComplexBuilder<>), derivedTypes.First().Type, derivedTypes.First());
                         serializerBuilder = WrapWithCheckNullBuilder(type, serializerBuilder);
                     }
                 }
@@ -170,15 +165,11 @@ namespace ObjectPort.Builders
                     var derivedTypes = state.GetDescriptionsForDerivedTypes(type);
                     if (derivedTypes.Count() > 1)
                     {
-                        serializerBuilder = (MemberSerializerBuilder)Activator
-                            .CreateInstance(typeof(PolymorphicComplexBuilder<>)
-                            .MakeGenericType(type), type, state);
+                        serializerBuilder = CreateBuilder(typeof(PolymorphicComplexBuilder<>), type, type, state);
                     }
                     else
                     {
-                        serializerBuilder = (MemberSerializerBuilder)Activator
-                            .CreateInstance(typeof(ComplexBuilder<>)
-                            .MakeGenericType(type), nestedTypeDescription);
+                        serializerBuilder = CreateBuilder(typeof(ComplexBuilder<>), type, nestedTypeDescription);
                         if (!type.IsValueType)
                             serializerBuilder = WrapWithCheckNullBuilder(type, serializerBuilder);
                     }
