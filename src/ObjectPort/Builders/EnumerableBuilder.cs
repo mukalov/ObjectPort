@@ -32,7 +32,7 @@ namespace ObjectPort.Builders
     using System.Reflection;
     using System.Runtime.CompilerServices;
 
-    internal class EnumerableBuilder<T> : MemberSerializerBuilder
+    internal class EnumerableBuilder<EnumerableT, T> : ActionProviderBuilder<EnumerableT>
     {
         internal struct Constructor
         {

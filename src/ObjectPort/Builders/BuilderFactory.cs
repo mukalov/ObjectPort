@@ -82,6 +82,20 @@ namespace ObjectPort.Builders
             return CreateBuilder(builderType, new[] { argType }, constructorArgs);
         }
 
+        private static TypeDescription GetTypeDescription(Type type, SerializerState state)
+        {
+            var typeDescription = state.GetDescription(type);
+            if (typeDescription == null 
+                && !type.IsAbstract 
+                && !type.IsInterface 
+                && !type.IsBuiltInType() 
+                && !type.IsEnumerableType()
+                && !type.IsDictionaryType()
+                && !type.IsEnum)
+                type.TypeNotSupported(type);
+            return typeDescription;
+        }
+
         internal static MemberSerializerBuilder GetBuilder(Type type, TypeDescription nestedTypeDescription, SerializerState state)
         {
             var serializerBuilder = default(MemberSerializerBuilder);
@@ -117,32 +131,28 @@ namespace ObjectPort.Builders
                     var dictTypes = type.GetDictionaryArguments();
                     Debug.Assert(dictTypes != null);
                     Debug.Assert(state != null);
-                    if (dictTypes.Item2.IsBuiltInType())
-                    {
-                        serializerBuilder = CreateBuilder(typeof(DictionaryBuilder<,>), new[] { dictTypes.Item1, dictTypes.Item2 }, type, dictTypes.Item1, dictTypes.Item2, state);
-                    }
-                    else
-                    {
-                        // TODO polymorphic dictionary
-                    }
+                    serializerBuilder = CreateBuilder(
+                        typeof(DictionaryBuilder<,,>), 
+                        new[] { type, dictTypes.Item1, dictTypes.Item2 }, 
+                        type, 
+                        dictTypes.Item1, 
+                        dictTypes.Item2,
+                        GetTypeDescription(dictTypes.Item1, state),
+                        GetTypeDescription(dictTypes.Item2, state),
+                        state);
                 }
                 else if (type.IsEnumerableType())
                 {
                     var baseElementType = type.GetEnumerableArgument();
                     Debug.Assert(baseElementType != null);
                     Debug.Assert(state != null);
-                    if (baseElementType.IsBuiltInType())
-                    {
-                        serializerBuilder = CreateBuilder(typeof(EnumerableBuilder<>), baseElementType, type, baseElementType, null, state);
-                    }
-                    else
-                    {
-                        var typeDescription = state.GetDescription(baseElementType);
-                        if (typeDescription == null && !baseElementType.IsAbstract && !baseElementType.IsInterface)
-                            type.TypeNotSupported(baseElementType);
-
-                        serializerBuilder = CreateBuilder(typeof(EnumerableBuilder<>), baseElementType, type, baseElementType, typeDescription, state);
-                    }
+                    serializerBuilder = CreateBuilder(
+                        typeof(EnumerableBuilder<,>),
+                        new[] { type, baseElementType },
+                        type, 
+                        baseElementType, 
+                        GetTypeDescription(baseElementType, state), 
+                        state);
                 }
                 else if (type.IsInterface || type.IsAbstract)
                 {

@@ -30,13 +30,13 @@ namespace ObjectPort.Tests
     [Collection("ObjectPort")]
     public class RegularEnumerableMembersTests : TestsBase
     {
-        private struct TestCustomStruct
+        protected struct TestCustomStruct
         {
             public string StrField;
             public int IntField;
         }
 
-        private class TestCustomClass
+        protected class TestCustomClass
         {
             public string StrField;
             public int IntField;
@@ -55,14 +55,14 @@ namespace ObjectPort.Tests
             }
         }
 
-        private static readonly int[] TestEmptyArray = new int[] { };
-        private static readonly int[] TestNullArray = null;
-        private static readonly List<int> TestNullList = null;
-        private static readonly IEnumerable<int> TestNullEnumerable = null;
-        private static readonly int[] TestIntArray = new[] { -345, 54, -456456, 3453455 };
-        private static readonly int?[] TestNullableIntArray = new int?[] { -345, null, -456456, 3453455 };
-        private static readonly string[] TestStringArray = new[] { "Test string 1", null, "Test string 3", "Test string 4" };
-        private static readonly TestCustomStruct[] TestStructArray = new[]
+        protected static readonly int[] TestEmptyArray = new int[] { };
+        protected static readonly int[] TestNullArray = null;
+        protected static readonly List<int> TestNullList = null;
+        protected static readonly IEnumerable<int> TestNullEnumerable = null;
+        protected static readonly int[] TestIntArray = new[] { -345, 54, -456456, 3453455 };
+        protected static readonly int?[] TestNullableIntArray = new int?[] { -345, null, -456456, 3453455 };
+        protected static readonly string[] TestStringArray = new[] { "Test string 1", null, "Test string 3", "Test string 4" };
+        protected static readonly TestCustomStruct[] TestStructArray = new[]
         {
             new TestCustomStruct { IntField = TestIntArray[0], StrField = TestStringArray[0] },
             new TestCustomStruct { IntField = TestIntArray[1], StrField = TestStringArray[1] },
@@ -82,6 +82,14 @@ namespace ObjectPort.Tests
             null,
             new TestCustomClass { IntField = TestIntArray[2], StrField = TestStringArray[2] },
             new TestCustomClass { IntField = TestIntArray[3], StrField = TestStringArray[3] }
+        };
+
+        private enum TestStdEnum { First, Second, Third };
+        private static readonly TestStdEnum[] TestEnumArray = new[]
+        {
+            TestStdEnum.First,
+            TestStdEnum.Third,
+            TestStdEnum.Second
         };
 
         [Fact]
@@ -454,6 +462,58 @@ namespace ObjectPort.Tests
             TestStructProperty<IList<TestCustomStruct?>>(TestNullableStructArray.ToList());
             TestClassField<IList<TestCustomStruct?>>(TestNullableStructArray.ToList());
             TestClassProperty<IList<TestCustomStruct?>>(TestNullableStructArray.ToList());
+        }
+
+        [Fact]
+        public void Should_Serialize_Array_Of_Enum()
+        {
+            TestStructField(TestEnumArray);
+            TestStructProperty(TestEnumArray);
+            TestClassField(TestEnumArray);
+            TestClassProperty(TestEnumArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_List_Of_Enum()
+        {
+            TestStructField(TestEnumArray.ToList());
+            TestStructProperty(TestEnumArray.ToList());
+            TestClassField(TestEnumArray.ToList());
+            TestClassProperty(TestEnumArray.ToList());
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_From_Array_Of_Enum()
+        {
+            TestStructField<IEnumerable<TestStdEnum>>(TestEnumArray);
+            TestStructProperty<IEnumerable<TestStdEnum>>(TestEnumArray);
+            TestClassField<IEnumerable<TestStdEnum>>(TestEnumArray);
+            TestClassProperty<IEnumerable<TestStdEnum>>(TestEnumArray);
+            TestStructField<ICollection<TestStdEnum>>(TestEnumArray);
+            TestStructProperty<ICollection<TestStdEnum>>(TestEnumArray);
+            TestClassField<ICollection<TestStdEnum>>(TestEnumArray);
+            TestClassProperty<ICollection<TestStdEnum>>(TestEnumArray);
+            TestStructField<IList<TestStdEnum>>(TestEnumArray);
+            TestStructProperty<IList<TestStdEnum>>(TestEnumArray);
+            TestClassField<IList<TestStdEnum>>(TestEnumArray);
+            TestClassProperty<IList<TestStdEnum>>(TestEnumArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_From_List_Of_Enum()
+        {
+            TestStructField<IEnumerable<TestStdEnum>>(TestEnumArray.ToList());
+            TestStructProperty<IEnumerable<TestStdEnum>>(TestEnumArray.ToList());
+            TestClassField<IEnumerable<TestStdEnum>>(TestEnumArray.ToList());
+            TestClassProperty<IEnumerable<TestStdEnum>>(TestEnumArray.ToList());
+            TestStructField<ICollection<TestStdEnum>>(TestEnumArray.ToList());
+            TestStructProperty<ICollection<TestStdEnum>>(TestEnumArray.ToList());
+            TestClassField<ICollection<TestStdEnum>>(TestEnumArray.ToList());
+            TestClassProperty<ICollection<TestStdEnum>>(TestEnumArray.ToList());
+            TestStructField<IList<TestStdEnum>>(TestEnumArray.ToList());
+            TestStructProperty<IList<TestStdEnum>>(TestEnumArray.ToList());
+            TestClassField<IList<TestStdEnum>>(TestEnumArray.ToList());
+            TestClassProperty<IList<TestStdEnum>>(TestEnumArray.ToList());
         }
     }
 }

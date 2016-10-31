@@ -23,6 +23,7 @@
 namespace ObjectPort.Builders
 {
     using Common;
+    using Descriptions;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -31,7 +32,7 @@ namespace ObjectPort.Builders
     using System.Reflection;
     using System.Runtime.CompilerServices;
 
-    internal class DictionaryBuilder<TKey, TVal> : MemberSerializerBuilder
+    internal class DictionaryBuilder<DictT, TKey, TVal> : ActionProviderBuilder<DictT>
     {
         internal struct Constructor
         {
@@ -43,7 +44,6 @@ namespace ObjectPort.Builders
         private const ushort ArrayConstructorIndex = ushort.MaxValue;
 
         private readonly Type _dictionaryType;
-        private readonly bool _isIDictionary;
         private readonly Func<IDictionary<TKey, TVal>, IDictionary<TKey, TVal>>[] _constructorsByIndex;
         private readonly AdaptiveHashtable<Constructor> _constructorsByType;
         private readonly Type _builderSpecificType;
@@ -80,7 +80,7 @@ namespace ObjectPort.Builders
             }
         }
 
-        public DictionaryBuilder(Type dictionaryType, Type keyType, Type valType, SerializerState state)
+        public DictionaryBuilder(Type dictionaryType, Type keyType, Type valType, TypeDescription keyTypeDescription, TypeDescription valTypeDescription, SerializerState state)
         {
             _keyType = keyType;
             _valType = valType;
@@ -88,12 +88,10 @@ namespace ObjectPort.Builders
             if (dictionaryType.IsGenericType && dictionaryType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
             {
                 _dictionaryType = typeof(Dictionary<,>).MakeGenericType(keyType, valType);
-                _isIDictionary = true;
             }
             else
             {
                 _dictionaryType = dictionaryType;
-                _isIDictionary = false;
             }
 
             var dictionarySpecificType = typeof(IDictionary<,>).MakeGenericType(keyType, valType);
@@ -124,8 +122,8 @@ namespace ObjectPort.Builders
                         Method = method
                     });
             }
-            _keyBuilder = BuilderFactory.GetBuilder(keyType, null, state);
-            _valBuilder = BuilderFactory.GetBuilder(valType, null, state);
+            _keyBuilder = BuilderFactory.GetBuilder(keyType, keyTypeDescription, state);
+            _valBuilder = BuilderFactory.GetBuilder(valType, valTypeDescription, state);
         }
 
         public override Expression GetSerializerExpression(Type memberType, Expression getterExp, ParameterExpression writerExp)
