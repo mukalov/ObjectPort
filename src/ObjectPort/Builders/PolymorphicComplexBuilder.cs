@@ -69,7 +69,7 @@ namespace ObjectPort.Builders
             {
                 item.Value.Index = index;
                 var val = _typeDescriptionsByHashCode.TryGetValue((uint)RuntimeHelpers.GetHashCode(item.Value.Description.Type));
-                Debug.Assert(val != null);
+                Debug.Assert(val != null, "Type should exist in the type descriptions hash");
                 val.Index = index;
                 _typeDescriptionsByIndex[index++] = item.Value.Description;
             }

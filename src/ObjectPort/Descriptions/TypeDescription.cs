@@ -79,7 +79,7 @@ namespace ObjectPort.Descriptions
             int index;
             if (!_orderMapping.TryGetValue(name, out index))
                 return null;
-            Debug.Assert(index < _descriptions.Length);
+            Debug.Assert(index < _descriptions.Length, "Index can't be out of range");
             return _descriptions[index];
         }
 

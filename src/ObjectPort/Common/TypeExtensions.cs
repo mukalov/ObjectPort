@@ -33,7 +33,7 @@ namespace ObjectPort.Common
     {
         public static bool IsAnonymousType(this Type type)
         {
-            Debug.Assert(type != null);
+            Debug.Assert(type != null, "Type can't be null");
             return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
                 && type.IsGenericType && type.Name.Contains("AnonymousType")
                 && (type.Name.StartsWith("<>", StringComparison.OrdinalIgnoreCase) || type.Name.StartsWith("VB$", StringComparison.OrdinalIgnoreCase))
@@ -63,7 +63,7 @@ namespace ObjectPort.Common
 
         public static bool IsBuiltInType(this Type type)
         {
-            Debug.Assert(type != null);
+            Debug.Assert(type != null, "Type can't be null");
             return "System".Equals(type.Namespace) && !type.IsEnumerableType();
         }
 
@@ -77,7 +77,7 @@ namespace ObjectPort.Common
             else
             {
                 var args = type.GenericTypeArguments;
-                Debug.Assert(args != null && args.Count() == 1);
+                Debug.Assert(args != null && args.Count() == 1, "Generic types can't be null or empty for a generic type");
                 argType = args[0];
             }
 

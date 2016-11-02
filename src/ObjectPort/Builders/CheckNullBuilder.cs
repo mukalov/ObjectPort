@@ -38,7 +38,7 @@ namespace ObjectPort.Builders
 
         public override Expression GetSerializerExpression(Type memberType, Expression getterExp, ParameterExpression writerExp)
         {
-            Debug.Assert(_innerBuilder != null);
+            Debug.Assert(_innerBuilder != null, "Underlying builder can't be null for CheckNullBuilder");
             if (memberType.IsValueType)
                 return _innerBuilder.GetSerializerExpression(memberType, getterExp, writerExp);
 
@@ -54,7 +54,7 @@ namespace ObjectPort.Builders
 
         public override Expression GetDeserializerExpression(Type memberType, ParameterExpression readerExpression)
         {
-            Debug.Assert(_innerBuilder != null);
+            Debug.Assert(_innerBuilder != null, "Underlying builder can't be null for CheckNullBuilder");
             if (memberType.IsValueType)
                 return _innerBuilder.GetDeserializerExpression(memberType, readerExpression);
 

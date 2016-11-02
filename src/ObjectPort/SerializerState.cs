@@ -56,13 +56,13 @@ namespace ObjectPort
 
         internal void AddDescription(Type type, TypeDescription description)
         {
-            Debug.Assert(_descriptions != null, "_descriptions != null");
+            Debug.Assert(_descriptions != null, "Description can't be null");
             _descriptions.AddValue((uint)RuntimeHelpers.GetHashCode(type), description);
         }
 
         internal TypeDescription GetDescription(Type type)
         {
-            Debug.Assert(_descriptions != null, "_descriptions != null");
+            Debug.Assert(_descriptions != null, "Description can't be null");
             return _descriptions.TryGetValue((uint)RuntimeHelpers.GetHashCode(type));
         }
 

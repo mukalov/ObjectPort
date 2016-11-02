@@ -129,8 +129,8 @@ namespace ObjectPort.Builders
                 else if (type.IsDictionaryType())
                 {
                     var dictTypes = type.GetDictionaryArguments();
-                    Debug.Assert(dictTypes != null);
-                    Debug.Assert(state != null);
+                    Debug.Assert(dictTypes != null, "Dictionary generic types can't be null for a dictionary");
+                    Debug.Assert(state != null, "State can't be null");
                     serializerBuilder = CreateBuilder(
                         typeof(DictionaryBuilder<,,>), 
                         new[] { type, dictTypes.Item1, dictTypes.Item2 }, 
@@ -144,8 +144,8 @@ namespace ObjectPort.Builders
                 else if (type.IsEnumerableType())
                 {
                     var baseElementType = type.GetEnumerableArgument();
-                    Debug.Assert(baseElementType != null);
-                    Debug.Assert(state != null);
+                    Debug.Assert(baseElementType != null, "Element generic type can't be null for an enumerable");
+                    Debug.Assert(state != null, "State can't be null");
                     serializerBuilder = CreateBuilder(
                         typeof(EnumerableBuilder<,>),
                         new[] { type, baseElementType },

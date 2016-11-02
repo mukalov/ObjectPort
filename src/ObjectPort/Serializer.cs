@@ -71,7 +71,7 @@ namespace ObjectPort
 
         public static void Serialize(Stream stream, object obj)
         {
-            Debug.Assert(_state != null, "_state != null");
+            Debug.Assert(_state != null, "State can't be null");
             var description = _state.GetDescription(obj.GetType());
             using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
             {
