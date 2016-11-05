@@ -24,27 +24,43 @@ namespace ObjectPort.Tests
 {
     using Xunit;
 
-    public class CommonTests
+#if !NET40
+    [Collection("ObjectPort")]
+#endif
+    public class EnumMembersTests : TestsBase
     {
+        private enum TestStdEnum { First, Second, Third };
+        private enum TestDerivedEnum : byte { FirstByte, SecondByte, ThirdByte };
+
+        private const TestStdEnum TestStdEnumVal = TestStdEnum.Second;
+        private const TestDerivedEnum TestDerivedEnumVal = TestDerivedEnum.SecondByte;
+        
         [Fact]
-        public void Should_Serialize_Anonymous_Type()
+        public void Should_Serialize_Class_Field()
         {
+            TestClassField(TestStdEnumVal);
+            TestClassField(TestDerivedEnumVal);
         }
 
         [Fact]
-        public void Should_Serialize_Complex_Object()
+        public void Should_Serialize_Class_Property()
         {
-
+            TestClassProperty(TestStdEnumVal);
+            TestClassProperty(TestDerivedEnumVal);
         }
 
         [Fact]
-        public void Should_Serialize_Type_By_Id()
+        public void Should_Serialize_Struct_Field()
         {
+            TestStructField(TestStdEnumVal);
+            TestStructField(TestDerivedEnumVal);
         }
 
         [Fact]
-        public void Shouldnt_Serialize_Unknown_Root()
+        public void Should_Serialize_Struct_Property()
         {
+            TestStructProperty(TestStdEnumVal);
+            TestStructProperty(TestDerivedEnumVal);
         }
     }
 }

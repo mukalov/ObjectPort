@@ -40,6 +40,31 @@ namespace ObjectPort.Tests
             public T Property { get; set; }
         }
 
+        protected struct TestCustomStruct
+        {
+            public string StrField;
+            public int IntField;
+        }
+
+        protected class TestCustomClass
+        {
+            public string StrField;
+            public int IntField;
+
+            public override bool Equals(object obj)
+            {
+                var testObj = obj as TestCustomClass;
+                if (obj == null)
+                    return false;
+                return StrField == testObj.StrField && IntField == testObj.IntField;
+            }
+
+            public override int GetHashCode()
+            {
+                return (StrField + IntField.ToString()).GetHashCode();
+            }
+        }
+
         internal delegate void ValueSetter<ContainerT>(ref ContainerT obj);
 
         public TestsBase()

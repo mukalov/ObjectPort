@@ -22,6 +22,7 @@
 
 namespace ObjectPort.Builders.Primitive
 {
+    using Common;
     using System.IO;
     using System.Reflection;
 
@@ -29,7 +30,7 @@ namespace ObjectPort.Builders.Primitive
     {
         protected override MethodInfo GetReadMethod()
         {
-            return typeof(BinaryReader).GetMethod("ReadDecimal");
+            return typeof(BinaryReader).GetTypeInfo().GetMethod("ReadDecimal");
         }
     }
 }

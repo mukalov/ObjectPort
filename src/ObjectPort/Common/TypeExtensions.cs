@@ -31,34 +31,41 @@ namespace ObjectPort.Common
 
     internal static class TypeExtensions
     {
+#if NET40
+        public static Type GetTypeInfo(this Type type)
+        {
+            return type;
+        }
+#endif
+
         public static bool IsAnonymousType(this Type type)
         {
             Debug.Assert(type != null, "Type can't be null");
-            return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
-                && type.IsGenericType && type.Name.Contains("AnonymousType")
+            return type.GetTypeInfo().IsDefined(typeof(CompilerGeneratedAttribute), false)
+                && type.GetTypeInfo().IsGenericType && type.Name.Contains("AnonymousType")
                 && (type.Name.StartsWith("<>", StringComparison.OrdinalIgnoreCase) || type.Name.StartsWith("VB$", StringComparison.OrdinalIgnoreCase))
-                && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
+                && (type.GetTypeInfo().Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
         }
 
         public static bool IsEnumerableType(this Type type)
         {
             return
-                type.IsArray 
-                || type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>) 
+                type.GetTypeInfo().IsArray 
+                || type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>) 
                 || !"System".Equals(type.Namespace) 
                 && type
-                .GetInterfaces()
-                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+                .GetTypeInfo().GetInterfaces()
+                .Any(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
         }
 
         public static bool IsDictionaryType(this Type type)
         {
             return
-                type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>)
+                type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>)
                 || !"System".Equals(type.Namespace)
                 && type
-                .GetInterfaces()
-                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>));
+                .GetTypeInfo().GetInterfaces()
+                .Any(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>));
         }
 
         public static bool IsBuiltInType(this Type type)
@@ -72,11 +79,15 @@ namespace ObjectPort.Common
             if (!type.IsEnumerableType())
                 return null;
             Type argType;
-            if (type.IsArray)
+            if (type.GetTypeInfo().IsArray)
                 argType = type.GetElementType();
             else
             {
+#if NET40
+                var args = type.GetGenericArguments();
+#else
                 var args = type.GenericTypeArguments;
+#endif
                 Debug.Assert(args != null && args.Count() == 1, "Generic types can't be null or empty for a generic type");
                 argType = args[0];
             }
@@ -89,7 +100,11 @@ namespace ObjectPort.Common
             if (!type.IsDictionaryType())
                 return null;
 
+#if NET40
+            var args = type.GetGenericArguments();
+#else
             var args = type.GenericTypeArguments;
+#endif
             Debug.Assert(args != null && args.Count() == 2);
             return new Tuple<Type, Type>(args[0], args[1]);
         }

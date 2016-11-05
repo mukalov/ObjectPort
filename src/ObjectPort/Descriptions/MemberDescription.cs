@@ -23,6 +23,7 @@
 namespace ObjectPort.Descriptions
 {
     using Builders;
+    using Common;
     using System;
     using System.IO;
     using System.Linq.Expressions;
@@ -53,7 +54,7 @@ namespace ObjectPort.Descriptions
 
         public void CompileSerializer(ParameterExpression instanceExp, ParameterExpression writerExp)
         {
-            var instanceCastExp = MemberInfo.DeclaringType.IsValueType ?
+            var instanceCastExp = MemberInfo.DeclaringType.GetTypeInfo().IsValueType ?
                 Expression.Convert(instanceExp, MemberInfo.DeclaringType) :
                 Expression.TypeAs(instanceExp, MemberInfo.DeclaringType);
             SerializerExpression = _serializerBuilder.Value.GetSerializerExpression(Type, GetterExpression(instanceCastExp), writerExp);

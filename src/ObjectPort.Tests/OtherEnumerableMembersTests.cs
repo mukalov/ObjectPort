@@ -24,9 +24,14 @@ namespace ObjectPort.Tests
 {
     using Xunit;
 
+#if !NET40
     [Collection("ObjectPort")]
-    public class OtherEnumerableMembersTests : RegularEnumerableMembersTests
+#endif
+    public class OtherEnumerableMembersTests : TestsBase
     {
+        protected static readonly int[] TestIntArray = new[] { -345, 54, -456456, 3453455 };
+        protected static readonly string[] TestStringArray = new[] { "Test string 1", null, "Test string 3", "Test string 4" };
+
         private static readonly TestCustomStruct[][] TestArrayOfArray = new TestCustomStruct[][]
         {
             new[]
@@ -62,6 +67,66 @@ namespace ObjectPort.Tests
             TestClassField(TestArrayOfArray);
             TestClassProperty(TestArrayOfArray);
             TestClassProperty(TestArrayOfArray);
+        }
+
+        [Fact]
+        public void Should_Serialize_Array_Of_List()
+        {
+        }
+
+        [Fact]
+        public void Should_Serialize_Array_Of_Dictionary()
+        {
+        }
+
+        [Fact]
+        public void Should_Serialize_List_Of_Array()
+        {
+        }
+
+        [Fact]
+        public void Should_Serialize_List_Of_List()
+        {
+        }
+
+        [Fact]
+        public void Should_Serialize_List_Of_Dictionary()
+        {
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_Of_Array_From_Array()
+        {
+        }
+
+        [Fact]
+        public void Should_Serialize_IEnumerable_Of_Array_From_List()
+        {
+        }
+
+        [Fact]
+        public void Should_Serialize_HashSet()
+        {
+        }
+
+        [Fact]
+        public void Should_Serialize_LinkedList()
+        {
+        }
+
+        [Fact]
+        public void Should_Serialize_Queue()
+        {
+        }
+
+        [Fact]
+        public void Should_Serialize_SortedList()
+        {
+        }
+
+        [Fact]
+        public void Should_Serialize_Stack()
+        {
         }
     }
 }

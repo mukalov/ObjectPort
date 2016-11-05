@@ -22,6 +22,7 @@
 
 namespace ObjectPort.Builders
 {
+    using Common;
     using System;
     using System.IO;
     using System.Linq.Expressions;
@@ -34,12 +35,12 @@ namespace ObjectPort.Builders
 
         protected static MethodInfo GetWriterMethod(string name, Type type)
         {
-            return typeof(BinaryWriter).GetMethod(name, new[] { type });
+            return typeof(BinaryWriter).GetTypeInfo().GetMethod(name, new[] { type });
         }
 
         protected static MethodInfo GetReaderMethod(string name)
         {
-            return typeof(BinaryReader).GetMethod(name);
+            return typeof(BinaryReader).GetTypeInfo().GetMethod(name);
         }
     }
 }

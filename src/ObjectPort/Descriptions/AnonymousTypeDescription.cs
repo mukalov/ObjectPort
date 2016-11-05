@@ -22,6 +22,7 @@
 
 namespace ObjectPort.Descriptions
 {
+    using Common;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -40,14 +41,14 @@ namespace ObjectPort.Descriptions
             var anonTypeArgsExpressions = new List<Expression>();
             foreach (var description in Descriptions)
                 anonTypeArgsExpressions.Add(description.DeserializeExpression(readerExpression));
-            return Expression.New(Type.GetConstructor(Descriptions.Select(p => p.Type).ToArray()), anonTypeArgsExpressions);
+            return Expression.New(Type.GetTypeInfo().GetConstructor(Descriptions.Select(p => p.Type).ToArray()), anonTypeArgsExpressions);
         }
 
         internal override MemberDescription[] GetDescriptions(SerializerState state)
         {
-            var piMap = Type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            var piMap = Type.GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .ToDictionary(pi => pi.Name);
-            return Type.GetConstructors()[0]
+            return Type.GetTypeInfo().GetConstructors()[0]
                 .GetParameters()
                 .Select(p => new PropertyDescription(piMap[p.Name], state)
                 {

@@ -22,6 +22,7 @@
 
 namespace ObjectPort.Builders.Primitive
 {
+    using Common;
     using System;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -40,12 +41,12 @@ namespace ObjectPort.Builders.Primitive
 
         protected override Expression FromValue(Expression valueExp)
         {
-            return Expression.Call(valueExp, typeof(TimeSpan).GetProperty("Ticks").GetGetMethod());
+            return Expression.Call(valueExp, typeof(TimeSpan).GetTypeInfo().GetProperty("Ticks").GetGetMethod());
         }
 
         protected override Expression ToValue(Expression readExp)
         {
-            return Expression.Call(typeof(TimeSpan).GetMethod("FromTicks"), readExp);
+            return Expression.Call(typeof(TimeSpan).GetTypeInfo().GetMethod("FromTicks"), readExp);
         }
     }
 }

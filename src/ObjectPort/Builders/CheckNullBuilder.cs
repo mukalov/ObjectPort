@@ -22,10 +22,12 @@
 
 namespace ObjectPort.Builders
 {
+    using Common;
     using System;
     using System.Diagnostics;
     using System.IO;
     using System.Linq.Expressions;
+    using System.Reflection;
 
     internal class CheckNullBuilder<T> : ActionProviderBuilder<T>
     {
@@ -39,7 +41,7 @@ namespace ObjectPort.Builders
         public override Expression GetSerializerExpression(Type memberType, Expression getterExp, ParameterExpression writerExp)
         {
             Debug.Assert(_innerBuilder != null, "Underlying builder can't be null for CheckNullBuilder");
-            if (memberType.IsValueType)
+            if (memberType.GetTypeInfo().IsValueType)
                 return _innerBuilder.GetSerializerExpression(memberType, getterExp, writerExp);
 
             var boolType = typeof(bool);
@@ -55,14 +57,14 @@ namespace ObjectPort.Builders
         public override Expression GetDeserializerExpression(Type memberType, ParameterExpression readerExpression)
         {
             Debug.Assert(_innerBuilder != null, "Underlying builder can't be null for CheckNullBuilder");
-            if (memberType.IsValueType)
+            if (memberType.GetTypeInfo().IsValueType)
                 return _innerBuilder.GetDeserializerExpression(memberType, readerExpression);
 
-            var defaultValExp = memberType.IsValueType ?
+            var defaultValExp = memberType.GetTypeInfo().IsValueType ?
                 Expression.New(memberType) :
                 (Expression)Expression.Constant(null, memberType);
 
-            var readBool = typeof(BinaryReader).GetMethod("ReadBoolean");
+            var readBool = typeof(BinaryReader).GetTypeInfo().GetMethod("ReadBoolean");
             var readExp = Expression.Call(readerExpression, readBool);
             var castedMemberExp = Expression.TypeAs(_innerBuilder.GetDeserializerExpression(memberType, readerExpression), memberType);
             var conditionalExp = Expression.Condition(

@@ -27,6 +27,7 @@ namespace ObjectPort.Builders
     using System.Linq.Expressions;
     using System.Reflection;
     using System.IO;
+    using Common;
 
     internal class ComplexBuilder<T> : ActionProviderBuilder<T>
     {
@@ -40,10 +41,10 @@ namespace ObjectPort.Builders
         public override Expression GetSerializerExpression(Type memberType, Expression getterExp, ParameterExpression writerExp)
         {
             var tdExp = Expression.Constant(_typeDescription, typeof(TypeDescription));
-            var valueExp = memberType.IsValueType ? Expression.Convert(getterExp, typeof(object)) : getterExp;
+            var valueExp = memberType.GetTypeInfo().IsValueType ? Expression.Convert(getterExp, typeof(object)) : getterExp;
             var serializeSubTypeExp = Expression.Call(
                 tdExp,
-                typeof(TypeDescription).GetMethod("Serialize", BindingFlags.NonPublic | BindingFlags.Instance),
+                typeof(TypeDescription).GetTypeInfo().GetMethod("Serialize", BindingFlags.NonPublic | BindingFlags.Instance),
                 writerExp,
                 valueExp);
             return serializeSubTypeExp;

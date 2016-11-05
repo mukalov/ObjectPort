@@ -1,0 +1,67 @@
+﻿{
+    "title": "ObjectPort",
+    "version": "0.9.0-*",
+    "authors": [ "Dmytro Mukalov" ],
+    "copyright": "Copyright ©  2016 Dmytro Mukalov and Contributors",
+    "description": "Very fast binary serializer",
+    "packOptions": {
+        "owners": [ "Dmytro Mukalov" ],
+        "licenseUrl": "https://github.com/mukalov/ObjectPort/blob/master/LICENSE",
+        "projectUrl": "https://github.com/mukalov/ObjectPort",
+        "requireLicenseAcceptance": false,
+        "repository": {
+            "type": "git",
+            "url": "https://github.com/mukalov/ObjectPort"
+        },
+        "tags": [ "serialization", "serializer", "binary" ]
+    },
+    "language": "en-US",
+    "configurations": {
+        "Debug": {
+            "buildOptions": {
+                "define": [ "DEBUG", "TRACE" ]
+            }
+        },
+        "Release": {
+            "buildOptions": {
+                "define": [ "RELEASE", "TRACE" ],
+                "optimize": true,
+                "xmlDoc": true,
+                "keyFile": "ObjectPort.snk",
+                "strongName": true
+            }
+        }
+    },
+
+    "dependencies": {
+        "NETStandard.Library": "1.6.0"
+    },
+
+    "frameworks": {
+        "net40": {
+            "frameworkAssemblies": {
+                "System": "",
+                "System.Core": "",
+                "System.Xml.Linq": "",
+                "System.Data.DataSetExtensions": "",
+                "Microsoft.CSharp": "",
+                "System.Data": "",
+                "System.Xml": ""
+            }
+        },
+        "net45": {
+            "frameworkAssemblies": {
+                "System": "",
+                "System.Core": "",
+                "System.Xml.Linq": "",
+                "System.Data.DataSetExtensions": "",
+                "Microsoft.CSharp": "",
+                "System.Data": "",
+                "System.Xml": ""
+            }
+        },
+        "netstandard1.6": {
+            "imports": "dnxcore50"
+        }
+    }
+}

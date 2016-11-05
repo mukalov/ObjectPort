@@ -22,6 +22,7 @@
 
 namespace ObjectPort.Builders
 {
+    using Common;
     using System;
     using System.IO;
     using System.Linq.Expressions;
@@ -46,7 +47,7 @@ namespace ObjectPort.Builders
             var elementExp = Expression.Parameter(_elementType, "element");
             _elementSerializer = ((ICompiledActionProvider<T>)_elementBuilder).GetSerializerAction(_elementType, elementExp, writerExp);
             var type = typeof(PrimitiveNullableBuilder<>).MakeGenericType(_elementType);
-            var serializeMethod = type.GetMethod("Serialize", BindingFlags.NonPublic | BindingFlags.Instance);
+            var serializeMethod = type.GetTypeInfo().GetMethod("Serialize", BindingFlags.NonPublic | BindingFlags.Instance);
             var valueExp = getterExp;
             var thisExp = Expression.Constant(this, type);
             return Expression.Call(thisExp, serializeMethod, valueExp, writerExp);
@@ -56,7 +57,7 @@ namespace ObjectPort.Builders
         {
             _elementDeserializer = ((ICompiledActionProvider<T>)_elementBuilder).GetDeserializerAction(_elementType, readerExp);
             var type = typeof(PrimitiveNullableBuilder<>).MakeGenericType(_elementType);
-            var deserializeMethod = type.GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
+            var deserializeMethod = type.GetTypeInfo().GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
             var thisExp = Expression.Constant(this, type);
             return Expression.Call(thisExp, deserializeMethod, readerExp);
         }

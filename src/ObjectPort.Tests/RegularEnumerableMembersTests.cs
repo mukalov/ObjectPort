@@ -27,34 +27,11 @@ namespace ObjectPort.Tests
     using System.Collections.Generic;
     using System;
 
+#if !NET40
     [Collection("ObjectPort")]
+#endif
     public class RegularEnumerableMembersTests : TestsBase
     {
-        protected struct TestCustomStruct
-        {
-            public string StrField;
-            public int IntField;
-        }
-
-        protected class TestCustomClass
-        {
-            public string StrField;
-            public int IntField;
-
-            public override bool Equals(object obj)
-            {
-                var testObj = obj as TestCustomClass;
-                if (obj == null)
-                    return false;
-                return StrField == testObj.StrField && IntField == testObj.IntField;
-            }
-
-            public override int GetHashCode()
-            {
-                return (StrField + IntField.ToString()).GetHashCode();
-            }
-        }
-
         protected static readonly int[] TestEmptyArray = new int[] { };
         protected static readonly int[] TestNullArray = null;
         protected static readonly List<int> TestNullList = null;

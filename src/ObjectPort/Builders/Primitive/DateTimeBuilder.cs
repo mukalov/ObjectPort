@@ -22,10 +22,11 @@
 
 namespace ObjectPort.Builders.Primitive
 {
+    using Common;
     using System;
     using System.Linq.Expressions;
     using System.Reflection;
-    
+
     internal class DateTimeBuilder : PrimitiveBuilder<DateTime>
     {
         protected override MethodInfo GetWriteMethod(Type type)
@@ -40,12 +41,12 @@ namespace ObjectPort.Builders.Primitive
 
         protected override Expression FromValue(Expression valueExp)
         {
-            return Expression.Call(valueExp, typeof(DateTime).GetMethod("ToBinary"));
+            return Expression.Call(valueExp, typeof(DateTime).GetTypeInfo().GetMethod("ToBinary"));
         }
 
         protected override Expression ToValue(Expression readExp)
         {
-            return Expression.Call(typeof(DateTime).GetMethod("FromBinary"), readExp);
+            return Expression.Call(typeof(DateTime).GetTypeInfo().GetMethod("FromBinary"), readExp);
         }
     }
 }

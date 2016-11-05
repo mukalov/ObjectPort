@@ -81,7 +81,7 @@ namespace ObjectPort.Builders
         {
             _baseElementType = baseElementType;
             _builderSpecificType = GetType();
-            if (enumerableType.IsGenericType && enumerableType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            if (enumerableType.GetTypeInfo().IsGenericType && enumerableType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
             {
                 _enumerableType = baseElementType.MakeArrayType();
                 _isIEnumerable = true;
@@ -94,7 +94,7 @@ namespace ObjectPort.Builders
 
             var ienumerableSpecificType = typeof(IEnumerable<>).MakeGenericType(baseElementType);
             var argExp = Expression.Parameter(ienumerableSpecificType);
-            Func<Type, Expression> getConstructorExp = type => Expression.New(type.GetConstructor(new[] { ienumerableSpecificType }), argExp);
+            Func<Type, Expression> getConstructorExp = type => Expression.New(type.GetTypeInfo().GetConstructor(new[] { ienumerableSpecificType }), argExp);
 
             var enumerableTypes = new Dictionary<Type, Func<Type, Expression>>
             {
@@ -196,8 +196,8 @@ namespace ObjectPort.Builders
             get
             {
                 return SerializeAsArray ?
-                    _builderSpecificType.GetMethod("SerializeArray", BindingFlags.NonPublic | BindingFlags.Instance) :
-                    _builderSpecificType.GetMethod("SerializeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance);
+                    _builderSpecificType.GetTypeInfo().GetMethod("SerializeArray", BindingFlags.NonPublic | BindingFlags.Instance) :
+                    _builderSpecificType.GetTypeInfo().GetMethod("SerializeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance);
             }
         }
 
@@ -205,7 +205,7 @@ namespace ObjectPort.Builders
         {
             get
             {
-                return _builderSpecificType.GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
+                return _builderSpecificType.GetTypeInfo().GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
             }
         }
     }

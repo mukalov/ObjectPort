@@ -31,6 +31,7 @@ namespace ObjectPort
     using System.Linq;
     using System.Text;
     using System.Threading;
+    using System.Reflection;
 
     // TODO
     // add supoort for Dictioanary
@@ -73,7 +74,11 @@ namespace ObjectPort
         {
             Debug.Assert(_state != null, "State can't be null");
             var description = _state.GetDescription(obj.GetType());
+#if NET40
+            using (var writer = new BinaryWriter(stream, Encoding.UTF8))
+#else
             using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
+#endif
             {
                 writer.Write(description.TypeId);
                 description.Serialize(writer, obj);
@@ -82,7 +87,11 @@ namespace ObjectPort
 
         public static object Deserialize(Stream stream)
         {
+#if NET40
+            using (var reader = new BinaryReader(stream, Encoding.UTF8))
+#else
             using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
+#endif
             {
                 var state = _state;
                 var typeId = reader.ReadInt16();
@@ -135,7 +144,7 @@ namespace ObjectPort
             if (type.IsEnumerableType())
             {
                 var elementType = type.GetEnumerableArgument();
-                if (!elementType.IsInterface && !elementType.IsAbstract)
+                if (!elementType.GetTypeInfo().IsInterface && !elementType.GetTypeInfo().IsAbstract)
                 {
                     var td = GetTypeDescription(elementType, state);
                     td?.Build();

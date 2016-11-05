@@ -22,6 +22,7 @@
 
 namespace ObjectPort.Builders
 {
+    using Common;
     using Descriptions;
     using System;
     using System.IO;
@@ -44,7 +45,7 @@ namespace ObjectPort.Builders
 
         public override Expression GetSerializerExpression(Type memberType, Expression getterExp, ParameterExpression writerExp)
         {
-            var serializeMethod = _builderType.GetMethod("Serialize", BindingFlags.NonPublic | BindingFlags.Instance);
+            var serializeMethod = _builderType.GetTypeInfo().GetMethod("Serialize", BindingFlags.NonPublic | BindingFlags.Instance);
             var valueExp = getterExp;
             var thisExp = Expression.Constant(this, _builderType);
             return Expression.Call(thisExp, serializeMethod, valueExp, writerExp);
@@ -52,7 +53,7 @@ namespace ObjectPort.Builders
 
         public override Expression GetDeserializerExpression(Type memberType, ParameterExpression readerExp)
         {
-            var deserializeMethod = _builderType.GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
+            var deserializeMethod = _builderType.GetTypeInfo().GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
             var thisExp = Expression.Constant(this, _builderType);
             return Expression.Call(thisExp, deserializeMethod, readerExp);
         }

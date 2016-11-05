@@ -25,7 +25,9 @@ namespace ObjectPort.Tests
     using System;
     using Xunit;
 
+#if !NET40
     [Collection("ObjectPort")]
+#endif
     public class PrimitiveMembersTests : TestsBase
     {
         private const int TestIntVal = -1234343;

@@ -86,12 +86,12 @@ namespace ObjectPort.Builders
         {
             var typeDescription = state.GetDescription(type);
             if (typeDescription == null 
-                && !type.IsAbstract 
-                && !type.IsInterface 
+                && !type.GetTypeInfo().IsAbstract 
+                && !type.GetTypeInfo().IsInterface 
                 && !type.IsBuiltInType() 
                 && !type.IsEnumerableType()
                 && !type.IsDictionaryType()
-                && !type.IsEnum)
+                && !type.GetTypeInfo().IsEnum)
                 type.TypeNotSupported(type);
             return typeDescription;
         }
@@ -122,7 +122,7 @@ namespace ObjectPort.Builders
             }
             else
             {
-                if (type.IsEnum)
+                if (type.GetTypeInfo().IsEnum)
                 {
                     serializerBuilder = CreateBuilder(typeof(EnumBuilder<>), type, type, Enum.GetUnderlyingType(type));
                 }
@@ -154,7 +154,7 @@ namespace ObjectPort.Builders
                         GetTypeDescription(baseElementType, state), 
                         state);
                 }
-                else if (type.IsInterface || type.IsAbstract)
+                else if (type.GetTypeInfo().IsInterface || type.GetTypeInfo().IsAbstract)
                 {
                     var derivedTypes = state.GetDescriptionsForDerivedTypes(type);
                     if (!derivedTypes.Any())
@@ -180,7 +180,7 @@ namespace ObjectPort.Builders
                     else
                     {
                         serializerBuilder = CreateBuilder(typeof(ComplexBuilder<>), type, nestedTypeDescription);
-                        if (!type.IsValueType)
+                        if (!type.GetTypeInfo().IsValueType)
                             serializerBuilder = WrapWithCheckNullBuilder(type, serializerBuilder);
                     }
                 }

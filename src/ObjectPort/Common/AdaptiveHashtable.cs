@@ -137,7 +137,7 @@ namespace ObjectPort.Common
         public AdaptiveHashtable<T> Clone()
         {
             var copy = new AdaptiveHashtable<T>(_length, _depth);
-            Array.Copy(_values, 0, copy._values, 0, _length);
+            Array.Copy(_values, 0, copy._values, 0, (int)_length);
             copy._loaded = _loaded;
             copy._loadedIndexes = _loadedIndexes.ToList();
             return copy;

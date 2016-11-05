@@ -118,7 +118,7 @@ namespace ObjectPort.Builders
         {
             get
             {
-                return GetType().GetMethod("Serialize", BindingFlags.NonPublic | BindingFlags.Instance);
+                return GetType().GetTypeInfo().GetMethod("Serialize", BindingFlags.NonPublic | BindingFlags.Instance);
             }
         }
 
@@ -126,7 +126,7 @@ namespace ObjectPort.Builders
         {
             get
             {
-                return GetType().GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
+                return GetType().GetTypeInfo().GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
             }
         }
     }

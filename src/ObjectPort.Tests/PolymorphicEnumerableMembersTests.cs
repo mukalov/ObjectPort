@@ -27,7 +27,9 @@ namespace ObjectPort.Tests
     using System.Linq;
     using Xunit;
 
+#if !NET40
     [Collection("ObjectPort")]
+#endif
     public class PolymorphicEnumerableMembersTests : TestsBase
     {
         private interface IBaseInterface
@@ -214,15 +216,25 @@ namespace ObjectPort.Tests
         [Fact]
         public void Shouldnt_Serialize_Array_Of_Polymorphic_Structs_From_Interface_With_No_Types()
         {
+#if !NET40
             var message = "No implementations found for";
+#endif
             var ex = Assert.Throws<NotImplementedException>(() => TestStructField<IEnumerable<IBaseInterface>>(TestPolymorphicArrayOfStructs1.ToList()));
+#if !NET40
             Assert.StartsWith(message, ex.Message);
+#endif
             ex = Assert.Throws<NotImplementedException>(() => TestStructProperty<IEnumerable<IBaseInterface>>(TestPolymorphicArrayOfStructs1.ToList()));
+#if !NET40
             Assert.StartsWith(message, ex.Message);
+#endif
             ex = Assert.Throws<NotImplementedException>(() => TestClassField<IEnumerable<IBaseInterface>>(TestPolymorphicArrayOfStructs1.ToList()));
+#if !NET40
             Assert.StartsWith(message, ex.Message);
+#endif
             ex = Assert.Throws<NotImplementedException>(() => TestClassProperty<IEnumerable<IBaseInterface>>(TestPolymorphicArrayOfStructs1.ToList()));
+#if !NET40
             Assert.StartsWith(message, ex.Message);
+#endif
         }
 
         [Fact]

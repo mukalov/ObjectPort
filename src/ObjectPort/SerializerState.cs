@@ -28,6 +28,7 @@ namespace ObjectPort
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Reflection;
     using System.Runtime.CompilerServices;
 
     internal class SerializerState
@@ -71,9 +72,9 @@ namespace ObjectPort
             foreach (var description in AllTypeDescriptions.Select(i => i.Value).ToArray())
             {
                 if (description.Type == type
-                    || description.Type.IsAssignableFrom(type)
-                    || description.Type.IsSubclassOf(type)
-                    || type.IsInterface && description.Type.GetInterfaces().Contains(type))
+                    || description.Type.GetTypeInfo().IsAssignableFrom(type)
+                    || description.Type.GetTypeInfo().IsSubclassOf(type)
+                    || type.GetTypeInfo().IsInterface && description.Type.GetTypeInfo().GetInterfaces().Contains(type))
                 {
                     yield return description;
                 }

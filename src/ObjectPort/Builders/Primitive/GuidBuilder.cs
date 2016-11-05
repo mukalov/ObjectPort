@@ -22,6 +22,7 @@
 
 namespace ObjectPort.Builders.Primitive
 {
+    using Common;
     using System;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -40,12 +41,12 @@ namespace ObjectPort.Builders.Primitive
 
         protected override Expression FromValue(Expression valueExp)
         {
-            return Expression.Call(valueExp, typeof(Guid).GetMethod("ToByteArray"));
+            return Expression.Call(valueExp, typeof(Guid).GetTypeInfo().GetMethod("ToByteArray"));
         }
 
         protected override Expression ToValue(Expression readExp)
         {
-            return Expression.New(typeof(Guid).GetConstructor(new[] { typeof(byte[]) }), readExp);
+            return Expression.New(typeof(Guid).GetTypeInfo().GetConstructor(new[] { typeof(byte[]) }), readExp);
         }
 
         protected override Expression[] ReadParameters

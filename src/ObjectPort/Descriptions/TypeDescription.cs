@@ -22,6 +22,7 @@
 
 namespace ObjectPort.Descriptions
 {
+    using Common;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -99,13 +100,13 @@ namespace ObjectPort.Descriptions
             var instanceExp = Expression.Parameter(typeof(object), "instance");
             var writerExp = Expression.Parameter(typeof(BinaryWriter), "writer");
 
-            foreach (var p in Type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var p in Type.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
                 var pd = GetMemeberDescription(p.Name);
                 pd?.CompileSerializer(instanceExp, writerExp);
             }
 
-            foreach (var f in Type.GetFields(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var f in Type.GetTypeInfo().GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
                 var fd = GetMemeberDescription(f.Name);
                 fd?.CompileSerializer(instanceExp, writerExp);
@@ -125,7 +126,7 @@ namespace ObjectPort.Descriptions
         {
             var readerExp = Expression.Parameter(typeof(BinaryReader), "reader");
             var deserializerExp = GetDeserializerExpression(readerExp);
-            if (Type.IsValueType)
+            if (Type.GetTypeInfo().IsValueType)
                 deserializerExp = Expression.TypeAs(GetDeserializerExpression(readerExp), typeof(object));
             var lamdaExp = Expression.Lambda<Func<BinaryReader, object>>(deserializerExp, readerExp);
             _deserializer = lamdaExp.Compile();

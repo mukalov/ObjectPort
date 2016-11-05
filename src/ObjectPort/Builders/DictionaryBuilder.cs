@@ -60,7 +60,7 @@ namespace ObjectPort.Builders
         {
             get
             {
-                return _builderSpecificType.GetMethod("Serialize", BindingFlags.NonPublic | BindingFlags.Instance);
+                return _builderSpecificType.GetTypeInfo().GetMethod("Serialize", BindingFlags.NonPublic | BindingFlags.Instance);
             }
         }
 
@@ -68,7 +68,7 @@ namespace ObjectPort.Builders
         {
             get
             {
-                return _builderSpecificType.GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
+                return _builderSpecificType.GetTypeInfo().GetMethod("Deserialize", BindingFlags.NonPublic | BindingFlags.Instance);
             }
         }
 
@@ -85,7 +85,7 @@ namespace ObjectPort.Builders
             _keyType = keyType;
             _valType = valType;
             _builderSpecificType = GetType();
-            if (dictionaryType.IsGenericType && dictionaryType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
+            if (dictionaryType.GetTypeInfo().IsGenericType && dictionaryType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
             {
                 _dictionaryType = typeof(Dictionary<,>).MakeGenericType(keyType, valType);
             }
@@ -96,7 +96,7 @@ namespace ObjectPort.Builders
 
             var dictionarySpecificType = typeof(IDictionary<,>).MakeGenericType(keyType, valType);
             var argExp = Expression.Parameter(dictionarySpecificType);
-            Func<Type, Expression> getConstructorExp = type => Expression.New(type.GetConstructor(new[] { dictionarySpecificType }), argExp);
+            Func<Type, Expression> getConstructorExp = type => Expression.New(type.GetTypeInfo().GetConstructor(new[] { dictionarySpecificType }), argExp);
 
             var enumerableTypes = new Dictionary<Type, Func<Type, Expression>>
             {

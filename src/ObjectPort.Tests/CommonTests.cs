@@ -22,43 +22,57 @@
 
 namespace ObjectPort.Tests
 {
+    using System.IO;
     using Xunit;
 
+#if !NET40
     [Collection("ObjectPort")]
-    public class EnumMembersTests : TestsBase
+#endif
+    public class CommonTests : TestsBase
     {
-        private enum TestStdEnum { First, Second, Third };
-        private enum TestDerivedEnum : byte { FirstByte, SecondByte, ThirdByte };
-
-        private const TestStdEnum TestStdEnumVal = TestStdEnum.Second;
-        private const TestDerivedEnum TestDerivedEnumVal = TestDerivedEnum.SecondByte;
-        
         [Fact]
-        public void Should_Serialize_Class_Field()
+        public void Should_Serialize_Anonymous_Type()
         {
-            TestClassField(TestStdEnumVal);
-            TestClassField(TestDerivedEnumVal);
+            var testObj = new
+            {
+                Field1 = 343,
+                Field2 = "45454",
+                Field3 = new
+                {
+                    Field7 = new TestCustomClass
+                    {
+                        IntField = 555,
+                        StrField = "444444"
+                    },
+                    Field8 = "Test Test"
+                }
+            };
+
+            Serializer.RegisterTypes(new[] { testObj.GetType() });
+            using (var stream = new MemoryStream())
+            {
+                Serializer.Serialize(stream, testObj);
+                stream.Seek(0, SeekOrigin.Begin);
+                var result = Serializer.Deserialize(stream);
+                Assert.IsType(testObj.GetType(), result);
+                Assert.Equal(result, testObj);
+            }
         }
 
         [Fact]
-        public void Should_Serialize_Class_Property()
+        public void Should_Serialize_Complex_Object()
         {
-            TestClassProperty(TestStdEnumVal);
-            TestClassProperty(TestDerivedEnumVal);
+
         }
 
         [Fact]
-        public void Should_Serialize_Struct_Field()
+        public void Should_Serialize_Type_By_Id()
         {
-            TestStructField(TestStdEnumVal);
-            TestStructField(TestDerivedEnumVal);
         }
 
         [Fact]
-        public void Should_Serialize_Struct_Property()
+        public void Shouldnt_Serialize_Unknown_Root()
         {
-            TestStructProperty(TestStdEnumVal);
-            TestStructProperty(TestDerivedEnumVal);
         }
     }
 }

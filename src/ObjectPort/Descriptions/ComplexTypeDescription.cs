@@ -22,6 +22,7 @@
 
 namespace ObjectPort.Descriptions
 {
+    using Common;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -51,12 +52,12 @@ namespace ObjectPort.Descriptions
         internal override MemberDescription[] GetDescriptions(SerializerState state)
         {
             const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-            var fileds = Type.GetFields(bindingFlags)
+            var fileds = Type.GetTypeInfo().GetFields(bindingFlags)
                 .Select(i => new FieldDescription(i, state)
                 {
                     NestedTypeDescription = Serializer.GetTypeDescription(i.FieldType, state)
                 });
-            var properties = Type.GetProperties(bindingFlags)
+            var properties = Type.GetTypeInfo().GetProperties(bindingFlags)
                 .Select(p => new PropertyDescription(p, state)
                 {
                     NestedTypeDescription = Serializer.GetTypeDescription(p.PropertyType, state)
