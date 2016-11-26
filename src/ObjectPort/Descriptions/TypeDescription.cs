@@ -24,25 +24,14 @@ namespace ObjectPort.Descriptions
 {
     using Common;
     using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using System.Text;
 
     internal abstract class TypeDescription
     {
-        private MemberDescription[] _descriptions;
-        private Dictionary<string, int> _orderMapping;
-        private Action<object, BinaryWriter> _serializer;
-        private Func<BinaryReader, object> _deserializer;
         private readonly Lazy<bool> _isInitialized;
-
         public Type Type { get; }
         public ushort TypeId { get; private set; }
-        public IEnumerable<MemberDescription> Descriptions => _descriptions;
 
         internal TypeDescription(ushort typeId, Type type, SerializerState state)
         {
@@ -62,74 +51,15 @@ namespace ObjectPort.Descriptions
             var isInitialized = _isInitialized.Value;
         }
 
-        internal abstract Expression GetDeserializerExpression(ParameterExpression readerExpression);
-        internal abstract MemberDescription[] GetDescriptions(SerializerState state);
-
-        internal void Serialize(BinaryWriter writer, object obj)
+        internal virtual void InitDescriptions(SerializerState state)
         {
-            _serializer.Invoke(obj, writer);
         }
 
-        internal object Deserialize(BinaryReader reader)
-        {
-            return _deserializer(reader);
-        }
-
-        private MemberDescription GetMemeberDescription(string name)
-        {
-            int index;
-            if (!_orderMapping.TryGetValue(name, out index))
-                return null;
-            Debug.Assert(index < _descriptions.Length, "Index can't be out of range");
-            return _descriptions[index];
-        }
-
-        private void InitDescriptions(SerializerState state)
-        {
-            _descriptions = GetDescriptions(state);
-            _orderMapping = new Dictionary<string, int>();
-            for (var i = 0; i < _descriptions.Length; i++)
-                _orderMapping[_descriptions[i].Name] = i;
-
-            foreach (var description in _descriptions)
-                description.NestedTypeDescription?.InitDescriptions(state);
-        }
-
-        private void InitSerializers()
-        {
-            var instanceExp = Expression.Parameter(typeof(object), "instance");
-            var writerExp = Expression.Parameter(typeof(BinaryWriter), "writer");
-
-            foreach (var p in Type.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public))
-            {
-                var pd = GetMemeberDescription(p.Name);
-                pd?.CompileSerializer(instanceExp, writerExp);
-            }
-
-            foreach (var f in Type.GetTypeInfo().GetFields(BindingFlags.Instance | BindingFlags.Public))
-            {
-                var fd = GetMemeberDescription(f.Name);
-                fd?.CompileSerializer(instanceExp, writerExp);
-            }
-
-            foreach (var description in _descriptions)
-                description.NestedTypeDescription?.InitSerializers();
-
-            var serializer = Expression.Lambda<Action<object, BinaryWriter>>(
-                Expression.Block(_descriptions.Select(d => d.SerializerExpression)),
-                instanceExp,
-                writerExp);
-            _serializer = serializer.Compile();
-        }
-
-        private void InitDeserializer()
-        {
-            var readerExp = Expression.Parameter(typeof(BinaryReader), "reader");
-            var deserializerExp = GetDeserializerExpression(readerExp);
-            if (Type.GetTypeInfo().IsValueType)
-                deserializerExp = Expression.TypeAs(GetDeserializerExpression(readerExp), typeof(object));
-            var lamdaExp = Expression.Lambda<Func<BinaryReader, object>>(deserializerExp, readerExp);
-            _deserializer = lamdaExp.Compile();
-        }
+        internal abstract Expression GetDeserializerExpression(ParameterExpression readerExp);
+        internal abstract Expression GetSerializerExpression(ParameterExpression instanceExp, ParameterExpression writerExp);
+        internal abstract void Serialize(Writer writer, object obj);
+        internal abstract object Deserialize(Reader reader);
+        internal abstract void InitSerializers();
+        internal abstract void InitDeserializer();
     }
 }

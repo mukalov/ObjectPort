@@ -40,5 +40,10 @@ namespace ObjectPort.Common
         {
             throw new ArgumentOutOfRangeException($"Unknown type id: {typeId}");
         }
+
+        public static void OutOfFormattersPoolCapacity(this object obj)
+        {
+            throw new ArgumentOutOfRangeException("The formatters pools capacity is exceeded");
+        }
     }
 }

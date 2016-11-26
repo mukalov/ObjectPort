@@ -29,12 +29,6 @@ namespace ObjectPort.Tests
 #endif
     public class NullableMembersTests : TestsBase
     {
-        internal struct TestCustomStruct
-        {
-            public string StrField;
-            public int IntField;
-        }
-
         private static readonly int? TestNullIntVal = -1234343;
         private const int TestIntVal = -4543534;
         private const string TestStringVal = "Test String";

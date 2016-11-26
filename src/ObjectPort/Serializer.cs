@@ -32,19 +32,20 @@ namespace ObjectPort
     using System.Text;
     using System.Threading;
     using System.Reflection;
+    using Builders;
+    using System.Runtime.CompilerServices;
 
     // TODO
-    // add supoort for Dictioanary
+    // optimize Array of primitives
+    // RegisterType with explicit type ids
     // serializer configurable encoding
     // serializer parameter for type id
     // alphabetical order for members
-    //+ optimize complex enumerable for struct (check for null)
     public sealed class Serializer
     {
         private static SerializerState _state = new SerializerState();
         private static readonly object Locker = new object();
         public static Encoding Encoding = Encoding.UTF8;
-
 
         public static void RegisterTypes(IEnumerable<Type> types)
         {
@@ -52,12 +53,22 @@ namespace ObjectPort
             {
                 var state = _state.Clone();
 
+                RegisterPrimitiveTypes(state);
                 var descriptions = new List<TypeDescription>();
                 foreach (var type in types)
                 {
-                    var description = GetTypeDescription(type, state);
-                    if (description != null)
+                    if (type.IsNotComplexType())
+                    {
+                        var description = CreateTypeDescription(typeof(SimpleTypeDescription<>), type, state.LastTypeId++, type, state);
+                        state.AddDescription(type, description);
                         descriptions.Add(description);
+                    }
+                    else
+                    {
+                        var description = GetTypeDescription(type, state);
+                        if (description != null)
+                            descriptions.Add(description);
+                    }
                 }
                 foreach (var description in descriptions)
                     description.Build();
@@ -74,32 +85,33 @@ namespace ObjectPort
         {
             Debug.Assert(_state != null, "State can't be null");
             var description = _state.GetDescription(obj.GetType());
-#if NET40
-            using (var writer = new BinaryWriter(stream, Encoding.UTF8))
-#else
-            using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
-#endif
-            {
-                writer.Write(description.TypeId);
-                description.Serialize(writer, obj);
-            }
+            var writer = FormatterFactory<Writer>.GetFormatter(stream, Encoding);
+            writer.Write(description.TypeId);
+            description.Serialize(writer, obj);
+            FormatterFactory<Writer>.ReleaseFormatter(writer);
+        }
+
+        public static void Serialize<T>(Stream stream, T obj)
+        {
+            Debug.Assert(_state != null, "State can't be null");
+            var description = _state.GetDescription(RuntimeHelpers.GetHashCode(typeof(T)));
+            var writer = FormatterFactory<Writer>.GetFormatter(stream, Encoding);
+            writer.Write(description.TypeId);
+            ((SpecializedTypeDescription<T>)description).SerializeHanlder(obj, writer);// (writer, obj);
+            FormatterFactory<Writer>.ReleaseFormatter(writer);
         }
 
         public static object Deserialize(Stream stream)
         {
-#if NET40
-            using (var reader = new BinaryReader(stream, Encoding.UTF8))
-#else
-            using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
-#endif
-            {
-                var state = _state;
-                var typeId = reader.ReadInt16();
-                if (typeId >= state.DescriptionsById.Length)
-                    state.UnknownTypeId(typeId);
-                var description = state.DescriptionsById[typeId];
-                return description.Deserialize(reader);
-            }
+            var reader = FormatterFactory<Reader>.GetFormatter(stream, Encoding);
+            var state = _state;
+            var typeId = reader.ReadShort();
+            if (typeId >= state.DescriptionsById.Length)
+                state.UnknownTypeId(typeId);
+            var description = state.DescriptionsById[typeId];
+            var obj = description.Deserialize(reader);
+            FormatterFactory<Reader>.ReleaseFormatter(reader);
+            return obj;
         }
 
         public static void Clear()
@@ -153,12 +165,45 @@ namespace ObjectPort
             }
 
             if (type.IsAnonymousType())
-                description = new AnonymousTypeDescription(state.LastTypeId++, type, state);
+                description = CreateTypeDescription(typeof(AnonymousTypeDescription<>), type, state.LastTypeId++, type, state);
             else
-                description = new ComplexTypeDescription(state.LastTypeId++, type, state);
-            state.AllTypeDescriptions.Add(type, description);
+                description = CreateTypeDescription(typeof(ComplexTypeDescription<>), type, state.LastTypeId++, type, state);
             state.AddDescription(type, description);
             return description;
+        }
+
+        private static void RegisterPrimitiveTypes(SerializerState state)
+        {
+            var primitiveTypes = BuilderFactory.GetPrimitiveTypes().ToArray();
+            for (ushort i = 0; i < primitiveTypes.Length; i++)
+            {
+                if (state.GetDescription(primitiveTypes[i]) == null)
+                {
+                    var description = CreateTypeDescription(typeof(SimpleTypeDescription<>), primitiveTypes[i], i, primitiveTypes[i], state);
+                    state.AddDescription(primitiveTypes[i], description);
+                    description.Build();
+                }
+            }
+        }
+
+        private static TypeDescription CreateTypeDescription(Type descriptionType, IEnumerable<Type> argTypes, params object[] constructorArgs)
+        {
+            try
+            {
+                return (TypeDescription)Activator.CreateInstance(descriptionType.MakeGenericType(argTypes.ToArray()), constructorArgs);
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException != null)
+                    throw e.InnerException;
+                else
+                    throw;
+            }
+        }
+
+        private static TypeDescription CreateTypeDescription(Type descriptionType, Type argType, params object[] constructorArgs)
+        {
+            return CreateTypeDescription(descriptionType, new[] { argType }, constructorArgs);
         }
     }
 }

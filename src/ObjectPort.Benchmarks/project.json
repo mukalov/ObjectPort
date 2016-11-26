@@ -1,0 +1,43 @@
+﻿{
+    "version": "1.0.0-*",
+    "buildOptions": {
+        "emitEntryPoint": true
+    },
+
+    "dependencies": {
+        "NETStandard.Library": "1.6.0",
+        "ObjectPort": "0.9.0-*",
+        "protobuf-net": "2.1.0"
+    },
+
+    "frameworks": {
+        "net46": {
+            "dependencies": {
+                "BenchmarkDotNet": "0.9.9",
+                "NetSerializer": "4.1.0"
+            },
+            "frameworkAssemblies": {
+                "System": "",
+                "System.Core": "",
+                "System.Xml.Linq": "",
+                "System.Data.DataSetExtensions": "",
+                "Microsoft.CSharp": "",
+                "System.Data": "",
+                "System.Xml": ""
+            }
+        },
+        "netcoreapp1.0": {
+            "buildOptions": {
+                "define": [ "NETCORE" ]
+            },
+            "dependencies": {
+                "BenchmarkDotNet": "0.9.9",
+                "Microsoft.NETCore.App": {
+                    "type": "platform",
+                    "version": "1.0.1"
+                }
+            },
+            "imports": "dnxcore50"
+        }
+    }
+}

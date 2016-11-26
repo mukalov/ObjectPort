@@ -20,16 +20,39 @@
 //SOFTWARE.
 #endregion
 
-namespace ObjectPort.Builders.Primitive
+namespace ObjectPort.Descriptions
 {
+    using Builders;
     using Common;
+    using System;
+    using System.Linq.Expressions;
     using System.Reflection;
 
-    internal class IntBuilder : PrimitiveBuilder<int>
+    internal class SimpleTypeDescription<T> : SpecializedTypeDescription<T>
     {
-        protected override MethodInfo GetReadMethod()
+        private MemberSerializerBuilder _builder;
+
+        public SimpleTypeDescription(ushort typeId, Type type, SerializerState state) : base(typeId, type, state)
         {
-            return typeof(Reader).GetTypeInfo().GetMethod("ReadInt");
+            _builder = BuilderFactory.GetBuilder(type, null, state);
+        }
+
+        internal override MemberDescription[] GetDescriptions(SerializerState state)
+        {
+            return new MemberDescription[] { };
+        }
+
+        internal override Expression GetDeserializerExpression(ParameterExpression readerExp)
+        {
+            return _builder.GetDeserializerExpression(Type, readerExp);
+        }
+
+        internal override Expression GetSerializerExpression(ParameterExpression instanceExp, ParameterExpression writerExp)
+        {
+            var instanceCastExp = Type.GetTypeInfo().IsValueType ?
+                Expression.Convert(instanceExp, Type) :
+                Expression.TypeAs(instanceExp, Type);
+            return _builder.GetSerializerExpression(Type, instanceCastExp, writerExp);
         }
     }
 }

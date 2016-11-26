@@ -28,25 +28,25 @@ namespace ObjectPort.Tests
 
     public class TestsBase : IDisposable
     {
-        internal class TestClass<T>
+        public class TestClass<T>
         {
             public T Field;
             public T Property { get; set; }
         }
 
-        internal struct TestStruct<T>
+        public struct TestStruct<T>
         {
             public T Field;
             public T Property { get; set; }
         }
 
-        protected struct TestCustomStruct
+        public struct TestCustomStruct
         {
             public string StrField;
             public int IntField;
         }
 
-        protected class TestCustomClass
+        public class TestCustomClass
         {
             public string StrField;
             public int IntField;
@@ -105,6 +105,17 @@ namespace ObjectPort.Tests
             }
         }
 
+        internal object SerializeDeserializeValue<T>(T val)
+        {
+            Serializer.RegisterTypes(new[] { typeof(T) });
+            using (var stream = new MemoryStream())
+            {
+                Serializer.Serialize(stream, val);
+                stream.Seek(0, SeekOrigin.Begin);
+                var result = Serializer.Deserialize(stream);
+                return result;
+            }
+        }
 
         private void TestClassMember<ContainerT, T>(T val, Action<ContainerT> setter, Func<ContainerT, T> getter)
             where ContainerT : new()
@@ -121,7 +132,6 @@ namespace ObjectPort.Tests
             Assert.IsType<ContainerT>(result);
             Assert.Equal(getter((ContainerT)result), val);
         }
-
 
         internal void TestClassField<T>(T val)
         {
@@ -141,6 +151,13 @@ namespace ObjectPort.Tests
         internal void TestStructProperty<T>(T val)
         {
             TestStructMember<TestStruct<T>, T>(val, (ref TestStruct<T> obj) => { obj.Property = val; }, obj => obj.Property);
+        }
+
+        internal void TestNoRootObj<T>(T val)
+        {
+            var result = SerializeDeserializeValue(val);
+            Assert.IsType<T>(result);
+            Assert.Equal((T)result, val);
         }
     }
 }

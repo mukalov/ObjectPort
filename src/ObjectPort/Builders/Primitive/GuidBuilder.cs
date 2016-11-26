@@ -24,37 +24,13 @@ namespace ObjectPort.Builders.Primitive
 {
     using Common;
     using System;
-    using System.Linq.Expressions;
     using System.Reflection;
 
     internal class GuidBuilder : PrimitiveBuilder<Guid>
     {
-        protected override MethodInfo GetWriteMethod(Type type)
-        {
-            return GetWriterMethod("Write", typeof(byte[]));
-        }
-
         protected override MethodInfo GetReadMethod()
         {
-            return GetReaderMethod("ReadBytes");
-        }
-
-        protected override Expression FromValue(Expression valueExp)
-        {
-            return Expression.Call(valueExp, typeof(Guid).GetTypeInfo().GetMethod("ToByteArray"));
-        }
-
-        protected override Expression ToValue(Expression readExp)
-        {
-            return Expression.New(typeof(Guid).GetTypeInfo().GetConstructor(new[] { typeof(byte[]) }), readExp);
-        }
-
-        protected override Expression[] ReadParameters
-        {
-            get
-            {
-                return new[] { Expression.Constant(16) };
-            }
+            return typeof(Reader).GetTypeInfo().GetMethod("ReadGuid");
         }
     }
 }

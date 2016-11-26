@@ -20,16 +20,26 @@
 //SOFTWARE.
 #endregion
 
-namespace ObjectPort.Builders.Primitive
+namespace ObjectPort.Tests
 {
-    using Common;
-    using System.Reflection;
+    using Xunit;
 
-    internal class IntBuilder : PrimitiveBuilder<int>
+#if !NET40
+    [Collection("ObjectPort")]
+#endif
+    public class NotRootSerializationTests : TestsBase
     {
-        protected override MethodInfo GetReadMethod()
+        [Fact]
+        public void Should_Serialize_Primitive_NotRootValues()
         {
-            return typeof(Reader).GetTypeInfo().GetMethod("ReadInt");
+            TestNoRootObj(23432);
+        }
+
+        [Fact]
+        public void Should_Serialize_Array_NotRootValues()
+        {
+            var strs = new[] { "Test1", "Test2", "Test3", null, "Test4" };
+            TestNoRootObj(strs);
         }
     }
 }

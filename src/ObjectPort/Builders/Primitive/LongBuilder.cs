@@ -30,7 +30,7 @@ namespace ObjectPort.Builders.Primitive
     {
         protected override MethodInfo GetReadMethod()
         {
-            return typeof(BinaryReader).GetTypeInfo().GetMethod("ReadInt64");
+            return typeof(Reader).GetTypeInfo().GetMethod("ReadLong");
         }
     }
 }

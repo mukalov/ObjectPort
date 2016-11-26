@@ -23,14 +23,13 @@
 namespace ObjectPort.Builders.Primitive
 {
     using Common;
-    using System.IO;
     using System.Reflection;
 
     internal class ULongBuilder : PrimitiveBuilder<ulong>
     {
         protected override MethodInfo GetReadMethod()
         {
-            return typeof(BinaryReader).GetTypeInfo().GetMethod("ReadUInt64");
+            return typeof(Reader).GetTypeInfo().GetMethod("ReadULong");
         }
     }
 }

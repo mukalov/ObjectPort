@@ -22,21 +22,21 @@
 
 namespace ObjectPort.Builders
 {
+    using Common;
     using System;
-    using System.IO;
     using System.Linq.Expressions;
 
     internal abstract class ActionProviderBuilder<T> : MemberSerializerBuilder, ICompiledActionProvider<T>
     {
-        public Action<T, BinaryWriter> GetSerializerAction(Type memberType, ParameterExpression valueExp, ParameterExpression writerExp)
+        public Action<T, Writer> GetSerializerAction(Type memberType, ParameterExpression valueExp, ParameterExpression writerExp)
         {
-            return Expression.Lambda<Action<T, BinaryWriter>>(
+            return Expression.Lambda<Action<T, Writer>>(
                 GetSerializerExpression(memberType, valueExp, writerExp), valueExp, writerExp).Compile();
         }
 
-        public Func<BinaryReader, T> GetDeserializerAction(Type memberType, ParameterExpression readerExp)
+        public Func<Reader, T> GetDeserializerAction(Type memberType, ParameterExpression readerExp)
         {
-            return Expression.Lambda<Func<BinaryReader, T>>(
+            return Expression.Lambda<Func<Reader, T>>(
                 GetDeserializerExpression(memberType, readerExp), readerExp).Compile();
         }
     }

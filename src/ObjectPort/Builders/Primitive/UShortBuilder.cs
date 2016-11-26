@@ -23,14 +23,13 @@
 namespace ObjectPort.Builders.Primitive
 {
     using Common;
-    using System.IO;
     using System.Reflection;
 
     internal class UShortBuilder : PrimitiveBuilder<ushort>
     {
         protected override MethodInfo GetReadMethod()
         {
-            return typeof(BinaryReader).GetTypeInfo().GetMethod("ReadUInt16");
+            return typeof(Reader).GetTypeInfo().GetMethod("ReadUShort");
         }
     }
 }

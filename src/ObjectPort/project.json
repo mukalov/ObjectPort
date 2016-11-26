@@ -19,7 +19,8 @@
     "configurations": {
         "Debug": {
             "buildOptions": {
-                "define": [ "DEBUG", "TRACE" ]
+                "define": [ "DEBUG", "TRACE" ],
+                "allowUnsafe": true
             }
         },
         "Release": {
@@ -28,7 +29,8 @@
                 "optimize": true,
                 "xmlDoc": true,
                 "keyFile": "ObjectPort.snk",
-                "strongName": true
+                "strongName": true,
+                "allowUnsafe": true
             }
         }
     },
@@ -58,10 +60,35 @@
                 "Microsoft.CSharp": "",
                 "System.Data": "",
                 "System.Xml": ""
+            },
+            "dependencies": {
+                "System.Collections.Concurrent": "4.0.12",
+                "System.Runtime.WindowsRuntime": "4.0.10"
+            }
+        },
+        "net451": {
+            "frameworkAssemblies": {
+                "System": "",
+                "System.Core": "",
+                "System.Xml.Linq": "",
+                "System.Data.DataSetExtensions": "",
+                "Microsoft.CSharp": "",
+                "System.Data": "",
+                "System.Xml": ""
+            },
+            "dependencies": {
+                "System.Collections.Concurrent": "4.0.12",
+                "System.Runtime.WindowsRuntime": "4.0.10"
             }
         },
         "netstandard1.6": {
-            "imports": "dnxcore50"
+            "buildOptions": {
+                "define": [ "NETCORE" ]
+            },
+            "imports": "dnxcore50",
+            "dependencies": {
+                "System.Collections.Concurrent": "4.0.12"
+            }
         }
     }
 }

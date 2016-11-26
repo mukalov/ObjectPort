@@ -29,8 +29,8 @@ namespace ObjectPort.Tests
 #endif
     public class EnumMembersTests : TestsBase
     {
-        private enum TestStdEnum { First, Second, Third };
-        private enum TestDerivedEnum : byte { FirstByte, SecondByte, ThirdByte };
+        public enum TestStdEnum { First, Second, Third };
+        public enum TestDerivedEnum : byte { FirstByte, SecondByte, ThirdByte };
 
         private const TestStdEnum TestStdEnumVal = TestStdEnum.Second;
         private const TestDerivedEnum TestDerivedEnumVal = TestDerivedEnum.SecondByte;

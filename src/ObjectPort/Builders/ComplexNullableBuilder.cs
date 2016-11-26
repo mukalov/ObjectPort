@@ -25,7 +25,6 @@ namespace ObjectPort.Builders
     using Common;
     using Descriptions;
     using System;
-    using System.IO;
     using System.Linq.Expressions;
     using System.Reflection;
 
@@ -58,7 +57,7 @@ namespace ObjectPort.Builders
             return Expression.Call(thisExp, deserializeMethod, readerExp);
         }
 
-        internal void Serialize(T? nullable, BinaryWriter writer)
+        internal void Serialize(T? nullable, Writer writer)
         {
             if (!nullable.HasValue)
             {
@@ -69,9 +68,9 @@ namespace ObjectPort.Builders
             _description.Serialize(writer, nullable.Value);
         }
 
-        internal T? Deserialize(BinaryReader reader)
+        internal T? Deserialize(Reader reader)
         {
-            var notNull = reader.ReadBoolean();
+            var notNull = reader.ReadBool();
             if (!notNull)
                 return null;
             return (T)_description.Deserialize(reader);

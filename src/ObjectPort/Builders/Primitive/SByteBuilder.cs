@@ -1,5 +1,4 @@
-﻿using System.IO;
-#region License
+﻿#region License
 //Copyright(c) 2016 Dmytro Mukalov
 
 //Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,7 +29,7 @@ namespace ObjectPort.Builders.Primitive
     {
         protected override MethodInfo GetReadMethod()
         {
-            return typeof(BinaryReader).GetTypeInfo().GetMethod("ReadSByte");
+            return typeof(Reader).GetTypeInfo().GetMethod("ReadSByte");
         }
     }
 }

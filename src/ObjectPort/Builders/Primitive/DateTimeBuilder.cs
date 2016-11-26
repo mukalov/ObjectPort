@@ -24,29 +24,13 @@ namespace ObjectPort.Builders.Primitive
 {
     using Common;
     using System;
-    using System.Linq.Expressions;
     using System.Reflection;
 
     internal class DateTimeBuilder : PrimitiveBuilder<DateTime>
     {
-        protected override MethodInfo GetWriteMethod(Type type)
-        {
-            return GetWriterMethod("Write", typeof(long));
-        }
-
         protected override MethodInfo GetReadMethod()
         {
-            return GetReaderMethod("ReadInt64");
-        }
-
-        protected override Expression FromValue(Expression valueExp)
-        {
-            return Expression.Call(valueExp, typeof(DateTime).GetTypeInfo().GetMethod("ToBinary"));
-        }
-
-        protected override Expression ToValue(Expression readExp)
-        {
-            return Expression.Call(typeof(DateTime).GetTypeInfo().GetMethod("FromBinary"), readExp);
+            return typeof(Reader).GetTypeInfo().GetMethod("ReadDateTime");
         }
     }
 }

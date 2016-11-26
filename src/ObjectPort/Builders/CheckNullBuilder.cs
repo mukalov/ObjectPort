@@ -25,7 +25,6 @@ namespace ObjectPort.Builders
     using Common;
     using System;
     using System.Diagnostics;
-    using System.IO;
     using System.Linq.Expressions;
     using System.Reflection;
 
@@ -64,7 +63,7 @@ namespace ObjectPort.Builders
                 Expression.New(memberType) :
                 (Expression)Expression.Constant(null, memberType);
 
-            var readBool = typeof(BinaryReader).GetTypeInfo().GetMethod("ReadBoolean");
+            var readBool = typeof(Reader).GetTypeInfo().GetMethod("ReadBool");
             var readExp = Expression.Call(readerExpression, readBool);
             var castedMemberExp = Expression.TypeAs(_innerBuilder.GetDeserializerExpression(memberType, readerExpression), memberType);
             var conditionalExp = Expression.Condition(

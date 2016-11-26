@@ -27,7 +27,6 @@ namespace ObjectPort.Builders
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Runtime.CompilerServices;
@@ -89,7 +88,7 @@ namespace ObjectPort.Builders
             return Expression.TypeAs(valueExp, memberType);
         }
 
-        internal void Serialize(T obj, BinaryWriter writer)
+        internal void Serialize(T obj, Writer writer)
         {
             if (obj == default(T))
                 writer.Write(false);
@@ -102,10 +101,10 @@ namespace ObjectPort.Builders
             }
         }
 
-        internal T Deserialize(BinaryReader reader)
+        internal T Deserialize(Reader reader)
         {
             var result = default(T);
-            var isNotNull = reader.ReadBoolean();
+            var isNotNull = reader.ReadBool();
             if (isNotNull)
             {
                 var index = reader.ReadByte();

@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "ObjectPort.Benchmarks": {
+      "commandName": "Project",
+      "workingDirectory": "D:\\Projects\\ObjectPort\\git\\src\\ObjectPort.Benchmarks\\bin\\Debug\\net46\\win7-x64"
+    },
+    "Debug": {
+      "executablePath": "D:\\Projects\\ObjectPort\\git\\src\\ObjectPort.Benchmarks\\bin\\Debug\\net46\\win7-x64\\ObjectPort.Benchmarks.exe",
+      "workingDirectory": "D:\\Projects\\ObjectPort\\git\\src\\ObjectPort.Benchmarks\\bin\\Debug\\net46\\win7-x64"
+    }
+  }
+}

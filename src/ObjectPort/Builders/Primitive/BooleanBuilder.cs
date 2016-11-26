@@ -23,14 +23,13 @@
 namespace ObjectPort.Builders.Primitive
 {
     using System.Reflection;
-    using System.IO;
     using Common;
 
     internal class BooleanBuilder : PrimitiveBuilder<bool>
     {
         protected override MethodInfo GetReadMethod()
         {
-            return typeof(BinaryReader).GetTypeInfo().GetMethod("ReadBoolean");
+            return typeof(Reader).GetTypeInfo().GetMethod("ReadBool");
         }
     }
 }

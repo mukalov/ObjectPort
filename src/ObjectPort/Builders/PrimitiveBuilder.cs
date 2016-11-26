@@ -24,7 +24,6 @@ namespace ObjectPort.Builders
 {
     using Common;
     using System;
-    using System.IO;
     using System.Linq.Expressions;
     using System.Reflection;
 

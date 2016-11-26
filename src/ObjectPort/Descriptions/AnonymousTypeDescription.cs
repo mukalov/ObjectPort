@@ -29,9 +29,9 @@ namespace ObjectPort.Descriptions
     using System.Linq.Expressions;
     using System.Reflection;
 
-    internal class AnonymousTypeDescription : TypeDescription
+    internal class AnonymousTypeDescription<T> : ComplexTypeDescription<T>
     {
-        internal AnonymousTypeDescription(ushort typeId, Type type, SerializerState state) 
+        public AnonymousTypeDescription(ushort typeId, Type type, SerializerState state) 
             : base(typeId, type, state)
         {
         }

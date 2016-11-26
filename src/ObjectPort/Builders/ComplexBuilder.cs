@@ -26,7 +26,6 @@ namespace ObjectPort.Builders
     using System;
     using System.Linq.Expressions;
     using System.Reflection;
-    using System.IO;
     using Common;
 
     internal class ComplexBuilder<T> : ActionProviderBuilder<T>

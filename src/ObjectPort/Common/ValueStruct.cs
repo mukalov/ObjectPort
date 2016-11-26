@@ -20,16 +20,38 @@
 //SOFTWARE.
 #endregion
 
-namespace ObjectPort.Builders.Primitive
+namespace ObjectPort.Common
 {
-    using Common;
-    using System.Reflection;
+    using System.Runtime.InteropServices;
 
-    internal class IntBuilder : PrimitiveBuilder<int>
+    [StructLayout(LayoutKind.Explicit)]
+    internal struct ValueStruct
     {
-        protected override MethodInfo GetReadMethod()
-        {
-            return typeof(Reader).GetTypeInfo().GetMethod("ReadInt");
-        }
+        [FieldOffset(0)]
+        internal byte[] Bytes;
+        [FieldOffset(0)]
+        internal bool[] BoolVal;
+        [FieldOffset(0)]
+        internal char[] CharVal;
+        [FieldOffset(0)]
+        internal decimal[] DecimalVal;
+        [FieldOffset(0)]
+        internal double[] DoubleVal;
+        [FieldOffset(0)]
+        internal float[] FloatVal;
+        [FieldOffset(0)]
+        internal int[] IntVal;
+        [FieldOffset(0)]
+        internal long[] LongVal;
+        [FieldOffset(0)]
+        internal sbyte[] SByteVal;
+        [FieldOffset(0)]
+        internal short[] ShortVal;
+        [FieldOffset(0)]
+        internal uint[] UIntVal;
+        [FieldOffset(0)]
+        internal ulong[] ULongVal;
+        [FieldOffset(0)]
+        internal ushort[] UShortVal;
     }
 }

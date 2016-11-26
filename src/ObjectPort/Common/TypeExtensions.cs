@@ -32,13 +32,13 @@ namespace ObjectPort.Common
     internal static class TypeExtensions
     {
 #if NET40
-        public static Type GetTypeInfo(this Type type)
+        internal static Type GetTypeInfo(this Type type)
         {
             return type;
         }
 #endif
 
-        public static bool IsAnonymousType(this Type type)
+        internal static bool IsAnonymousType(this Type type)
         {
             Debug.Assert(type != null, "Type can't be null");
             return type.GetTypeInfo().IsDefined(typeof(CompilerGeneratedAttribute), false)
@@ -47,8 +47,9 @@ namespace ObjectPort.Common
                 && (type.GetTypeInfo().Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
         }
 
-        public static bool IsEnumerableType(this Type type)
+        internal static bool IsEnumerableType(this Type type)
         {
+            Debug.Assert(type != null, "Type can't be null");
             return
                 type.GetTypeInfo().IsArray 
                 || type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>) 
@@ -58,8 +59,9 @@ namespace ObjectPort.Common
                 .Any(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
         }
 
-        public static bool IsDictionaryType(this Type type)
+        internal static bool IsDictionaryType(this Type type)
         {
+            Debug.Assert(type != null, "Type can't be null");
             return
                 type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>)
                 || !"System".Equals(type.Namespace)
@@ -68,14 +70,24 @@ namespace ObjectPort.Common
                 .Any(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>));
         }
 
-        public static bool IsBuiltInType(this Type type)
+        internal static bool IsBuiltInType(this Type type)
         {
             Debug.Assert(type != null, "Type can't be null");
             return "System".Equals(type.Namespace) && !type.IsEnumerableType();
         }
 
-        public static Type GetEnumerableArgument(this Type type)
+        internal static bool IsNotComplexType(this Type type)
         {
+            Debug.Assert(type != null, "Type can't be null");
+            return type.IsBuiltInType()
+                || type.IsEnumerableType()
+                || type.IsDictionaryType()
+                || type.GetTypeInfo().IsEnum;
+        }
+
+        internal static Type GetEnumerableArgument(this Type type)
+        {
+            Debug.Assert(type != null, "Type can't be null");
             if (!type.IsEnumerableType())
                 return null;
             Type argType;
@@ -95,8 +107,9 @@ namespace ObjectPort.Common
             return argType;
         }
 
-        public static Tuple<Type, Type> GetDictionaryArguments(this Type type)
+        internal static Tuple<Type, Type> GetDictionaryArguments(this Type type)
         {
+            Debug.Assert(type != null, "Type can't be null");
             if (!type.IsDictionaryType())
                 return null;
 

@@ -29,13 +29,14 @@ namespace ObjectPort
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
-    using System.Runtime.CompilerServices;
 
     internal class SerializerState
     {
+        private const ushort CustomTypeIdsStart = 64;
+
         private AdaptiveHashtable<TypeDescription> _descriptions;
         internal Dictionary<Type, TypeDescription> AllTypeDescriptions;
-        internal ushort LastTypeId;
+        internal ushort LastTypeId = CustomTypeIdsStart;
         internal TypeDescription[] DescriptionsById;
 
         internal SerializerState()
@@ -57,14 +58,30 @@ namespace ObjectPort
 
         internal void AddDescription(Type type, TypeDescription description)
         {
-            Debug.Assert(_descriptions != null, "Description can't be null");
-            _descriptions.AddValue((uint)RuntimeHelpers.GetHashCode(type), description);
+            Debug.Assert(_descriptions != null, "Descriptions can't be null");
+            _descriptions.AddValue((uint)type.TypeHandle.GetHashCode(), description);
+            if (!AllTypeDescriptions.ContainsKey(type))
+                AllTypeDescriptions.Add(type, description);
+        }
+
+        internal void AddDescription(ushort code, TypeDescription description)
+        {
+            Debug.Assert(_descriptions != null, "Descriptions can't be null");
+            _descriptions.AddValue(code, description);
+            if (!AllTypeDescriptions.ContainsKey(description.Type))
+                AllTypeDescriptions.Add(description.Type, description);
         }
 
         internal TypeDescription GetDescription(Type type)
         {
-            Debug.Assert(_descriptions != null, "Description can't be null");
-            return _descriptions.TryGetValue((uint)RuntimeHelpers.GetHashCode(type));
+            Debug.Assert(_descriptions != null, "Descriptions can't be null");
+            return _descriptions.TryGetValue((uint)type.TypeHandle.GetHashCode());
+        }
+
+        internal TypeDescription GetDescription(int code)
+        {
+            Debug.Assert(_descriptions != null, "Descriptions can't be null");
+            return _descriptions.TryGetValue((uint)code);
         }
 
         internal IEnumerable<TypeDescription> GetDescriptionsForDerivedTypes(Type type)

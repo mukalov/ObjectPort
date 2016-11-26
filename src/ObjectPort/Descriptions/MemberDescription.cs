@@ -25,14 +25,13 @@ namespace ObjectPort.Descriptions
     using Builders;
     using Common;
     using System;
-    using System.IO;
     using System.Linq.Expressions;
     using System.Reflection;
 
     internal abstract class MemberDescription
     {
         private readonly Lazy<MemberSerializerBuilder> _serializerBuilder;
-        public Action<object, BinaryWriter> Serializer;
+        public Action<object, Writer> Serializer;
         public Expression SerializerExpression;
 
         public MemberInfo MemberInfo { get; }
@@ -54,10 +53,7 @@ namespace ObjectPort.Descriptions
 
         public void CompileSerializer(ParameterExpression instanceExp, ParameterExpression writerExp)
         {
-            var instanceCastExp = MemberInfo.DeclaringType.GetTypeInfo().IsValueType ?
-                Expression.Convert(instanceExp, MemberInfo.DeclaringType) :
-                Expression.TypeAs(instanceExp, MemberInfo.DeclaringType);
-            SerializerExpression = _serializerBuilder.Value.GetSerializerExpression(Type, GetterExpression(instanceCastExp), writerExp);
+            SerializerExpression = _serializerBuilder.Value.GetSerializerExpression(Type, GetterExpression(instanceExp), writerExp);
         }
 
         public abstract Expression GetterExpression(Expression instanceExp);
@@ -66,5 +62,5 @@ namespace ObjectPort.Descriptions
         {
             return _serializerBuilder.Value.GetDeserializerExpression(Type, readerExpression);
         }
-    };
+    }
 }

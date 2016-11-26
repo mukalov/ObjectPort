@@ -96,6 +96,11 @@ namespace ObjectPort.Builders
             return typeDescription;
         }
 
+        internal static IEnumerable<Type> GetPrimitiveTypes()
+        {
+            return PrimitiveBuilders.Keys;
+        }
+
         internal static MemberSerializerBuilder GetBuilder(Type type, TypeDescription nestedTypeDescription, SerializerState state)
         {
             var serializerBuilder = default(MemberSerializerBuilder);

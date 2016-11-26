@@ -25,15 +25,41 @@ namespace ObjectPort.Descriptions
     using Common;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
 
-    internal class ComplexTypeDescription : TypeDescription
+    internal class ComplexTypeDescription<T> : SpecializedTypeDescription<T>
     {
-        internal ComplexTypeDescription(ushort typeId, Type type, SerializerState state) 
+        private MemberDescription[] _descriptions;
+        private Dictionary<string, int> _orderMapping;
+
+        public IEnumerable<MemberDescription> Descriptions => _descriptions;
+
+        public ComplexTypeDescription(ushort typeId, Type type, SerializerState state) 
             : base(typeId, type, state)
         {
+        }
+
+        internal override Expression GetSerializerExpression(ParameterExpression instanceExp, ParameterExpression writerExp)
+        {
+            foreach (var p in Type.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            {
+                var pd = GetMemeberDescription(p.Name);
+                pd?.CompileSerializer(instanceExp, writerExp);
+            }
+
+            foreach (var f in Type.GetTypeInfo().GetFields(BindingFlags.Instance | BindingFlags.Public))
+            {
+                var fd = GetMemeberDescription(f.Name);
+                fd?.CompileSerializer(instanceExp, writerExp);
+            }
+
+            foreach (var description in _descriptions)
+                description.NestedTypeDescription?.InitSerializers();
+
+            return Expression.Block(_descriptions.Select(d => d.SerializerExpression));
         }
 
         internal override Expression GetDeserializerExpression(ParameterExpression readerExpression)
@@ -45,7 +71,6 @@ namespace ObjectPort.Descriptions
                 memberAssignments.Add(description.GetAssignment(valueExp));
             }
             var initExp = Expression.MemberInit(Expression.New(Type), memberAssignments);
-
             return initExp;
         }
 
@@ -63,6 +88,26 @@ namespace ObjectPort.Descriptions
                     NestedTypeDescription = Serializer.GetTypeDescription(p.PropertyType, state)
                 });
             return fileds.Concat(properties.Cast<MemberDescription>()).ToArray();
+        }
+
+        internal override void InitDescriptions(SerializerState state)
+        {
+            _descriptions = GetDescriptions(state);
+            _orderMapping = new Dictionary<string, int>();
+            for (var i = 0; i < _descriptions.Length; i++)
+                _orderMapping[_descriptions[i].Name] = i;
+
+            foreach (var description in _descriptions)
+                description.NestedTypeDescription?.InitDescriptions(state);
+        }
+
+        private MemberDescription GetMemeberDescription(string name)
+        {
+            int index;
+            if (!_orderMapping.TryGetValue(name, out index))
+                return null;
+            Debug.Assert(index < _descriptions.Length, "Index can't be out of range");
+            return _descriptions[index];
         }
     }
 }

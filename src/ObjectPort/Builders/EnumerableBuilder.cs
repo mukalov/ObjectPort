@@ -26,7 +26,6 @@ namespace ObjectPort.Builders
     using Descriptions;
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -50,8 +49,8 @@ namespace ObjectPort.Builders
         private readonly AdaptiveHashtable<Constructor> _constructorsByType;
         private readonly Type _builderSpecificType;
         private readonly Type _baseElementType;
-        private Action<T, BinaryWriter> _elementSerializer;
-        private Func<BinaryReader, T> _elementDeserializer;
+        private Action<T, Writer> _elementSerializer;
+        private Func<Reader, T> _elementDeserializer;
 
         protected bool SerializeAsArray
         {
@@ -144,7 +143,7 @@ namespace ObjectPort.Builders
             return Expression.TypeAs(valueExp, DeserializedType);
         }
 
-        internal void SerializeEnumerable(IEnumerable<T> enumerable, BinaryWriter writer)
+        internal void SerializeEnumerable(IEnumerable<T> enumerable, Writer writer)
         {
             if (enumerable == null)
             {
@@ -161,7 +160,7 @@ namespace ObjectPort.Builders
             }
         }
 
-        internal void SerializeArray(IEnumerable<T> enumerable, BinaryWriter writer)
+        internal void SerializeArray(IEnumerable<T> enumerable, Writer writer)
         {
             if (enumerable == null)
             {
@@ -178,13 +177,13 @@ namespace ObjectPort.Builders
             }
         }
 
-        internal IEnumerable<T> Deserialize(BinaryReader reader)
+        internal IEnumerable<T> Deserialize(Reader reader)
         {
-            var length = reader.ReadInt32();
+            var length = reader.ReadInt();
             if (length == NullLength)
                 return null;
 
-            var constructorIndex = reader.ReadUInt16();
+            var constructorIndex = reader.ReadUShort();
             var result = new T[length];
             for (var i = 0; i < length; i++)
                 result[i] = _elementDeserializer(reader);
