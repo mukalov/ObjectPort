@@ -23,10 +23,8 @@
 namespace ObjectPort.Descriptions
 {
     using Builders;
-    using Common;
     using System;
     using System.Linq.Expressions;
-    using System.Reflection;
 
     internal class SimpleTypeDescription<T> : SpecializedTypeDescription<T>
     {
@@ -49,10 +47,7 @@ namespace ObjectPort.Descriptions
 
         internal override Expression GetSerializerExpression(ParameterExpression instanceExp, ParameterExpression writerExp)
         {
-            var instanceCastExp = Type.GetTypeInfo().IsValueType ?
-                Expression.Convert(instanceExp, Type) :
-                Expression.TypeAs(instanceExp, Type);
-            return _builder.GetSerializerExpression(Type, instanceCastExp, writerExp);
+            return _builder.GetSerializerExpression(Type, instanceExp, writerExp);
         }
     }
 }
