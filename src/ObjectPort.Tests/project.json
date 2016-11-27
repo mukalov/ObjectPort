@@ -25,15 +25,6 @@
                     "target": "project"
                 }
             }
-        },
-        "net40": {
-            "dependencies": {
-                "xunit": "1.9.2",
-                "ObjectPort": {
-                    "version": "0.9.0",
-                    "target": "project"
-                }
-            }
         }
     }
 }

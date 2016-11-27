@@ -81,6 +81,41 @@ namespace ObjectPort
             }
         }
 
+        public static void RegisterTypes(IDictionary<ushort, Type> types)
+        {
+            lock (Locker)
+            {
+                var state = _state.Clone();
+
+                RegisterPrimitiveTypes(state);
+                var descriptions = new List<TypeDescription>();
+                foreach (var type in types)
+                {
+                    if (type.Value.IsNotComplexType())
+                    {
+                        var description = CreateTypeDescription(typeof(SimpleTypeDescription<>), type.Value, type.Key, type.Value, state);
+                        state.AddDescription(type.Value, description);
+                        descriptions.Add(description);
+                    }
+                    else
+                    {
+                        var description = GetTypeDescription(type.Value, type.Key, state, false);
+                        if (description != null)
+                            descriptions.Add(description);
+                    }
+                }
+                foreach (var description in descriptions)
+                    description.Build();
+
+                var maxId = state.AllTypeDescriptions.Max(i => i.Value.TypeId);
+                state.DescriptionsById = new TypeDescription[maxId + 1];
+                foreach (var item in state.AllTypeDescriptions)
+                    state.DescriptionsById[item.Value.TypeId] = item.Value;
+                Interlocked.Exchange(ref _state, state);
+            }
+        }
+
+
         public static void Serialize(Stream stream, object obj)
         {
             Debug.Assert(_state != null, "State can't be null");
@@ -97,7 +132,7 @@ namespace ObjectPort
             var description = _state.GetDescription(RuntimeHelpers.GetHashCode(typeof(T)));
             var writer = FormatterFactory<Writer>.GetFormatter(stream, Encoding);
             writer.Write(description.TypeId);
-            ((SpecializedTypeDescription<T>)description).SerializeHanlder(obj, writer);// (writer, obj);
+            ((SpecializedTypeDescription<T>)description).SerializeHanlder(obj, writer);
             FormatterFactory<Writer>.ReleaseFormatter(writer);
         }
 
@@ -125,12 +160,18 @@ namespace ObjectPort
 
         internal static TypeDescription GetTypeDescription(Type type, SerializerState state)
         {
+            return GetTypeDescription(type, state.LastTypeId, state, true);
+        }
+
+        internal static TypeDescription GetTypeDescription(Type type, ushort typeId, SerializerState state, bool registerUnderlyingTypes)
+        {
+            state.LastTypeId = Math.Max((ushort)(typeId + 1), state.LastTypeId);
             if (type.IsBuiltInType())
             {
                 var nullableUnderlyingType = Nullable.GetUnderlyingType(type);
                 if (nullableUnderlyingType != null)
                 {
-                    if (!nullableUnderlyingType.IsBuiltInType())
+                    if (!nullableUnderlyingType.IsBuiltInType() && registerUnderlyingTypes)
                     {
                         var td = GetTypeDescription(nullableUnderlyingType, state);
                         td?.Build();
@@ -141,9 +182,12 @@ namespace ObjectPort
 
             TypeDescription description;
             if (state.AllTypeDescriptions.TryGetValue(type, out description))
+            {
+                description.TypeId = typeId;
                 return description;
+            }
 
-            if (type.IsDictionaryType())
+            if (type.IsDictionaryType() && registerUnderlyingTypes)
             {
                 var dictTypes = type.GetDictionaryArguments();
                 var keyTd = GetTypeDescription(dictTypes.Item1, state);
@@ -153,7 +197,7 @@ namespace ObjectPort
                 return null;
             }
 
-            if (type.IsEnumerableType())
+            if (type.IsEnumerableType() && registerUnderlyingTypes)
             {
                 var elementType = type.GetEnumerableArgument();
                 if (!elementType.GetTypeInfo().IsInterface && !elementType.GetTypeInfo().IsAbstract)
@@ -165,9 +209,9 @@ namespace ObjectPort
             }
 
             if (type.IsAnonymousType())
-                description = CreateTypeDescription(typeof(AnonymousTypeDescription<>), type, state.LastTypeId++, type, state);
+                description = CreateTypeDescription(typeof(AnonymousTypeDescription<>), type, typeId, type, state);
             else
-                description = CreateTypeDescription(typeof(ComplexTypeDescription<>), type, state.LastTypeId++, type, state);
+                description = CreateTypeDescription(typeof(ComplexTypeDescription<>), type, typeId, type, state);
             state.AddDescription(type, description);
             return description;
         }

@@ -62,7 +62,6 @@
                 "System.Xml": ""
             },
             "dependencies": {
-                "System.Collections.Concurrent": "4.0.12",
                 "System.Runtime.WindowsRuntime": "4.0.10"
             }
         },
@@ -77,7 +76,6 @@
                 "System.Xml": ""
             },
             "dependencies": {
-                "System.Collections.Concurrent": "4.0.12",
                 "System.Runtime.WindowsRuntime": "4.0.10"
             }
         },

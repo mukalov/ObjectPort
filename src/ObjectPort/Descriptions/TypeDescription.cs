@@ -31,7 +31,7 @@ namespace ObjectPort.Descriptions
     {
         private readonly Lazy<bool> _isInitialized;
         public Type Type { get; }
-        public ushort TypeId { get; private set; }
+        internal ushort TypeId { get; set; }
 
         internal TypeDescription(ushort typeId, Type type, SerializerState state)
         {
