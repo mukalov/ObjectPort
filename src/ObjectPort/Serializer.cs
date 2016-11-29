@@ -37,9 +37,7 @@ namespace ObjectPort
 
     // TODO
     // optimize Array of primitives
-    // RegisterType with explicit type ids
     // serializer configurable encoding
-    // serializer parameter for type id
     // alphabetical order for members
     public sealed class Serializer
     {
