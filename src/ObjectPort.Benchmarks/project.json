@@ -1,49 +1,50 @@
 ﻿{
-  "version": "1.0.0-*",
-  "buildOptions": {
-    "emitEntryPoint": true
-  },
-
-  "dependencies": {
-    "NETStandard.Library": "1.6.0",
-    "ObjectPort": "0.9.0-*",
-    "protobuf-net": "2.1.0",
-    "Wire": "0.8.1",
-    "MsgPack.Cli": "0.8.0"
-  },
-
-  "frameworks": {
-    "net46": {
-      "dependencies": {
-        "BenchmarkDotNet": "0.9.9",
-        "NetSerializer": "4.1.0",
-        "MessageShark": "1.0.2",
-        "Salar.Bois": "2.2.2",
-        "Jil": "2.14.5",
-        "SharpSerializer": "2.20.0"
-      },
-      "frameworkAssemblies": {
-        "System": "",
-        "System.Core": "",
-        "System.Xml.Linq": "",
-        "System.Data.DataSetExtensions": "",
-        "Microsoft.CSharp": "",
-        "System.Data": "",
-        "System.Xml": ""
-      }
+    "version": "1.0.0-*",
+    "buildOptions": {
+        "emitEntryPoint": true
     },
-    "netcoreapp1.0": {
-      "buildOptions": {
-        "define": [ "NETCORE" ]
-      },
-      "dependencies": {
-        "BenchmarkDotNet": "0.9.9",
-        "Microsoft.NETCore.App": {
-          "type": "platform",
-          "version": "1.0.1"
+
+    "dependencies": {
+        "NETStandard.Library": "1.6.0",
+        "ObjectPort": "0.9.0-*",
+        "protobuf-net": "2.1.0",
+        "Wire": "0.8.1",
+        "MsgPack.Cli": "0.8.0"
+    },
+
+    "frameworks": {
+        "net46": {
+            "dependencies": {
+                "BenchmarkDotNet": "0.9.9",
+                "NetSerializer": "4.1.0",
+                "MessageShark": "1.0.2",
+                "Salar.Bois": "2.2.2",
+                "Jil": "2.14.5",
+                "SharpSerializer": "2.20.0",
+                "Microsoft.Hadoop.Avro": "1.5.6"
+            },
+            "frameworkAssemblies": {
+                "System": "",
+                "System.Core": "",
+                "System.Xml.Linq": "",
+                "System.Data.DataSetExtensions": "",
+                "Microsoft.CSharp": "",
+                "System.Data": "",
+                "System.Xml": ""
+            }
+        },
+        "netcoreapp1.0": {
+            "buildOptions": {
+                "define": [ "NETCORE" ]
+            },
+            "dependencies": {
+                "BenchmarkDotNet": "0.9.9",
+                "Microsoft.NETCore.App": {
+                    "type": "platform",
+                    "version": "1.0.1"
+                }
+            },
+            "imports": "dnxcore50"
         }
-      },
-      "imports": "dnxcore50"
     }
-  }
 }

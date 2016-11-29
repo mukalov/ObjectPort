@@ -18,13 +18,14 @@
 #endif
         public class TestClass
         {
-            public string Field1;
-            public int Field2;
-            public int Prop1;
+            public string Field1 { get; set; }
+            public int Field2 { get; set; }
+            public int Prop1 { get; set; }
         }
 
         private TestClass _testObj;
         private Random _rnd;
+        private Stream _stream;
 
         public SimpleSerializationBenchmarks()
         {
@@ -41,48 +42,59 @@
                 Field2 = _rnd.Next(0, int.MaxValue),
                 Prop1 = _rnd.Next(0, int.MaxValue)
             };
+            _stream = new MemoryStream();
         }
 
-        [Benchmark]
-        public void ProtobufSerialize()
+        [Cleanup]
+        public void Cleanup()
         {
-            var serializer = _serializers[typeof(ProtobufSerializer)];
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(stream, _testObj);
-            }
+            _stream?.Dispose();
+        }
+
+
+        private void Serialize<T>(Type type, T obj)
+        {
+            _stream.Seek(0, SeekOrigin.Begin);
+            var serializer = _serializers[type];
+            serializer.Serialize(_stream, obj);
         }
 
 #if !NETCORE
         [Benchmark]
         public void NetSerializerSerialize()
         {
-            var serializer = _serializers[typeof(NetSerializaerSerializer)];
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(stream, _testObj);
-            }
+            Serialize(typeof(NetSerializaerSerializer), _testObj);
+        }
+
+        [Benchmark]
+        public void MessageSharkSerialize()
+        {
+            Serialize(typeof(MessageSharkSerializer), _testObj);
+        }
+
+        [Benchmark]
+        public void SalarBoisSerialize()
+        {
+            Serialize(typeof(SalarBoisSerializer), _testObj);
         }
 #endif
         [Benchmark]
+        public void ProtobufSerialize()
+        {
+            Serialize(typeof(ProtobufSerializer), _testObj);
+        }
+
+        [Benchmark]
         public void WireSerialize()
         {
-            var serializer = _serializers[typeof(WireSerializer)];
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(stream, _testObj);
-            }
+            Serialize(typeof(WireSerializer), _testObj);
         }
 
 
         [Benchmark]
         public void ObjectPortSerialize()
         {
-            var serializer = _serializers[typeof(ObjectPortSerializer)];
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(stream, _testObj);
-            }
+            Serialize(typeof(ObjectPortSerializer), _testObj);
         }
     }
 }

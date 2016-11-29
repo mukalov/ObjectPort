@@ -16,10 +16,13 @@
             {
 #if !NETCORE
                 [typeof(NetSerializaerSerializer)] = new NetSerializaerSerializer(),
+                [typeof(MessageSharkSerializer)] = new MessageSharkSerializer(),
+                [typeof(SalarBoisSerializer)] = new SalarBoisSerializer(),
 #endif
                 [typeof(ObjectPortSerializer)] = new ObjectPortSerializer(),
                 [typeof(ProtobufSerializer)] = new ProtobufSerializer(),
                 [typeof(WireSerializer)] = new WireSerializer(),
+                [typeof(MsgPackSerializer)] = new MsgPackSerializer()
             };
         }
 
