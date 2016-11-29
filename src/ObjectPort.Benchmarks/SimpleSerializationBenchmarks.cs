@@ -24,8 +24,6 @@
         }
 
         private TestClass _testObj;
-        private MemoryStream _stream;
-        private RuntimeTypeModel _protobufModel;
         private Random _rnd;
 
         public SimpleSerializationBenchmarks()
@@ -39,7 +37,7 @@
         {
             _testObj = new TestClass
             {
-                Field1 = "SDFsdfsdfdsfsdf sdfsdf",
+                Field1 = new StringGenerator().Generate(20, 50),
                 Field2 = _rnd.Next(0, int.MaxValue),
                 Prop1 = _rnd.Next(0, int.MaxValue)
             };

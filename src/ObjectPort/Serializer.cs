@@ -113,7 +113,6 @@ namespace ObjectPort
             }
         }
 
-
         public static void Serialize(Stream stream, object obj)
         {
             Debug.Assert(_state != null, "State can't be null");

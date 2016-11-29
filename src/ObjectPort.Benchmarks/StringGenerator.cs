@@ -5,24 +5,26 @@
 
     public class StringGenerator
     {
-        private char[] characterArray;
-        Random randNum = new Random();
+        private char[] _characterArray;
+        private Random _rnd;
 
         public StringGenerator()
         {
-            characterArray = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
+            _characterArray = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
+            _rnd = new Random();
         }
 
         private char GetRandomCharacter()
         {
-            return this.characterArray[(int)((this.characterArray.GetUpperBound(0) + 1) * randNum.NextDouble())];
+            return this._characterArray[(int)((this._characterArray.GetUpperBound(0) + 1) * _rnd.NextDouble())];
         }
 
-        public string Generate(int passwordLength)
+        public string Generate(int lengthMin, int lengthMax)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Capacity = passwordLength;
-            for (int count = 0; count <= passwordLength - 1; count++)
+            var sb = new StringBuilder();
+            var length = _rnd.Next(lengthMin, lengthMax);
+            sb.Capacity = length;
+            for (int count = 0; count <= length - 1; count++)
             {
                 sb.Append(GetRandomCharacter());
             }

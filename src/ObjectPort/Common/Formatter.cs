@@ -48,8 +48,10 @@ namespace ObjectPort.Common
         internal Stream Stream;
         internal Encoding Encoding;
         internal T Next;
+#if !NETCORE
         internal bool FromAffinityCache;
-        
+#endif
+
         internal Formatter()
         {
             PrimitiveBuffer.Bytes = new byte[BytesBufferSize];
