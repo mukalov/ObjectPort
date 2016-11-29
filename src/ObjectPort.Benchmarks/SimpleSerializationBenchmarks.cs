@@ -64,6 +64,16 @@
             }
         }
 #endif
+        [Benchmark]
+        public void WireSerialize()
+        {
+            var serializer = _serializers[typeof(WireSerializer)];
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(stream, _testObj);
+            }
+        }
+
 
         [Benchmark]
         public void ObjectPortSerialize()

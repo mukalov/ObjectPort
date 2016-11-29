@@ -18,7 +18,8 @@
                 [typeof(NetSerializaerSerializer)] = new NetSerializaerSerializer(),
 #endif
                 [typeof(ObjectPortSerializer)] = new ObjectPortSerializer(),
-                [typeof(ProtobufSerializer)] = new ProtobufSerializer()
+                [typeof(ProtobufSerializer)] = new ProtobufSerializer(),
+                [typeof(WireSerializer)] = new WireSerializer(),
             };
         }
 
