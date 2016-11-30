@@ -7,7 +7,7 @@
     using Serializers;
     using System;
     using System.IO;
-
+    using System.Runtime.Serialization;
 
     [ClrJob, CoreJob]
     [MarkdownExporter, AsciiDocExporter, HtmlExporter, CsvExporter, RPlotExporter]
@@ -76,6 +76,14 @@
         public void SalarBoisSerialize()
         {
             Serialize(typeof(SalarBoisSerializer), _testObj);
+        }
+
+        [Benchmark]
+        public void AvroSerialize()
+        {
+            _stream.Seek(0, SeekOrigin.Begin);
+            var serializer = new AvroSerializer<TestClass>();
+            serializer.Serialize(_stream, _testObj);
         }
 #endif
         [Benchmark]
