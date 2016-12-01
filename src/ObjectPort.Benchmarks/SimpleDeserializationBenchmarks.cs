@@ -8,7 +8,7 @@
 
     [ClrJob, CoreJob]
     [MarkdownExporter, AsciiDocExporter, HtmlExporter, CsvExporter, RPlotExporter]
-    public class SimpleSerializationBenchmarks : SerializationBenchmarks
+    public class SimpleDeserializationBenchmarks : SerializationBenchmarks
     {
 #if !NETCORE
         [Serializable]
@@ -23,7 +23,7 @@
         private TestClass _testObj;
         private Random _rnd;
 
-        public SimpleSerializationBenchmarks()
+        public SimpleDeserializationBenchmarks()
         {
             _rnd = new Random();
             Inititalize(new[] { typeof(TestClass) });
@@ -39,7 +39,10 @@
                 Prop1 = _rnd.Next(0, int.MaxValue)
             };
             foreach (var serializer in _serializers)
+            {
                 serializer.Value.InitializeIteration();
+                serializer.Value.Serialize(_testObj);
+            }
         }
 
         [Cleanup]
@@ -51,45 +54,44 @@
 
 #if !NETCORE
         [Benchmark]
-        public void NetSerializerSerialize()
+        public void NetSerializerDeserialize()
         {
-            _serializers[typeof(NetSerializaerSerializer)].Serialize(_testObj);
+            _serializers[typeof(NetSerializaerSerializer)].Deserialize<TestClass>();
         }
 
         [Benchmark]
-        public void MessageSharkSerialize()
+        public void MessageSharkDeserialize()
         {
-            _serializers[typeof(MessageSharkSerializer)].Serialize(_testObj);
+            _serializers[typeof(MessageSharkSerializer)].Deserialize<TestClass>();
         }
 
         [Benchmark]
-        public void SalarBoisSerialize()
+        public void SalarBoisDeserialize()
         {
-            _serializers[typeof(SalarBoisSerializer)].Serialize(_testObj);
+            _serializers[typeof(SalarBoisSerializer)].Deserialize<TestClass>();
         }
 
-        public void AvroSerialize()
+        public void AvroDeserialize()
         {
         }
 #endif
 
         [Benchmark]
-        public void ProtobufSerialize()
+        public void ProtobufDeserialize()
         {
-            _serializers[typeof(ProtobufSerializer)].Serialize(_testObj);
+            _serializers[typeof(ProtobufSerializer)].Deserialize<TestClass>();
         }
 
         [Benchmark]
-        public void WireSerialize()
+        public void WireDeserialize()
         {
-            _serializers[typeof(WireSerializer)].Serialize(_testObj);
+            _serializers[typeof(WireSerializer)].Deserialize<TestClass>();
         }
 
-
         [Benchmark]
-        public void ObjectPortSerialize()
+        public void ObjectPortDeserialize()
         {
-            _serializers[typeof(ObjectPortSerializer)].Serialize(_testObj);
+            _serializers[typeof(ObjectPortSerializer)].Deserialize<TestClass>();
         }
     }
 }
