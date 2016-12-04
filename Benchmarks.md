@@ -43,6 +43,8 @@ Benchmarks with issues:
   SimpleSerializationBenchmarks_MessageShark_Core
   SimpleSerializationBenchmarks_Salar_Core
 
+![](src/ObjectPort.Benchmarks/Images/SimpleSerializationBenchmarks-barplot.png)
+
 
 ## Deserialization benchmark
 
@@ -79,3 +81,5 @@ Benchmarks with issues:
   SimpleDeserializationBenchmarks_NetSerializer_Core
   SimpleDeserializationBenchmarks_MessageShark_Core
   SimpleDeserializationBenchmarks_SalarBois_Core
+ 
+![](src/ObjectPort.Benchmarks/Images/SimpleDeserializationBenchmarks-barplot.png) 
