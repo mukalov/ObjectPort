@@ -1,6 +1,6 @@
 ﻿{
     "title": "ObjectPort",
-    "version": "0.9.0-*",
+    "version": "0.9.1-alpha",
     "authors": [ "Dmytro Mukalov" ],
     "copyright": "Copyright ©  2016 Dmytro Mukalov and Contributors",
     "description": "Very fast binary serializer",

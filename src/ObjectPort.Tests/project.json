@@ -11,7 +11,7 @@
                     "version": "1.0.0"
                 },
                 "ObjectPort": {
-                    "version": "0.9.0",
+                    "version": "0.9",
                     "target": "project"
                 }
             }
@@ -21,7 +21,7 @@
                 "xunit": "2.2.0-beta2-build3300",
                 "dotnet-test-xunit": "2.2.0-preview2-build1029",
                 "ObjectPort": {
-                    "version": "0.9.0",
+                    "version": "0.9",
                     "target": "project"
                 }
             }
