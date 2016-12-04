@@ -160,14 +160,13 @@ namespace ObjectPort.Builders
             }
         }
 
-        internal void SerializeArray(IEnumerable<T> enumerable, Writer writer)
+        internal void SerializeArray(T[] array, Writer writer)
         {
-            if (enumerable == null)
+            if (array == null)
             {
                 writer.Write(NullLength);
                 return;
             }
-            var array = enumerable as T[] ?? enumerable.ToArray();
             writer.Write(array.Length);
             writer.Write(ArrayConstructorIndex);
             for (var i = 0; i < array.Length; i++)

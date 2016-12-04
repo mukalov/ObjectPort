@@ -4,39 +4,22 @@
     using BenchmarkDotNet.Attributes.Exporters;
     using BenchmarkDotNet.Attributes.Jobs;
     using Serializers;
-    using System;
-    using System.Linq;
 
     [ClrJob, CoreJob]
     [MarkdownExporter, AsciiDocExporter, HtmlExporter, CsvExporter, RPlotExporter]
     public class SimpleSerializationBenchmarks : SerializationBenchmarks
     {
         private TestClass _testObj;
-        private Random _rnd;
 
         public SimpleSerializationBenchmarks()
         {
-            _rnd = new Random();
             Inititalize(new[] { typeof(TestClass), typeof(TestClass2), typeof(TestClass3) });
         }
 
         [Setup]
         public void Setup()
         {
-            var strGen = new StringGenerator();
-            _testObj = new TestClass
-            {
-                Field1 = strGen.Generate(20, 50),
-                Field2 = _rnd.Next(0, int.MaxValue),
-                Prop1 = _rnd.Next(0, int.MaxValue),
-                Prop2 = new TestClass2
-                {
-                    Field1 = strGen.Generate(20, 50),
-                    Field2 = _rnd.Next(0, int.MaxValue),
-                    Prop1 = _rnd.Next(0, int.MaxValue)
-                },
-                Prop3 = Enumerable.Range(0, 20).Select(i => new TestClass3 { Field1 = strGen.Generate(20, 50), Field2 = i }).ToArray()
-            };
+            _testObj = TestClass.Create();
             foreach (var serializer in _serializers)
                 serializer.Value.InitializeIteration();
         }
@@ -50,43 +33,43 @@
 
 #if !NETCORE
         [Benchmark]
-        public void NetSerializerSerialize()
+        public void NetSerializer()
         {
             _serializers[typeof(NetSerializaerSerializer)].Serialize(_testObj);
         }
 
         [Benchmark]
-        public void MessageSharkSerialize()
+        public void MessageShark()
         {
             _serializers[typeof(MessageSharkSerializer)].Serialize(_testObj);
         }
 
         [Benchmark]
-        public void SalarBoisSerialize()
+        public void Salar()
         {
             _serializers[typeof(SalarBoisSerializer)].Serialize(_testObj);
         }
 
-        public void AvroSerialize()
+        public void Avro()
         {
         }
 #endif
 
         [Benchmark]
-        public void ProtobufSerialize()
+        public void Protobuf()
         {
             _serializers[typeof(ProtobufSerializer)].Serialize(_testObj);
         }
 
         [Benchmark]
-        public void WireSerialize()
+        public void Wire()
         {
             _serializers[typeof(WireSerializer)].Serialize(_testObj);
         }
 
 
         [Benchmark]
-        public void ObjectPortSerialize()
+        public void ObjectPort()
         {
             _serializers[typeof(ObjectPortSerializer)].Serialize(_testObj);
         }
