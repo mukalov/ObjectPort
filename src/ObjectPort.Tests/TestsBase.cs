@@ -40,10 +40,17 @@ namespace ObjectPort.Tests
             public T Property { get; set; }
         }
 
-        public struct TestCustomStruct
+        public struct TestCustomStruct : IComparable
         {
             public string StrField;
             public int IntField;
+
+            public int CompareTo(object obj)
+            {
+                if (obj == null)
+                    return -1;
+                return ((TestCustomStruct)obj).IntField.CompareTo(IntField);
+            }
         }
 
         public class TestCustomClass

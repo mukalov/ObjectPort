@@ -44,6 +44,7 @@ namespace ObjectPort.Builders
 
         private readonly Type _enumerableType;
         private readonly bool _isIEnumerable;
+        private readonly bool _isStack;
         private readonly MemberSerializerBuilder _elementBuilder;
         private readonly Func<IEnumerable<T>, IEnumerable<T>>[] _constructorsByIndex;
         private readonly AdaptiveHashtable<Constructor> _constructorsByType;
@@ -80,6 +81,7 @@ namespace ObjectPort.Builders
         {
             _baseElementType = baseElementType;
             _builderSpecificType = GetType();
+            _isStack = false;
             if (enumerableType.GetTypeInfo().IsGenericType && enumerableType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
             {
                 _enumerableType = baseElementType.MakeArrayType();
@@ -89,6 +91,8 @@ namespace ObjectPort.Builders
             {
                 _enumerableType = enumerableType;
                 _isIEnumerable = false;
+                if (enumerableType.GetTypeInfo().IsGenericType && enumerableType.GetGenericTypeDefinition() == typeof(Stack<>))
+                    _isStack = true;
             }
 
             var ienumerableSpecificType = typeof(IEnumerable<>).MakeGenericType(baseElementType);
@@ -160,6 +164,25 @@ namespace ObjectPort.Builders
             }
         }
 
+        internal void SerializeStack(IEnumerable<T> enumerable, Writer writer)
+        {
+            if (enumerable == null)
+            {
+                writer.Write(NullLength);
+                return;
+            }
+            var array = enumerable.ToArray();
+            writer.Write(array.Length);
+            
+            var constructorIndex = _constructorsByType.TryGetValue((uint)RuntimeHelpers.GetHashCode(enumerable.GetType())).Index;
+            writer.Write(constructorIndex);
+            for (var i = array.Length; i > 0; i--)
+            {
+                var item = array[i - 1];
+                _elementSerializer(item, writer);
+            }
+        }
+
         internal void SerializeArray(T[] array, Writer writer)
         {
             if (array == null)
@@ -193,9 +216,13 @@ namespace ObjectPort.Builders
         {
             get
             {
-                return SerializeAsArray ?
-                    _builderSpecificType.GetTypeInfo().GetMethod("SerializeArray", BindingFlags.NonPublic | BindingFlags.Instance) :
-                    _builderSpecificType.GetTypeInfo().GetMethod("SerializeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance);
+                const BindingFlags bindingFlags = BindingFlags.NonPublic | BindingFlags.Instance;
+                var type = _builderSpecificType.GetTypeInfo();
+                if (SerializeAsArray)
+                    return type.GetMethod("SerializeArray", bindingFlags);
+                if (_isStack)
+                    return type.GetMethod("SerializeStack", bindingFlags);
+                return type.GetMethod("SerializeEnumerable", bindingFlags);
             }
         }
 
