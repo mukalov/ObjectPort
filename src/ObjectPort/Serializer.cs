@@ -38,7 +38,6 @@ namespace ObjectPort
     // TODO
     // optimize Array of primitives
     // serializer configurable encoding
-    // alphabetical order for members
     public sealed class Serializer
     {
         private static SerializerState _state = new SerializerState();
