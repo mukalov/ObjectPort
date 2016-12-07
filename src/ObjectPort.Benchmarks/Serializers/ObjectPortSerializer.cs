@@ -18,7 +18,7 @@
 
         public T Deserialize<T>(Stream stream)
         {
-            return (T)Serializer.Deserialize(stream);
+            return Serializer.Deserialize<T>(stream);
         }
     }
 }

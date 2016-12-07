@@ -97,17 +97,17 @@ namespace ObjectPort.Common
             var count = 0;
             try
             {
-                count = Encoding.GetBytes(value, 0, value.Length, StringBuffer, 0);
+                count = Encoding.GetBytes(value, 0, value.Length, StringByteBuffer, 0);
             }
             catch (ArgumentException)
             {
                 var newStrBufferLength = Encoding.GetByteCount(value);
-                if (newStrBufferLength > StringBuffer.Length)
-                    StringBuffer = new byte[newStrBufferLength];
-                count = Encoding.GetBytes(value, 0, value.Length, StringBuffer, 0);
+                if (newStrBufferLength > StringByteBuffer.Length)
+                    StringByteBuffer = new byte[newStrBufferLength];
+                count = Encoding.GetBytes(value, 0, value.Length, StringByteBuffer, 0);
             }
             Write((ushort)count);
-            Stream.Write(StringBuffer, 0, count);
+            Stream.Write(StringByteBuffer, 0, count);
         }
 
         public void Write(uint value)

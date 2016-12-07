@@ -44,7 +44,8 @@ namespace ObjectPort.Common
         internal static readonly byte SizeOfGuid = 16;
 
         internal ValueStruct PrimitiveBuffer;
-        internal byte[] StringBuffer;
+        internal byte[] StringByteBuffer;
+        internal char[] StringCharBuffer;
         internal Stream Stream;
         internal Encoding Encoding;
         internal T Next;
@@ -55,7 +56,8 @@ namespace ObjectPort.Common
         internal Formatter()
         {
             PrimitiveBuffer.Bytes = new byte[BytesBufferSize];
-            StringBuffer = new byte[StringBufferSize];
+            StringByteBuffer = new byte[StringBufferSize];
+            StringCharBuffer = new char[StringBufferSize];
         }
     }
 }

@@ -95,10 +95,11 @@ namespace ObjectPort.Common
         public string ReadString()
         {
             var length = ReadShort();
-            if (StringBuffer.Length < length)
-                StringBuffer = new byte[length];
-            Stream.Read(StringBuffer, 0, length);
-            return Encoding.GetString(StringBuffer, 0, length);
+            if (StringByteBuffer.Length < length)
+                StringByteBuffer = new byte[length];
+            Stream.Read(StringByteBuffer, 0, length);
+            var chars = Encoding.GetChars(StringByteBuffer, 0, length, StringCharBuffer, 0);
+            return new string(StringCharBuffer, 0, chars);
         }
 
         public uint ReadUInt()
