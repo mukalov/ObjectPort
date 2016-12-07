@@ -35,7 +35,7 @@ namespace ObjectPort.Descriptions
         private MemberDescription[] _descriptions;
         private Dictionary<string, int> _orderMapping;
 
-        public IEnumerable<MemberDescription> Descriptions => _descriptions;
+        public IEnumerable<MemberDescription> Descriptions => _descriptions.OrderBy(d => d.Name);
 
         public ComplexTypeDescription(ushort typeId, Type type, SerializerState state) 
             : base(typeId, type, state)
@@ -59,7 +59,7 @@ namespace ObjectPort.Descriptions
             foreach (var description in _descriptions)
                 description.NestedTypeDescription?.InitSerializers();
 
-            return Expression.Block(_descriptions.Select(d => d.SerializerExpression));
+            return Expression.Block(Descriptions.Select(d => d.SerializerExpression));
         }
 
         internal override Expression GetDeserializerExpression(ParameterExpression readerExpression)
