@@ -22,6 +22,8 @@
 
 namespace ObjectPort.Tests
 {
+    using System;
+    using System.Collections.Generic;
     using System.IO;
     using Xunit;
 
@@ -30,6 +32,50 @@ namespace ObjectPort.Tests
 #endif
     public class CommonTests : TestsBase
     {
+        public class TestClass1
+        {
+            public string Prop1 { get; set; }
+            public int Prop2 { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                var o = obj as TestClass1;
+                if (o == null)
+                    return false;
+                return o.Prop1 == Prop1 && o.Prop2 == Prop2;
+            }
+        }
+
+        public class TesClass2
+        {
+            public TestClass1 Prop1 { get; set; }
+            public string Prop2 { get; set; }
+            public int Prop3 { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                var o = obj as TesClass2;
+                if (o == null)
+                    return false;
+                return o.Prop1.Equals(Prop1) && o.Prop2 == Prop2 && o.Prop3 == Prop3;
+            }
+        }
+
+        public class TestClass3
+        {
+            public TesClass2 Prop1 { get; set; }
+            public string Prop2 { get; set; }
+            public int Prop3 { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                var o = obj as TestClass3;
+                if (o == null)
+                    return false;
+                return o.Prop1.Equals(Prop1) && o.Prop2 == Prop2 && o.Prop3 == Prop3;
+            }
+        }
+
         [Fact]
         public void Should_Serialize_Anonymous_Type()
         {
@@ -62,17 +108,98 @@ namespace ObjectPort.Tests
         [Fact]
         public void Should_Serialize_Complex_Object()
         {
-
+            var testObj = new TestClass3
+            {
+                Prop1 = new TesClass2
+                {
+                    Prop1 = new TestClass1
+                    {
+                        Prop1 = "Test 1",
+                        Prop2 = 23423
+                    },
+                    Prop2 = "Test 2",
+                    Prop3 = 423432
+                },
+                Prop2 = "Test 3",
+                Prop3 = 657567565
+            };
+            Serializer.RegisterTypes(new[] { typeof(TestClass3) });
+            using (var stream = new MemoryStream())
+            {
+                Serializer.Serialize(stream, testObj);
+                stream.Seek(0, SeekOrigin.Begin);
+                var result = Serializer.Deserialize(stream);
+                Assert.IsType(testObj.GetType(), result);
+                Assert.Equal(result, testObj);
+            }
         }
 
         [Fact]
         public void Should_Serialize_Type_By_Id()
         {
+            Serializer.RegisterTypes(new Dictionary<ushort, Type>() { [100] = typeof(TestCustomClass) });
+            var testObj = new TestCustomClass { IntField = 45345, StrField = "Test 1" };
+            using (var stream = new MemoryStream())
+            {
+                Serializer.Serialize(stream, testObj);
+                stream.Seek(0, SeekOrigin.Begin);
+                var result = Serializer.Deserialize(stream);
+                Assert.IsType(testObj.GetType(), result);
+                Assert.Equal(result, testObj);
+            }
         }
 
         [Fact]
-        public void Shouldnt_Serialize_Unknown_Root()
+        public void Shouldnt_Serialize_Unknown_Type()
         {
+            var testObj = new TestCustomClass { IntField = 45345, StrField = "Test 1" };
+            Action serializer = () =>
+            {
+                using (var stream = new MemoryStream())
+                {
+                    Serializer.Serialize(stream, testObj);
+                }
+            };
+
+#if !NET40
+            var message = "Serialization is not supported for the type";
+#endif
+            var ex = Assert.Throws<NotSupportedException>(serializer);
+#if !NET40
+            Assert.StartsWith(message, ex.Message);
+#endif
+        }
+
+        [Fact]
+        public void Shouldnt_Desserialize_Unknown_Type()
+        {
+            Serializer.RegisterTypes(new Dictionary<ushort, Type>() { [100] = typeof(TestCustomClass) });
+            var testObj = new TestCustomClass { IntField = 45345, StrField = "Test 1" };
+            Action serializer = () =>
+            {
+                using (var stream = new MemoryStream())
+                {
+                    Serializer.Serialize(stream, testObj);
+                    Serializer.Clear();
+                    stream.Seek(0, SeekOrigin.Begin);
+                    Serializer.Deserialize(stream);
+                }
+            };
+
+#if !NET40
+            var message = "Unknown type id";
+#endif
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(serializer);
+#if !NET40
+            Assert.Contains(message, ex.Message);
+#endif
+        }
+
+
+        public void Should_Serialize_Polymorphic_Hierarchy()
+        {
+
+
         }
     }
 }

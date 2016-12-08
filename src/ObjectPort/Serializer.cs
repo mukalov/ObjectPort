@@ -116,6 +116,9 @@ namespace ObjectPort
         {
             Debug.Assert(_state != null, "State can't be null");
             var description = _state.GetDescription(obj.GetType());
+            if (description == null)
+                _state.TypeNotSupported(obj.GetType());
+            throw new Exception();
             var writer = FormatterFactory<Writer>.GetFormatter(stream, Encoding);
             try
             {
@@ -132,6 +135,8 @@ namespace ObjectPort
         {
             Debug.Assert(_state != null, "State can't be null");
             var description = _state.GetDescription(RuntimeHelpers.GetHashCode(typeof(T)));
+            if (description == null)
+                _state.TypeNotSupported(obj.GetType());
             var writer = FormatterFactory<Writer>.GetFormatter(stream, Encoding);
             try
             {
@@ -187,6 +192,7 @@ namespace ObjectPort
             lock (Locker)
             {
                 var state = new SerializerState();
+                state.DescriptionsById = new TypeDescription[1];
                 Interlocked.Exchange(ref _state, state);
             }
         }

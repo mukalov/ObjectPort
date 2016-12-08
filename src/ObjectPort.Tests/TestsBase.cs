@@ -72,6 +72,90 @@ namespace ObjectPort.Tests
             }
         }
 
+        public interface IBaseInterface
+        {
+            string StrProp { get; set; }
+            int IntProp { get; set; }
+        }
+
+        public struct TestCustomStructDerived1 : IBaseInterface
+        {
+            public int IntProp { get; set; }
+            public string StrProp { get; set; }
+        }
+
+        public struct TestCustomStructDerived2 : IBaseInterface
+        {
+            public int IntProp { get; set; }
+            public string StrProp { get; set; }
+            public int IntField;
+            public string StrField;
+        }
+
+        public abstract class TestCustomClassAbstract : IBaseInterface
+        {
+            public int IntProp { get; set; }
+            public string StrProp { get; set; }
+            public abstract string StrProp1 { get; set; }
+        }
+
+        public class TestCustomClassDerived1 : TestCustomClassAbstract
+        {
+            public override string StrProp1 { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                var testObj = obj as TestCustomClassDerived1;
+                if (obj == null)
+                    return false;
+                return StrProp1 == testObj.StrProp1 && StrProp == testObj.StrProp && IntProp == testObj.IntProp;
+            }
+
+            public override int GetHashCode()
+            {
+                return (StrProp + StrProp1 + IntProp.ToString()).GetHashCode();
+            }
+        }
+
+        public class TestCustomClassDerived2 : IBaseInterface
+        {
+            public int IntProp { get; set; }
+            public string StrProp { get; set; }
+            public int IntField;
+            public string StrField;
+
+            public override bool Equals(object obj)
+            {
+                var testObj = obj as TestCustomClassDerived2;
+                if (obj == null)
+                    return false;
+                return StrProp == testObj.StrProp && StrField == testObj.StrField && IntProp == testObj.IntProp && IntField == testObj.IntField;
+            }
+
+            public override int GetHashCode()
+            {
+                return (StrField + StrProp + IntProp.ToString() + IntField.ToString()).GetHashCode();
+            }
+        }
+
+        public class TestCustomClassDerived3 : TestCustomClassDerived1
+        {
+            public string StrField;
+
+            public override bool Equals(object obj)
+            {
+                var testObj = obj as TestCustomClassDerived3;
+                if (obj == null)
+                    return false;
+                return StrProp1 == testObj.StrProp1 && StrProp == testObj.StrProp && IntProp == testObj.IntProp && StrField == testObj.StrField;
+            }
+
+            public override int GetHashCode()
+            {
+                return (StrProp + StrProp1 + StrField + IntProp.ToString()).GetHashCode();
+            }
+        }
+
         internal delegate void ValueSetter<ContainerT>(ref ContainerT obj);
 
         public TestsBase()
