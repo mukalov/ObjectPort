@@ -44,6 +44,11 @@ namespace ObjectPort.Tests
                     return false;
                 return o.Prop1 == Prop1 && o.Prop2 == Prop2;
             }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
         }
 
         public class TesClass2
@@ -59,6 +64,11 @@ namespace ObjectPort.Tests
                     return false;
                 return o.Prop1.Equals(Prop1) && o.Prop2 == Prop2 && o.Prop3 == Prop3;
             }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
         }
 
         public class TestClass3
@@ -73,6 +83,11 @@ namespace ObjectPort.Tests
                 if (o == null)
                     return false;
                 return o.Prop1.Equals(Prop1) && o.Prop2 == Prop2 && o.Prop3 == Prop3;
+            }
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
             }
         }
 
@@ -196,10 +211,37 @@ namespace ObjectPort.Tests
         }
 
 
-        public void Should_Serialize_Polymorphic_Hierarchy()
+        [Fact]
+        public void Should_Serialize_Struct_Polymorphic_Hierarchy_From_Interface()
         {
+            Serializer.RegisterTypes(new[] { typeof(TestCustomStructDerived1) });
+            var obj = new TestCustomStructDerived1 { IntProp = 3453, StrProp = "Test 1" };
+            TestStructField<IBaseInterface>(obj);
+            TestStructProperty<IBaseInterface>(obj);
+            TestClassField<IBaseInterface>(obj);
+            TestClassProperty<IBaseInterface>(obj);
+        }
 
+        [Fact]
+        public void Should_Serialize_Class_Polymorphic_Hierarchy_From_Interface()
+        {
+            Serializer.RegisterTypes(new[] { typeof(TestCustomClassDerived3) });
+            var obj = new TestCustomClassDerived3 { StrField = "Test 1", StrProp1 = "Test 2" };
+            TestStructField<IBaseInterface>(obj);
+            TestStructProperty<IBaseInterface>(obj);
+            TestClassField<IBaseInterface>(obj);
+            TestClassProperty<IBaseInterface>(obj);
+        }
 
+        [Fact]
+        public void Should_Serialize_Class_Polymorphic_Hierarchy_From_Abstract_Class()
+        {
+            Serializer.RegisterTypes(new[] { typeof(TestCustomClassDerived3) });
+            var obj = new TestCustomClassDerived3 { StrField = "Test 1", StrProp1 = "Test 2" };
+            TestStructField<TestCustomClassAbstract>(obj);
+            TestStructProperty<TestCustomClassAbstract>(obj);
+            TestClassField<TestCustomClassAbstract>(obj);
+            TestClassProperty<TestCustomClassAbstract>(obj);
         }
     }
 }
