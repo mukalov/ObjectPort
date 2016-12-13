@@ -118,7 +118,6 @@ namespace ObjectPort
             var description = _state.GetDescription(obj.GetType());
             if (description == null)
                 _state.TypeNotSupported(obj.GetType());
-            throw new Exception();
             var writer = FormatterFactory<Writer>.GetFormatter(stream, Encoding);
             try
             {

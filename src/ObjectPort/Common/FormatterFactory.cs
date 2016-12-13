@@ -22,17 +22,15 @@
 
 namespace ObjectPort.Common
 {
-    using System.Linq;
     using System.IO;
     using System.Text;
     using System.Threading;
-    using System;
-    using Common;
 
     internal class FormatterFactory<T>
         where T : Formatter<T>, new()
     {
-        private const int IncrementalCapacity = 512;
+        private const int PoolInitialCapacity = 512;
+        private const int PoolIncrementalCapacity = 64;
         private const int ShortcutsCapacity = 512;
 
         private static T _first;
@@ -49,12 +47,13 @@ namespace ObjectPort.Common
         private static void InitFormattersPool(T from)
         {
             var currentFormater = from;
-            for (var i = 0; i < IncrementalCapacity - 1; i++)
+            for (var i = 0; i < PoolInitialCapacity - 1; i++)
             {
                 currentFormater.Next = new T();
                 currentFormater = currentFormater.Next;
             }
             _last = currentFormater;
+            _last.Next = _last;
         }
 
         internal static T GetFormatter(Stream stream, Encoding encoding)
@@ -68,19 +67,36 @@ namespace ObjectPort.Common
             if (formatter == default(T))
 #endif
             {
-                formatter = Interlocked.Exchange<T>(ref _first, _first.Next);
-                if (formatter == null)
+                for (;;)
                 {
-                    lock (_locker)
+                    T first = default(T);
+                    do
                     {
-                        _first = _last;
-                        InitFormattersPool(_first);
-                    }
-                    formatter = Interlocked.Exchange<T>(ref _first, _first.Next);
-                    if (formatter == null)
-                        formatter.OutOfFormattersPoolCapacity();
-                }
+                        first = _first;
+                        formatter = Interlocked.CompareExchange(ref _first, first.Next, first);
+                    } while (formatter != first);
 
+                    if (formatter.Next == formatter)
+                    {
+                        lock (_locker)
+                        {
+                            if (formatter.Next == formatter)
+                            {
+                                var newFirst = new T();
+                                var currentFormater = newFirst;
+                                for (var i = 0; i < PoolIncrementalCapacity - 1; i++)
+                                {
+                                    currentFormater.Next = new T();
+                                    currentFormater = currentFormater.Next;
+                                }
+                                currentFormater.Next = formatter;
+                                Interlocked.Exchange(ref _first, newFirst);
+                            }
+                        }
+                    }
+                    else
+                        break;
+                }
 #if !NETCORE
                 if (threadId < _affinityCache.Length)
                 {
@@ -92,7 +108,6 @@ namespace ObjectPort.Common
 
             formatter.Stream = stream;
             formatter.Encoding = encoding;
-            formatter.Next = null;
             return formatter;
         }
 
@@ -102,8 +117,9 @@ namespace ObjectPort.Common
             if (!formatter.FromAffinityCache)
 #endif
             {
+                formatter.Next = formatter;
                 var oldLast = Interlocked.Exchange(ref _last, formatter);
-                oldLast.Next = formatter;
+                Interlocked.Exchange(ref oldLast.Next, formatter);
             }
         }
     }
