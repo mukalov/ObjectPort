@@ -1,6 +1,6 @@
 ﻿{
   "title": "ObjectPort",
-  "version": "0.9.1-beta",
+  "version": "0.9.1-rc1",
   "authors": [ "Dmytro Mukalov" ],
   "copyright": "Copyright ©  2016 Dmytro Mukalov and Contributors",
   "description": "Ultra fast binary serializer which allows to serialize object graphs with arbitrary complexity, supports anonymous types serialization, supports .NET Core.",
@@ -43,50 +43,26 @@
     "net40": {
       "frameworkAssemblies": {
         "System": "",
-        "System.Core": "",
-        "System.Xml.Linq": "",
-        "System.Data.DataSetExtensions": "",
-        "Microsoft.CSharp": "",
-        "System.Data": "",
-        "System.Xml": ""
+        "System.Core": ""
       }
     },
     "net45": {
       "frameworkAssemblies": {
         "System": "",
-        "System.Core": "",
-        "System.Xml.Linq": "",
-        "System.Data.DataSetExtensions": "",
-        "Microsoft.CSharp": "",
-        "System.Data": "",
-        "System.Xml": ""
-      },
-      "dependencies": {
-        "System.Runtime.WindowsRuntime": "4.0.10"
+        "System.Core": ""
       }
     },
     "net451": {
       "frameworkAssemblies": {
         "System": "",
-        "System.Core": "",
-        "System.Xml.Linq": "",
-        "System.Data.DataSetExtensions": "",
-        "Microsoft.CSharp": "",
-        "System.Data": "",
-        "System.Xml": ""
-      },
-      "dependencies": {
-        "System.Runtime.WindowsRuntime": "4.0.10"
+        "System.Core": ""
       }
     },
     "netstandard1.6": {
       "buildOptions": {
         "define": [ "NETCORE" ]
       },
-      "imports": "dnxcore50",
-      "dependencies": {
-        "System.Collections.Concurrent": "4.0.12"
-      }
+      "imports": "dnxcore50"
     }
   }
 }
