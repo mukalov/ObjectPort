@@ -114,6 +114,9 @@ namespace ObjectPort
 
         public static void Serialize(Stream stream, object obj)
         {
+            if (obj == null)
+                _state.InstanceCannotBeNull();
+
             Debug.Assert(_state != null, "State can't be null");
             var description = _state.GetDescription(obj.GetType());
             if (description == null)
@@ -132,6 +135,9 @@ namespace ObjectPort
 
         public static void Serialize<T>(Stream stream, T obj)
         {
+            if (obj == null)
+                _state.InstanceCannotBeNull();
+
             Debug.Assert(_state != null, "State can't be null");
             var description = _state.GetDescription(RuntimeHelpers.GetHashCode(typeof(T)));
             if (description == null)

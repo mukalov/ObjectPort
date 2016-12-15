@@ -45,5 +45,10 @@ namespace ObjectPort.Common
         {
             throw new ArgumentOutOfRangeException("The formatters pools capacity is exceeded");
         }
+
+        public static void InstanceCannotBeNull(this object obj)
+        {
+            throw new ArgumentException("Cannot serialize null object");
+        }
     }
 }

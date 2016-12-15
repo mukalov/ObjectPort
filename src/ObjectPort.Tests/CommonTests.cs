@@ -243,5 +243,38 @@ namespace ObjectPort.Tests
             TestClassField<TestCustomClassAbstract>(obj);
             TestClassProperty<TestCustomClassAbstract>(obj);
         }
+
+        [Fact]
+        public void Shouldnt_Serialize_Null_Object()
+        {
+            Action serializerByType = () =>
+            {
+                using (var stream = new MemoryStream())
+                {
+                    Serializer.Serialize<TestCustomClass>(stream, null);
+                }
+            };
+
+            Action serializerByObject = () =>
+            {
+                using (var stream = new MemoryStream())
+                {
+                    Serializer.Serialize(stream, null);
+                }
+            };
+
+
+#if !NET40
+            var message = "Cannot serialize null object";
+#endif
+            var ex = Assert.Throws<ArgumentException>(serializerByType);
+#if !NET40
+            Assert.Contains(message, ex.Message);
+#endif
+            ex = Assert.Throws<ArgumentException>(serializerByObject);
+#if !NET40
+            Assert.Contains(message, ex.Message);
+#endif
+        }
     }
 }
