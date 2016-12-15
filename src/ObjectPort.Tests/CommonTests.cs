@@ -152,7 +152,7 @@ namespace ObjectPort.Tests
         [Fact]
         public void Should_Serialize_Type_By_Id()
         {
-            Serializer.RegisterTypes(new Dictionary<ushort, Type>() { [100] = typeof(TestCustomClass) });
+            Serializer.RegisterTypes(new Dictionary<ushort, Type>() { [64] = typeof(TestCustomClass) });
             var testObj = new TestCustomClass { IntField = 45345, StrField = "Test 1" };
             using (var stream = new MemoryStream())
             {
@@ -272,6 +272,20 @@ namespace ObjectPort.Tests
             Assert.Contains(message, ex.Message);
 #endif
             ex = Assert.Throws<ArgumentException>(serializerByObject);
+#if !NET40
+            Assert.Contains(message, ex.Message);
+#endif
+        }
+
+        [Fact]
+        public void Shouldnt_Register_Invalid_Id()
+        {
+#if !NET40
+            var message = "Invalid type id";
+#endif
+            Serializer.RegisterTypes(new Dictionary<ushort, Type>() { [100] = typeof(TestCustomClass) });
+
+            var ex = Assert.Throws<ArgumentException>(() => { Serializer.RegisterTypes(new Dictionary<ushort, Type>() { [63] = typeof(TestCustomClass) }); });
 #if !NET40
             Assert.Contains(message, ex.Message);
 #endif

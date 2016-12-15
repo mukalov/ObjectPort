@@ -32,7 +32,7 @@ namespace ObjectPort
 
     internal class SerializerState
     {
-        private const ushort CustomTypeIdsStart = 64;
+        internal const ushort CustomTypeIdsStart = 64;
 
         private AdaptiveHashtable<TypeDescription> _descriptions;
         internal Dictionary<Type, TypeDescription> AllTypeDescriptions;

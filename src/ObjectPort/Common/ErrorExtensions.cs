@@ -50,5 +50,10 @@ namespace ObjectPort.Common
         {
             throw new ArgumentException("Cannot serialize null object");
         }
+
+        public static void InvalidTypeId(this object obj)
+        {
+            throw new ArgumentException($"Invalid type id; it should be not less than {SerializerState.CustomTypeIdsStart}");
+        }
     }
 }
