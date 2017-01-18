@@ -285,7 +285,7 @@ namespace ObjectPort.Tests
 #endif
             Serializer.RegisterTypes(new Dictionary<ushort, Type>() { [100] = typeof(TestCustomClass) });
 
-            var ex = Assert.Throws<ArgumentException>(() => { Serializer.RegisterTypes(new Dictionary<ushort, Type>() { [63] = typeof(TestCustomClass) }); });
+            var ex = Assert.Throws<ArgumentException>(() => { Serializer.RegisterTypes(new Dictionary<ushort, Type>() { [65001] = typeof(TestCustomClass) }); });
 #if !NET40
             Assert.Contains(message, ex.Message);
 #endif

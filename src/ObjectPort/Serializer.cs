@@ -96,7 +96,7 @@ namespace ObjectPort
                     }
                     else
                     {
-                        if (type.Key < SerializerState.CustomTypeIdsStart)
+                        if (type.Key >= SerializerState.CustomTypeIdsStart)
                             _state.InvalidTypeId();
 
                         var description = GetTypeDescription(type.Value, type.Key, state, false);

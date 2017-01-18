@@ -53,7 +53,7 @@ namespace ObjectPort.Common
 
         public static void InvalidTypeId(this object obj)
         {
-            throw new ArgumentException($"Invalid type id; it should be not less than {SerializerState.CustomTypeIdsStart}");
+            throw new ArgumentException($"Invalid type id; it should not be greater than {SerializerState.CustomTypeIdsStart}");
         }
     }
 }
