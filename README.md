@@ -10,7 +10,7 @@ Ultra fast binary serializer for .NET
 * Polymorphic hierarchies serialization
 * Anonymous types serializations
 * .NET Core support
-* The fastest in the class of binary serializers ( see [Benchmarks](Benchmarks.md))
+* The fastest in the class of binary serializers (see [Benchmarks](Benchmarks.md))
 
 ## Usage
 In order to serialize / deserialize a custom type it should be registered:
@@ -26,4 +26,5 @@ to deserialize:
 ```csharp
 var myObj = (MyObjType)Serializer.Deserialize(stream);
 ```
-
+## Documentation
+More details about ObjectPort can be found at the [Documentation](Documentation.md) section.
