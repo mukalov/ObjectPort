@@ -1,6 +1,6 @@
 ﻿{
   "title": "ObjectPort",
-  "version": "0.9.1-rc1",
+  "version": "0.9.1",
   "authors": [ "Dmytro Mukalov" ],
   "copyright": "Copyright ©  2016 Dmytro Mukalov and Contributors",
   "description": "Ultra fast binary serializer which allows to serialize object graphs with arbitrary complexity, supports anonymous types serialization, supports .NET Core.",
