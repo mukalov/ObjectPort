@@ -22,8 +22,11 @@
 
 namespace ObjectPort.Descriptions
 {
+    using Attributes;
     using Common;
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Reflection.Emit;
@@ -129,6 +132,43 @@ namespace ObjectPort.Descriptions
             else
 #endif
                 DeserializeHandler = lamdaExp.Compile();
+        }
+
+        protected virtual IEnumerable<FieldInfo> GetFieldsFilter(IEnumerable<FieldInfo> fields)
+        {
+            return fields.Where(f => IsFieldSerializable(f));
+        }
+        protected virtual IEnumerable<PropertyInfo> GetPropertiesFilter(IEnumerable<PropertyInfo> properties)
+        {
+            return properties.Where(p => IsPropertySerializable(p));
+        }
+
+        private static bool IsMemberMarkedAsNonSerializable(MemberInfo pi)
+        {
+#if NET40
+            var attributes = pi.GetCustomAttributes(false);
+#else
+            var attributes = pi.GetCustomAttributes();
+#endif
+            return attributes.Any(a => a is NotPortableAttribute
+#if !NETCORE
+            || a is NonSerializedAttribute
+#endif
+            );
+        }
+
+        private static bool IsFieldSerializable(FieldInfo fi)
+        {
+            return !IsMemberMarkedAsNonSerializable(fi);
+        }
+
+        private static bool IsPropertySerializable(PropertyInfo pi)
+        {
+            return pi.CanWrite
+                && pi.CanRead
+                && pi.GetSetMethod()?.IsPublic == true
+                && pi.GetGetMethod()?.IsPublic == true
+                && !IsMemberMarkedAsNonSerializable(pi);
         }
     }
 }

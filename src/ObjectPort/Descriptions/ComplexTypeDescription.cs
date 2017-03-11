@@ -32,6 +32,8 @@ namespace ObjectPort.Descriptions
 
     internal class ComplexTypeDescription<T> : SpecializedTypeDescription<T>
     {
+        private const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public;
+
         private MemberDescription[] _descriptions;
         private Dictionary<string, int> _orderMapping;
 
@@ -44,13 +46,13 @@ namespace ObjectPort.Descriptions
 
         internal override Expression GetSerializerExpression(ParameterExpression instanceExp, ParameterExpression writerExp)
         {
-            foreach (var p in Type.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var p in GetProperties())
             {
                 var pd = GetMemeberDescription(p.Name);
                 pd?.CompileSerializer(instanceExp, writerExp);
             }
 
-            foreach (var f in Type.GetTypeInfo().GetFields(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var f in GetFields())
             {
                 var fd = GetMemeberDescription(f.Name);
                 fd?.CompileSerializer(instanceExp, writerExp);
@@ -76,13 +78,12 @@ namespace ObjectPort.Descriptions
 
         internal override MemberDescription[] GetDescriptions(SerializerState state)
         {
-            const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-            var fileds = Type.GetTypeInfo().GetFields(bindingFlags)
+             var fileds = GetFields()
                 .Select(i => new FieldDescription(i, state)
                 {
                     NestedTypeDescription = Serializer.GetTypeDescription(i.FieldType, state)
                 });
-            var properties = Type.GetTypeInfo().GetProperties(bindingFlags)
+            var properties = GetProperties()
                 .Select(p => new PropertyDescription(p, state)
                 {
                     NestedTypeDescription = Serializer.GetTypeDescription(p.PropertyType, state)
@@ -108,6 +109,16 @@ namespace ObjectPort.Descriptions
                 return null;
             Debug.Assert(index < _descriptions.Length, "Index can't be out of range");
             return _descriptions[index];
+        }
+
+        private IEnumerable<PropertyInfo> GetProperties()
+        {
+            return GetPropertiesFilter(Type.GetTypeInfo().GetProperties(bindingFlags));
+        }
+
+        private IEnumerable<FieldInfo> GetFields()
+        {
+            return GetFieldsFilter(Type.GetTypeInfo().GetFields(bindingFlags));
         }
     }
 }

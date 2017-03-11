@@ -22,6 +22,7 @@
 
 namespace ObjectPort.Tests
 {
+    using Attributes;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -73,9 +74,20 @@ namespace ObjectPort.Tests
 
         public class TestClass3
         {
+            [NotPortable]
+            public int Field1;
             public TesClass2 Prop1 { get; set; }
             public string Prop2 { get; set; }
             public int Prop3 { get; set; }
+            public int Prop4 { get { return Prop3 + 10; } }
+            public int Prop5 { get; private set; }
+            [NotPortable]
+            public int Prop6 { get; set; }
+
+            public void SetProp5(int val)
+            {
+                Prop5 = val;
+            }
 
             public override bool Equals(object obj)
             {
@@ -289,6 +301,42 @@ namespace ObjectPort.Tests
 #if !NET40
             Assert.Contains(message, ex.Message);
 #endif
+        }
+
+        [Fact]
+        public void Shouldnt_Serialize_NotSettable_Properties()
+        {
+            var testObj = new TestClass3
+            {
+                Field1 = 100,
+                Prop1 = new TesClass2
+                {
+                    Prop1 = new TestClass1
+                    {
+                        Prop1 = "Test 1",
+                        Prop2 = 23423
+                    },
+                    Prop2 = "Test 2",
+                    Prop3 = 423432
+                },
+                Prop2 = "Test 3",
+                Prop3 = 657567565,
+                Prop6 = 200
+            };
+            testObj.SetProp5(110);
+            Serializer.RegisterTypes(new[] { typeof(TestClass3) });
+            using (var stream = new MemoryStream())
+            {
+                Serializer.Serialize(stream, testObj);
+                stream.Seek(0, SeekOrigin.Begin);
+                var result = Serializer.Deserialize<TestClass3>(stream);
+                Assert.IsType(testObj.GetType(), result);
+                Assert.Equal(result, testObj);
+                Assert.Equal(result.Prop4, result.Prop3 + 10);
+                Assert.Equal(result.Prop5, 0);
+                Assert.Equal(result.Field1, 0);
+                Assert.Equal(result.Prop6, 0);
+            }
         }
     }
 }

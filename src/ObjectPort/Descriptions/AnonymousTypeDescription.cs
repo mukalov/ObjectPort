@@ -55,5 +55,14 @@ namespace ObjectPort.Descriptions
                     NestedTypeDescription = Serializer.GetTypeDescription(p.ParameterType, state)
                 }).ToArray();
         }
+
+        protected override IEnumerable<FieldInfo> GetFieldsFilter(IEnumerable<FieldInfo> fields)
+        {
+            return fields;
+        }
+        protected override IEnumerable<PropertyInfo> GetPropertiesFilter(IEnumerable<PropertyInfo> properties)
+        {
+            return properties;
+        }
     }
 }
