@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ObjectPort", "ObjectPort\ObjectPort.xproj", "{74980329-99B0-4CEE-A01A-95214347A10B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObjectPort", "ObjectPort\ObjectPort.csproj", "{74980329-99B0-4CEE-A01A-95214347A10B}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ObjectPort.Tests", "ObjectPort.Tests\ObjectPort.Tests.xproj", "{6F8F5782-B89F-4157-BCFE-78D6A12F803C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObjectPort.Tests", "ObjectPort.Tests\ObjectPort.Tests.csproj", "{6F8F5782-B89F-4157-BCFE-78D6A12F803C}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ObjectPort.Benchmarks", "ObjectPort.Benchmarks\ObjectPort.Benchmarks.xproj", "{DE7DDC6C-3DB3-4553-9584-B70906A0663F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObjectPort.Benchmarks", "ObjectPort.Benchmarks\ObjectPort.Benchmarks.csproj", "{DE7DDC6C-3DB3-4553-9584-B70906A0663F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,5 +44,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {689E8527-19AC-41C8-8502-26EF8314162C}
 	EndGlobalSection
 EndGlobal

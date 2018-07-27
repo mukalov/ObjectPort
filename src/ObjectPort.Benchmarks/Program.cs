@@ -8,6 +8,8 @@
         {
             BenchmarkRunner.Run<SimpleSerializationBenchmarks>();
             BenchmarkRunner.Run<SimpleDeserializationBenchmarks>();
+            BenchmarkRunner.Run<SimpleSerializationBenchmarksCore>();
+            BenchmarkRunner.Run<SimpleDeserializationBenchmarksCore>();
         }
     }
 }

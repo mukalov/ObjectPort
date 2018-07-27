@@ -34,6 +34,7 @@ namespace ObjectPort
     using System.Reflection;
     using Builders;
     using System.Runtime.CompilerServices;
+    using Attributes;
 
     // TODO
     // optimize Array of primitives
@@ -43,6 +44,23 @@ namespace ObjectPort
         private static SerializerState _state = new SerializerState();
         private static readonly object Locker = new object();
         public static Encoding Encoding = Encoding.UTF8;
+
+        public static void RegisterTypes(IEnumerable<Assembly> assemblies)
+        {
+            var allTypes = assemblies.SelectMany(a => a.GetTypes());
+            var portableMarkedTypes = allTypes.Where(t => t.HasAttribute(typeof(PortableAttribute)));
+            var portableInterfaces = portableMarkedTypes.Where(t => t.GetTypeInfo().IsInterface);
+            var portableAbstractClasses = portableMarkedTypes.Where(t => t.GetTypeInfo().IsAbstract);
+            var portableInterfaceImplementations = portableInterfaces
+                .SelectMany(i => allTypes.Where(t => i.GetTypeInfo().IsAssignableFrom(t) && t.GetTypeInfo().IsClass && !t.GetTypeInfo().IsAbstract));
+            var portableAbstractImplementations = portableAbstractClasses
+                .SelectMany(a => allTypes.Where(t => t.GetTypeInfo().IsSubclassOf(a) && !t.GetTypeInfo().IsAbstract));
+            var portableTypes = portableMarkedTypes
+                .Union(portableInterfaceImplementations)
+                .Union(portableAbstractImplementations);
+
+            RegisterTypes(portableTypes);
+        }
 
         public static void RegisterTypes(IEnumerable<Type> types)
         {

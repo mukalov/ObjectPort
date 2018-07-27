@@ -1,15 +1,14 @@
 ﻿namespace ObjectPort.Benchmarks
 {
     using BenchmarkDotNet.Attributes;
-    using Serializers;
+    using ObjectPort.Benchmarks.Serializers;
 
-    [ClrJob]
-    [MarkdownExporter, AsciiDocExporter, HtmlExporter, CsvExporter, RPlotExporter]
-    public class SimpleDeserializationBenchmarks : SerializationBenchmarks
+    [CoreJob]
+    public class SimpleDeserializationBenchmarksCore : SerializationBenchmarks
     {
         private TestClass _testObj;
 
-        public SimpleDeserializationBenchmarks()
+        public SimpleDeserializationBenchmarksCore()
         {
             Inititalize(new[] { typeof(TestClass), typeof(TestClass2), typeof(TestClass3) });
         }
@@ -32,30 +31,6 @@
                 serializer.Value.CleanupIteration();
         }
 
-#if !NETCORE
-        [Benchmark]
-        public void NetSerializer()
-        {
-            _serializers[typeof(NetSerializaerSerializer)].Deserialize<TestClass>();
-        }
-
-        [Benchmark]
-        public void MessageShark()
-        {
-            _serializers[typeof(MessageSharkSerializer)].Deserialize<TestClass>();
-        }
-
-        [Benchmark]
-        public void SalarBois()
-        {
-            _serializers[typeof(SalarBoisSerializer)].Deserialize<TestClass>();
-        }
-
-        public void Avro()
-        {
-        }
-#endif
-
         [Benchmark]
         public void Protobuf()
         {
@@ -73,5 +48,6 @@
         {
             _serializers[typeof(ObjectPortSerializer)].Deserialize<TestClass>();
         }
+
     }
 }

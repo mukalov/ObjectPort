@@ -121,5 +121,10 @@ namespace ObjectPort.Common
             Debug.Assert(args != null && args.Count() == 2);
             return new Tuple<Type, Type>(args[0], args[1]);
         }
+
+        internal static bool HasAttribute(this Type type, Type attributeType)
+        {
+            return type.GetTypeInfo().GetCustomAttributes(attributeType, false).Any();
+        }
     }
 }

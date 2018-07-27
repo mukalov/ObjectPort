@@ -331,11 +331,11 @@ namespace ObjectPort.Tests
                 stream.Seek(0, SeekOrigin.Begin);
                 var result = Serializer.Deserialize<TestClass3>(stream);
                 Assert.IsType(testObj.GetType(), result);
-                Assert.Equal(result, testObj);
-                Assert.Equal(result.Prop4, result.Prop3 + 10);
-                Assert.Equal(result.Prop5, 0);
-                Assert.Equal(result.Field1, 0);
-                Assert.Equal(result.Prop6, 0);
+                Assert.Equal(testObj, result);
+                Assert.Equal(result.Prop3 + 10, result.Prop4);
+                Assert.Equal(0, result.Prop5);
+                Assert.Equal(0, result.Field1);
+                Assert.Equal(0, result.Prop6);
             }
         }
     }

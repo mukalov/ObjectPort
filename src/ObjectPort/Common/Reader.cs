@@ -40,43 +40,43 @@ namespace ObjectPort.Common
 
         public char ReadChar()
         {
-            Stream.Read(PrimitiveBuffer.Bytes, 0, SizeOfChar);
+            Read(PrimitiveBuffer.Bytes, 0, SizeOfChar);
             return PrimitiveBuffer.CharVal[0];
         }
 
         public decimal ReadDecimal()
         {
-            Stream.Read(PrimitiveBuffer.Bytes, 0, SizeOfDecimal);
+            Read(PrimitiveBuffer.Bytes, 0, SizeOfDecimal);
             return PrimitiveBuffer.DecimalVal[0];
         }
 
         public double ReadDouble()
         {
-            Stream.Read(PrimitiveBuffer.Bytes, 0, SizeOfDouble);
+            Read(PrimitiveBuffer.Bytes, 0, SizeOfDouble);
             return PrimitiveBuffer.DoubleVal[0];
         }
 
         public float ReadFloat()
         {
-            Stream.Read(PrimitiveBuffer.Bytes, 0, SizeOfFloat);
+            Read(PrimitiveBuffer.Bytes, 0, SizeOfFloat);
             return PrimitiveBuffer.FloatVal[0];
         }
 
         public Guid ReadGuid()
         {
-            Stream.Read(PrimitiveBuffer.Bytes, 0, SizeOfGuid);
+            Read(PrimitiveBuffer.Bytes, 0, SizeOfGuid);
             return new Guid(PrimitiveBuffer.Bytes);
         }
 
         public int ReadInt()
         {
-            Stream.Read(PrimitiveBuffer.Bytes, 0, SizeOfInt);
+            Read(PrimitiveBuffer.Bytes, 0, SizeOfInt);
             return PrimitiveBuffer.IntVal[0];
         }
 
         public long ReadLong()
         {
-            Stream.Read(PrimitiveBuffer.Bytes, 0, SizeOfLong);
+            Read(PrimitiveBuffer.Bytes, 0, SizeOfLong);
             return PrimitiveBuffer.LongVal[0];
         }
 
@@ -88,7 +88,7 @@ namespace ObjectPort.Common
 
         public short ReadShort()
         {
-            Stream.Read(PrimitiveBuffer.Bytes, 0, SizeOfShort);
+            Read(PrimitiveBuffer.Bytes, 0, SizeOfShort);
             return PrimitiveBuffer.ShortVal[0];
         }
 
@@ -97,26 +97,26 @@ namespace ObjectPort.Common
             var length = ReadShort();
             if (StringByteBuffer.Length < length)
                 StringByteBuffer = new byte[length];
-            Stream.Read(StringByteBuffer, 0, length);
+            Read(StringByteBuffer, 0, length);
             var chars = Encoding.GetChars(StringByteBuffer, 0, length, StringCharBuffer, 0);
             return new string(StringCharBuffer, 0, chars);
         }
 
         public uint ReadUInt()
         {
-            Stream.Read(PrimitiveBuffer.Bytes, 0, SizeOfUInt);
+            Read(PrimitiveBuffer.Bytes, 0, SizeOfUInt);
             return PrimitiveBuffer.UIntVal[0];
         }
 
         public ulong ReadULong()
         {
-            Stream.Read(PrimitiveBuffer.Bytes, 0, SizeOfULong);
+            Read(PrimitiveBuffer.Bytes, 0, SizeOfULong);
             return PrimitiveBuffer.ULongVal[0];
         }
 
         public ushort ReadUShort()
         {
-            Stream.Read(PrimitiveBuffer.Bytes, 0, SizeOfUShort);
+            Read(PrimitiveBuffer.Bytes, 0, SizeOfUShort);
             return PrimitiveBuffer.UShortVal[0];
         }
 
@@ -124,20 +124,27 @@ namespace ObjectPort.Common
         {
             var length = ReadInt();
             var buffer = new byte[length];
-            Stream.Read(buffer, 0, length);
+            Read(buffer, 0, length);
             return buffer;
         }
 
         public DateTime ReadDateTime()
         {
-            Stream.Read(PrimitiveBuffer.Bytes, 0, SizeOfLong);
+            Read(PrimitiveBuffer.Bytes, 0, SizeOfLong);
             return DateTime.FromBinary(PrimitiveBuffer.LongVal[0]);
         }
 
         public TimeSpan ReadTimeSpan()
         {
-            Stream.Read(PrimitiveBuffer.Bytes, 0, SizeOfLong);
+            Read(PrimitiveBuffer.Bytes, 0, SizeOfLong);
             return TimeSpan.FromTicks(PrimitiveBuffer.LongVal[0]);
+        }
+
+        private void Read(byte[] buffer, int offset, int count)
+        {
+            var read = 0;
+            while (read < count)
+                read += Stream.Read(buffer, offset + read, count - read);
         }
     }
 }
