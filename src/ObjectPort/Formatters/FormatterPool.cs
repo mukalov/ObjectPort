@@ -20,25 +20,38 @@
 //SOFTWARE.
 #endregion
 
-namespace ObjectPort.Common
+namespace ObjectPort.Formatters
 {
     using System.IO;
     using System.Text;
     using System.Threading;
 
-    internal class FormatterFactory<T>
-        where T : Formatter<T>, new()
+    internal class FormatterPool<T>
+        where T : class, IFormatter<T>, new()
     {
+        internal struct FormatterHolder
+        {
+            public T Formatter;
+            private long alignment1;
+            private long alignment2;
+            private long alignment3;
+            private long alignment4;
+            private long alignment5;
+            private long alignment6;
+            private long alignment7;
+            private long alignment8;
+        }
+
         private const int PoolInitialCapacity = 512;
         private const int PoolIncrementalCapacity = 64;
         private const int ShortcutsCapacity = 512;
 
         private static T _first;
         private static T _last;
-        private static T[] _affinityCache = new T[ShortcutsCapacity];
+        private static FormatterHolder[] _affinityCache = new FormatterHolder[ShortcutsCapacity];
         private static object _locker = new object();
 
-        static FormatterFactory()
+        static FormatterPool()
         {
             _first = new T();
             InitFormattersPool(_first);
@@ -63,7 +76,7 @@ namespace ObjectPort.Common
 #if !NETCORE
             var threadId = Thread.CurrentThread.ManagedThreadId;
             if (threadId < _affinityCache.Length)
-                formatter = _affinityCache[threadId];
+                formatter = _affinityCache[threadId].Formatter;
             if (formatter == default(T))
 #endif
             {
@@ -100,7 +113,7 @@ namespace ObjectPort.Common
 #if !NETCORE
                 if (threadId < _affinityCache.Length)
                 {
-                    _affinityCache[threadId] = formatter;
+                    _affinityCache[threadId].Formatter = formatter;
                     formatter.FromAffinityCache = true;
                 }
 #endif
@@ -119,7 +132,7 @@ namespace ObjectPort.Common
             {
                 formatter.Next = formatter;
                 var oldLast = Interlocked.Exchange(ref _last, formatter);
-                Interlocked.Exchange(ref oldLast.Next, formatter);
+                oldLast.Next = formatter;
             }
         }
     }

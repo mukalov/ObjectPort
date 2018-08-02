@@ -35,6 +35,7 @@ namespace ObjectPort
     using Builders;
     using System.Runtime.CompilerServices;
     using Attributes;
+    using ObjectPort.Formatters;
 
     // TODO
     // optimize Array of primitives
@@ -135,14 +136,16 @@ namespace ObjectPort
 
         public static void Serialize(Stream stream, object obj)
         {
+            Debug.Assert(_state != null, "State can't be null");
+
             if (obj == null)
                 _state.InstanceCannotBeNull();
 
-            Debug.Assert(_state != null, "State can't be null");
             var description = _state.GetDescription(obj.GetType());
             if (description == null)
                 _state.TypeNotSupported(obj.GetType());
-            var writer = FormatterFactory<Writer>.GetFormatter(stream, Encoding);
+
+            var writer = WriterPool.GetFormatter(stream, Encoding);
             try
             {
                 writer.Write(description.TypeId);
@@ -150,20 +153,37 @@ namespace ObjectPort
             }
             finally
             {
-                FormatterFactory<Writer>.ReleaseFormatter(writer);
+                WriterPool.ReleaseFormatter(writer);
             }
+        }
+
+        public static void Serialize(BinaryWriter writer, object obj)
+        {
+            Debug.Assert(_state != null, "State can't be null");
+
+            if (obj == null)
+                _state.InstanceCannotBeNull();
+
+            var description = _state.GetDescription(obj.GetType());
+            if (description == null)
+                _state.TypeNotSupported(obj.GetType());
+
+            writer.Write(description.TypeId);
+            description.Serialize(writer, obj);
         }
 
         public static void Serialize<T>(Stream stream, T obj)
         {
+            Debug.Assert(_state != null, "State can't be null");
+
             if (obj == null)
                 _state.InstanceCannotBeNull();
 
-            Debug.Assert(_state != null, "State can't be null");
             var description = _state.GetDescription(RuntimeHelpers.GetHashCode(typeof(T)));
             if (description == null)
                 _state.TypeNotSupported(obj.GetType());
-            var writer = FormatterFactory<Writer>.GetFormatter(stream, Encoding);
+
+            var writer = WriterPool.GetFormatter(stream, Encoding);
             try
             {
                 writer.Write(description.TypeId);
@@ -171,46 +191,87 @@ namespace ObjectPort
             }
             finally
             {
-                FormatterFactory<Writer>.ReleaseFormatter(writer);
+                WriterPool.ReleaseFormatter(writer);
             }
+        }
+
+        public static void Serialize<T>(BinaryWriter writer, T obj)
+        {
+            Debug.Assert(_state != null, "State can't be null");
+
+            if (obj == null)
+                _state.InstanceCannotBeNull();
+
+            var description = _state.GetDescription(RuntimeHelpers.GetHashCode(typeof(T)));
+            if (description == null)
+                _state.TypeNotSupported(obj.GetType());
+
+            writer.Write(description.TypeId);
+            ((SpecializedTypeDescription<T>)description).SerializeHanlder(obj, writer);
         }
 
         public static object Deserialize(Stream stream)
         {
-            var reader = FormatterFactory<Reader>.GetFormatter(stream, Encoding);
+            var reader = ReaderPool.GetFormatter(stream, Encoding);
             var state = _state;
             try
             {
-                var typeId = reader.ReadShort();
+                var typeId = reader.ReadInt16();
                 if (typeId >= state.DescriptionsById.Length)
                     state.UnknownTypeId(typeId);
+
                 var description = state.DescriptionsById[typeId];
                 var obj = description.Deserialize(reader);
                 return obj;
             }
             finally
             {
-                FormatterFactory<Reader>.ReleaseFormatter(reader);
+                ReaderPool.ReleaseFormatter(reader);
             }
+        }
+
+        public static object Deserialize(BinaryReader reader)
+        {
+            var state = _state;
+            var typeId = reader.ReadInt16();
+            if (typeId >= state.DescriptionsById.Length)
+                state.UnknownTypeId(typeId);
+
+            var description = state.DescriptionsById[typeId];
+            var obj = description.Deserialize(reader);
+            return obj;
         }
 
         public static T Deserialize<T>(Stream stream)
         {
-            var reader = FormatterFactory<Reader>.GetFormatter(stream, Encoding);
+            var reader = ReaderPool.GetFormatter(stream, Encoding);
             var state = _state;
             try
             {
-                var typeId = reader.ReadShort();
+                var typeId = reader.ReadInt16();
                 if (typeId >= state.DescriptionsById.Length)
                     state.UnknownTypeId(typeId);
+
                 var description = state.DescriptionsById[typeId];
                 var obj = ((SpecializedTypeDescription<T>)description).DeserializeHandler(reader);
                 return obj;
             }
             finally
             {
-                FormatterFactory<Reader>.ReleaseFormatter(reader);
+                ReaderPool.ReleaseFormatter(reader);
             }
+        }
+
+        public static T Deserialize<T>(BinaryReader reader)
+        {
+            var state = _state;
+            var typeId = reader.ReadInt16();
+            if (typeId >= state.DescriptionsById.Length)
+                state.UnknownTypeId(typeId);
+
+            var description = state.DescriptionsById[typeId];
+            var obj = ((SpecializedTypeDescription<T>)description).DeserializeHandler(reader);
+            return obj;
         }
 
         public static void Clear()

@@ -24,11 +24,12 @@ namespace ObjectPort.Builders
 {
     using Common;
     using System;
+    using System.IO;
     using System.Linq.Expressions;
 
     internal interface ICompiledActionProvider<T>
     {
-        Action<T, Writer> GetSerializerAction(Type memberType, ParameterExpression valueExp, ParameterExpression writerExp);
-        Func<Reader, T> GetDeserializerAction(Type memberType, ParameterExpression readerExp);
+        Action<T, BinaryWriter> GetSerializerAction(Type memberType, ParameterExpression valueExp, ParameterExpression writerExp);
+        Func<BinaryReader, T> GetDeserializerAction(Type memberType, ParameterExpression readerExp);
     }
 }

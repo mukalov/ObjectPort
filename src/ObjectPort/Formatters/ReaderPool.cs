@@ -20,17 +20,9 @@
 //SOFTWARE.
 #endregion
 
-namespace ObjectPort.Builders.Primitive
+namespace ObjectPort.Formatters
 {
-    using Common;
-    using System.IO;
-    using System.Reflection;
-
-    internal class ByteBuilder : PrimitiveBuilder<byte>
+    internal class ReaderPool : FormatterPool<Reader>
     {
-        protected override MethodInfo GetReadMethod()
-        {
-            return typeof(BinaryReader).GetTypeInfo().GetMethod("ReadByte");
-        }
     }
 }

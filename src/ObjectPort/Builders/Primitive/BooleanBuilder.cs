@@ -22,6 +22,7 @@
 
 namespace ObjectPort.Builders.Primitive
 {
+    using System.IO;
     using System.Reflection;
     using Common;
 
@@ -29,7 +30,7 @@ namespace ObjectPort.Builders.Primitive
     {
         protected override MethodInfo GetReadMethod()
         {
-            return typeof(Reader).GetTypeInfo().GetMethod("ReadBool");
+            return typeof(BinaryReader).GetTypeInfo().GetMethod("ReadBoolean");
         }
     }
 }

@@ -23,13 +23,14 @@
 namespace ObjectPort.Builders.Primitive
 {
     using Common;
+    using System.IO;
     using System.Reflection;
 
     internal class IntBuilder : PrimitiveBuilder<int>
     {
         protected override MethodInfo GetReadMethod()
         {
-            return typeof(Reader).GetTypeInfo().GetMethod("ReadInt");
+            return typeof(BinaryReader).GetTypeInfo().GetMethod("ReadInt32");
         }
     }
 }

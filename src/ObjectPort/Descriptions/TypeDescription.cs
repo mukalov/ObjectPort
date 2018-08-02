@@ -24,6 +24,7 @@ namespace ObjectPort.Descriptions
 {
     using Common;
     using System;
+    using System.IO;
     using System.Linq.Expressions;
     using System.Reflection;
 
@@ -57,8 +58,8 @@ namespace ObjectPort.Descriptions
 
         internal abstract Expression GetDeserializerExpression(ParameterExpression readerExp);
         internal abstract Expression GetSerializerExpression(ParameterExpression instanceExp, ParameterExpression writerExp);
-        internal abstract void Serialize(Writer writer, object obj);
-        internal abstract object Deserialize(Reader reader);
+        internal abstract void Serialize(BinaryWriter writer, object obj);
+        internal abstract object Deserialize(BinaryReader reader);
         internal abstract void InitSerializers();
         internal abstract void InitDeserializer();
     }

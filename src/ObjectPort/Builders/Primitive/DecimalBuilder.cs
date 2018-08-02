@@ -23,13 +23,14 @@
 namespace ObjectPort.Builders.Primitive
 {
     using Common;
+    using System.IO;
     using System.Reflection;
 
     internal class DecimalBuilder : PrimitiveBuilder<decimal>
     {
         protected override MethodInfo GetReadMethod()
         {
-            return typeof(Reader).GetTypeInfo().GetMethod("ReadDecimal");
+            return typeof(BinaryReader).GetTypeInfo().GetMethod("ReadDecimal");
         }
     }
 }

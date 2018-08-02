@@ -24,6 +24,7 @@ namespace ObjectPort.Builders
 {
     using Common;
     using System;
+    using System.IO;
     using System.Linq.Expressions;
     using System.Reflection;
 
@@ -32,8 +33,8 @@ namespace ObjectPort.Builders
     {
         private readonly Type _elementType;
         private readonly MemberSerializerBuilder _elementBuilder;
-        private Action<T, Writer> _elementSerializer;
-        private Func<Reader, T> _elementDeserializer;
+        private Action<T, BinaryWriter> _elementSerializer;
+        private Func<BinaryReader, T> _elementDeserializer;
 
         public PrimitiveNullableBuilder(Type elementType)
         {
@@ -61,7 +62,7 @@ namespace ObjectPort.Builders
             return Expression.Call(thisExp, deserializeMethod, readerExp);
         }
 
-        internal void Serialize(T? nullable, Writer writer)
+        internal void Serialize(T? nullable, BinaryWriter writer)
         {
             if (!nullable.HasValue)
             {
@@ -72,9 +73,9 @@ namespace ObjectPort.Builders
             _elementSerializer(nullable.Value, writer);
         }
 
-        internal T? Deserialize(Reader reader)
+        internal T? Deserialize(BinaryReader reader)
         {
-            var notNull = reader.ReadBool();
+            var notNull = reader.ReadBoolean();
             if (!notNull)
                 return null;
             return _elementDeserializer(reader);

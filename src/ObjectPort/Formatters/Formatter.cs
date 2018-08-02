@@ -20,15 +20,12 @@
 //SOFTWARE.
 #endregion
 
-namespace ObjectPort.Common
+namespace ObjectPort.Formatters
 {
-    using System.IO;
-    using System.Text;
-
-    public class Formatter<T>
+    public static class Formatter
     {
-        private const int BytesBufferSize = 16;
-        private const int StringBufferSize = 512;
+        internal const int BytesBufferSize = 16;
+        internal const int StringBufferSize = 512;
 
         internal static readonly byte SizeOfBool = sizeof(bool);
         internal static readonly byte SizeOfChar = sizeof(char);
@@ -42,22 +39,5 @@ namespace ObjectPort.Common
         internal static readonly byte SizeOfULong = sizeof(ulong);
         internal static readonly byte SizeOfUShort = sizeof(ushort);
         internal static readonly byte SizeOfGuid = 16;
-
-        internal ValueStruct PrimitiveBuffer;
-        internal byte[] StringByteBuffer;
-        internal char[] StringCharBuffer;
-        internal Stream Stream;
-        internal Encoding Encoding;
-        internal T Next;
-#if !NETCORE
-        internal bool FromAffinityCache;
-#endif
-
-        internal Formatter()
-        {
-            PrimitiveBuffer.Bytes = new byte[BytesBufferSize];
-            StringByteBuffer = new byte[StringBufferSize];
-            StringCharBuffer = new char[StringBufferSize];
-        }
     }
 }

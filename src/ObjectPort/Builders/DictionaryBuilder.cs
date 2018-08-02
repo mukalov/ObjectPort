@@ -26,6 +26,7 @@ namespace ObjectPort.Builders
     using Descriptions;
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -50,10 +51,10 @@ namespace ObjectPort.Builders
         private readonly Type _valType;
         private readonly MemberSerializerBuilder _keyBuilder;
         private readonly MemberSerializerBuilder _valBuilder;
-        private Action<TKey, Writer> _keySerializer;
-        private Action<TVal, Writer> _valSerializer;
-        private Func<Reader, TKey> _keyDeserializer;
-        private Func<Reader, TVal> _valDeserializer;
+        private Action<TKey, BinaryWriter> _keySerializer;
+        private Action<TVal, BinaryWriter> _valSerializer;
+        private Func<BinaryReader, TKey> _keyDeserializer;
+        private Func<BinaryReader, TVal> _valDeserializer;
 
         protected MethodInfo SerializeMethod
         {
@@ -146,7 +147,7 @@ namespace ObjectPort.Builders
             return Expression.TypeAs(valueExp, DeserializedType);
         }
 
-        internal void Serialize(IDictionary<TKey, TVal> dictionary, Writer writer)
+        internal void Serialize(IDictionary<TKey, TVal> dictionary, BinaryWriter writer)
         {
             if (dictionary == null)
             {
@@ -164,13 +165,13 @@ namespace ObjectPort.Builders
             }
         }
 
-        internal IDictionary<TKey, TVal> Deserialize(Reader reader)
+        internal IDictionary<TKey, TVal> Deserialize(BinaryReader reader)
         {
-            var length = reader.ReadInt();
+            var length = reader.ReadInt32();
             if (length == NullLength)
                 return null;
 
-            var constructorIndex = reader.ReadUShort();
+            var constructorIndex = reader.ReadUInt16();
             var result = new Dictionary<TKey, TVal>(length);
             for (var i = 0; i < length; i++)
             {

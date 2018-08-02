@@ -23,14 +23,36 @@
 namespace ObjectPort.Builders.Primitive
 {
     using Common;
+    using ObjectPort.Formatters;
     using System;
+    using System.IO;
+    using System.Linq.Expressions;
     using System.Reflection;
 
     internal class GuidBuilder : PrimitiveBuilder<Guid>
     {
+        protected override bool IsStaticReader => true;
+
+        protected override bool IsStaticWriter => true;
+
         protected override MethodInfo GetReadMethod()
         {
-            return typeof(Reader).GetTypeInfo().GetMethod("ReadGuid");
+            return typeof(FormatterExtensions).GetTypeInfo().GetMethod("ReadGuid", new[] { typeof(BinaryReader) });
+        }
+
+        protected override MethodInfo GetWriteMethod(Type type)
+        {
+            return typeof(FormatterExtensions).GetTypeInfo().GetMethod("WriteGuid", new[] { typeof(BinaryWriter), typeof(Guid) });
+        }
+
+        protected override Expression[] GetWriteParameters(Expression writer, Expression parameter)
+        {
+            return new[] { writer, parameter };
+        }
+
+        protected override Expression[] GetReadParameters(Expression reader)
+        {
+            return new[] { reader };
         }
     }
 }

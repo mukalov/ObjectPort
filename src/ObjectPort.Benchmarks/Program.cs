@@ -10,6 +10,9 @@
             BenchmarkRunner.Run<SimpleDeserializationBenchmarks>();
             BenchmarkRunner.Run<SimpleSerializationBenchmarksCore>();
             BenchmarkRunner.Run<SimpleDeserializationBenchmarksCore>();
+
+            BenchmarkRunner.Run<ConcurrentSerializationBenchmark>();
+            BenchmarkRunner.Run<ConcurrentSerializationBenchmarkCore>();
         }
     }
 }

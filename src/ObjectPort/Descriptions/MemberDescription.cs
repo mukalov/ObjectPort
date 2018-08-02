@@ -25,13 +25,14 @@ namespace ObjectPort.Descriptions
     using Builders;
     using Common;
     using System;
+    using System.IO;
     using System.Linq.Expressions;
     using System.Reflection;
 
     internal abstract class MemberDescription
     {
         private readonly Lazy<MemberSerializerBuilder> _serializerBuilder;
-        public Action<object, Writer> Serializer;
+        public Action<object, BinaryWriter> Serializer;
         public Expression SerializerExpression;
 
         public MemberInfo MemberInfo { get; }

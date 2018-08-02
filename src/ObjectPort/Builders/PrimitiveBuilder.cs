@@ -24,6 +24,7 @@ namespace ObjectPort.Builders
 {
     using Common;
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
 
@@ -36,15 +37,19 @@ namespace ObjectPort.Builders
                 this.TypeNotSupported(memberType);
 
             var valueToWriteExp = FromValue(getterExp);
-            var writeExp = Expression.Call(writerExp, writeMethod, valueToWriteExp);
+            var writeParameters = GetWriteParameters(writerExp, valueToWriteExp);
+            var writeExp = IsStaticWriter ?
+                Expression.Call(writeMethod, writeParameters) :
+                Expression.Call(writerExp, writeMethod, writeParameters);
             return writeExp;
         }
 
         public override Expression GetDeserializerExpression(Type memberType, ParameterExpression readerExpression)
         {
             var readMethod = GetReadMethod();
-            var readExp = ReadParameters != null ? 
-                Expression.Call(readerExpression, readMethod, ReadParameters) : 
+            var readParameters = GetReadParameters(readerExpression);
+            var readExp = IsStaticReader && readParameters != null && readParameters.Any() ? 
+                Expression.Call(readMethod, readParameters) : 
                 Expression.Call(readerExpression, readMethod);
             return ToValue(readExp);
         }
@@ -66,9 +71,18 @@ namespace ObjectPort.Builders
             return readExp;
         }
 
-        protected virtual Expression[] ReadParameters
+        protected virtual bool IsStaticReader => false;
+
+        protected virtual bool IsStaticWriter => false;
+
+        protected virtual Expression[] GetReadParameters(Expression reader)
         {
-            get { return null; }
+            return new Expression[] { };
+        }
+
+        protected virtual Expression[] GetWriteParameters(Expression writer, Expression parameter)
+        {
+            return new[] { parameter }.ToArray(); 
         }
     }
 }

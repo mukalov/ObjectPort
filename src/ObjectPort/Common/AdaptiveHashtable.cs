@@ -35,14 +35,16 @@ namespace ObjectPort.Common
             public T Value;
         }
 
+        private static readonly uint[] _lengths = new uint [] { 3469, 6151, 12289, 24593, 49157 };
 
         private const double MinimalLoadFactor = 0.0000001;
         private const double LoadFactorStep = 0.1;
-        private const uint DefaultCapacity = 512;
+        private const uint DefaultCapacity = 3469;
         private const uint DefaultDepth = 1;
         private const uint LengthTreshold = 0xffff;
 
-        private Item[,] _values;
+        private Item[][] _values;
+        private uint _lengthIndex;
         private uint _length;
         private uint _depth;
         private uint _loaded;
@@ -56,7 +58,9 @@ namespace ObjectPort.Common
         {
             _length = length;
             _depth = depth;
-            _values = new Item[_length, _depth];
+            _values = new Item[_length][];
+            for (var i = 0; i < _length; i++)
+                _values[i] = new Item[_depth];
             _loaded = 0;
             _loadedIndexes = new List<uint>();
         }
@@ -64,10 +68,10 @@ namespace ObjectPort.Common
         public T TryGetValue(uint key)
         {
             var index = key % _length;
-            var item = _values[index, 0];
+            var item = _values[index][0];
             for (var i = 0; i < item.Loaded; i++)
             {
-                item = _values[index, i];
+                item = _values[index][i];
                 if (item.Key == key)
                     return item.Value;
             }
@@ -77,10 +81,10 @@ namespace ObjectPort.Common
         public T GetValue(uint key)
         {
             var index = key % _length;
-            var item = _values[index, 0];
+            var item = _values[index][0];
             for (var i = 0; i < item.Loaded; i++)
             {
-                item = _values[index, i];
+                item = _values[index][i];
                 if (item.Key == key)
                     return item.Value;
             }
@@ -105,8 +109,9 @@ namespace ObjectPort.Common
 
             var loadFactor = (double)_loaded / (_length * _depth);
             var loadFactorStep = LoadFactorStep;
+            var newLengthIndex = _lengthIndex;
             var newLength = _length;
-            Item[,] newValues;
+            Item[][] newValues;
             var newIndexes = new List<uint>();
             bool rebuilt;
             do
@@ -117,11 +122,17 @@ namespace ObjectPort.Common
                 while (loadFactor <= loadFactorStep)
                     loadFactorStep *= loadFactorStep;
                 loadFactor -= loadFactorStep;
-                if (newLength < LengthTreshold)
-                    newLength = Convert.ToUInt32(_loaded / loadFactor / _depth);
+                if (newLengthIndex < _lengths.Length - 1)
+                {
+                    newLengthIndex++;
+                    _length = _lengths[newLengthIndex];
+                }
                 else
                     _depth++;
-                newValues = new Item[newLength, _depth];
+                newValues = new Item[newLength][];
+                for (var i = 0; i < newLength; i++)
+                    newValues[i] = new Item[_depth];
+
                 newIndexes.Clear();
                 rebuilt = Rebuild(_values, newValues, newLength, _depth, _loadedIndexes, newIndexes);
                 if (rebuilt)
@@ -130,6 +141,7 @@ namespace ObjectPort.Common
 
             _values = newValues;
             _loadedIndexes = newIndexes;
+            _lengthIndex = newLengthIndex;
             _length = newLength;
             registerIndexHandler(index);
         }
@@ -138,33 +150,35 @@ namespace ObjectPort.Common
         {
             var copy = new AdaptiveHashtable<T>(_length, _depth);
             Array.Copy(_values, 0, copy._values, 0, (int)_length);
+            for (var i = 0; i < _length; i++)
+                copy._values[i] = _values[i].ToArray();
             copy._loaded = _loaded;
             copy._loadedIndexes = _loadedIndexes.ToList();
             return copy;
         }
 
-        private static uint AddValue(Item[,] values, uint length, uint depth, uint key, T value)
+        private static uint AddValue(Item[][] values, uint length, uint depth, uint key, T value)
         {
             var index = key % length;
-            var loaded = values[index, 0].Loaded;
+            var loaded = values[index][0].Loaded;
 
             if (loaded >= depth)
                 return uint.MaxValue;
 
-            values[index, loaded].Key = key;
-            values[index, loaded].Value = value;
-            values[index, 0].Loaded++;
+            values[index][loaded].Key = key;
+            values[index][loaded].Value = value;
+            values[index][0].Loaded++;
             return index;
         }
 
-        private static bool Rebuild(Item[,] oldValues, Item[,] newValues, uint newLength, uint newDepth, IList<uint> oldIndexes, IList<uint> newIndexes)
+        private static bool Rebuild(Item[][] oldValues, Item[][] newValues, uint newLength, uint newDepth, IList<uint> oldIndexes, IList<uint> newIndexes)
         {
             foreach (var index in oldIndexes)
             {
-                var loaded = oldValues[index, 0].Loaded;
+                var loaded = oldValues[index][0].Loaded;
                 for (var i = 0; i < loaded; i++)
                 {
-                    var newInd = AddValue(newValues, newLength, newDepth, oldValues[index, i].Key, oldValues[index, i].Value);
+                    var newInd = AddValue(newValues, newLength, newDepth, oldValues[index][i].Key, oldValues[index][i].Value);
                     if (newInd == uint.MaxValue)
                         return false;
                     newIndexes.Add(newInd);

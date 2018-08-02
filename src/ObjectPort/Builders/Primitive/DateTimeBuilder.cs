@@ -23,14 +23,36 @@
 namespace ObjectPort.Builders.Primitive
 {
     using Common;
+    using ObjectPort.Formatters;
     using System;
+    using System.IO;
+    using System.Linq.Expressions;
     using System.Reflection;
 
     internal class DateTimeBuilder : PrimitiveBuilder<DateTime>
     {
+        protected override bool IsStaticReader => true;
+
+        protected override bool IsStaticWriter => true;
+
         protected override MethodInfo GetReadMethod()
         {
-            return typeof(Reader).GetTypeInfo().GetMethod("ReadDateTime");
+            return typeof(FormatterExtensions).GetTypeInfo().GetMethod("ReadDateTime", new[] { typeof(BinaryReader) });
+        }
+
+        protected override MethodInfo GetWriteMethod(Type type)
+        {
+            return typeof(FormatterExtensions).GetTypeInfo().GetMethod("WriteDateTime", new[] { typeof(BinaryWriter), typeof(DateTime) });
+        }
+
+        protected override Expression[] GetWriteParameters(Expression writer, Expression parameter)
+        {
+            return new[] { writer, parameter };
+        }
+
+        protected override Expression[] GetReadParameters(Expression reader)
+        {
+            return new[] { reader };
         }
     }
 }

@@ -20,38 +20,41 @@
 //SOFTWARE.
 #endregion
 
-namespace ObjectPort.Common
+namespace ObjectPort.Formatters
 {
-    using System.Runtime.InteropServices;
+    using System;
+    using System.IO;
 
-    [StructLayout(LayoutKind.Explicit)]
-    internal struct ValueStruct
+    public static class FormatterExtensions
     {
-        [FieldOffset(0)]
-        internal byte[] Bytes;
-        [FieldOffset(0)]
-        internal bool[] BoolVal;
-        [FieldOffset(0)]
-        internal char[] CharVal;
-        [FieldOffset(0)]
-        internal decimal[] DecimalVal;
-        [FieldOffset(0)]
-        internal double[] DoubleVal;
-        [FieldOffset(0)]
-        internal float[] FloatVal;
-        [FieldOffset(0)]
-        internal int[] IntVal;
-        [FieldOffset(0)]
-        internal long[] LongVal;
-        [FieldOffset(0)]
-        internal sbyte[] SByteVal;
-        [FieldOffset(0)]
-        internal short[] ShortVal;
-        [FieldOffset(0)]
-        internal uint[] UIntVal;
-        [FieldOffset(0)]
-        internal ulong[] ULongVal;
-        [FieldOffset(0)]
-        internal ushort[] UShortVal;
+        public static DateTime ReadDateTime(this BinaryReader reader)
+        {
+            return DateTime.FromBinary(reader.ReadInt64());
+        }
+
+        public static TimeSpan ReadTimeSpan(this BinaryReader reader)
+        {
+            return TimeSpan.FromTicks(reader.ReadInt64());
+        }
+
+        public static Guid ReadGuid(this BinaryReader reader)
+        {
+            return new Guid(reader.ReadBytes(Formatter.SizeOfGuid));
+        }
+
+        public static void WriteDateTime(this BinaryWriter writer, DateTime dateTime)
+        {
+            writer.Write(dateTime.ToBinary());
+        }
+
+        public static void WriteTimeSpan(this BinaryWriter writer, TimeSpan timeSpan)
+        {
+            writer.Write(timeSpan.Ticks);
+        }
+
+        public static void WriteGuid(this BinaryWriter writer, Guid guid)
+        {
+            writer.Write(guid.ToByteArray());
+        }
     }
 }

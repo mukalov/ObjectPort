@@ -20,17 +20,18 @@
 //SOFTWARE.
 #endregion
 
-namespace ObjectPort.Builders.Primitive
+namespace ObjectPort.Formatters
 {
-    using Common;
     using System.IO;
-    using System.Reflection;
+    using System.Text;
 
-    internal class ByteBuilder : PrimitiveBuilder<byte>
+    public interface IFormatter<T>
     {
-        protected override MethodInfo GetReadMethod()
-        {
-            return typeof(BinaryReader).GetTypeInfo().GetMethod("ReadByte");
-        }
+        Stream Stream { get; set; }
+        Encoding Encoding { get; set; }
+        T Next { get; set; }
+#if !NETCORE
+        bool FromAffinityCache { get; set; }
+#endif
     }
 }

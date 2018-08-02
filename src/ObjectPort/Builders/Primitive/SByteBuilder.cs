@@ -23,13 +23,14 @@
 namespace ObjectPort.Builders.Primitive
 {
     using Common;
+    using System.IO;
     using System.Reflection;
 
     internal class SByteBuilder : PrimitiveBuilder<sbyte>
     {
         protected override MethodInfo GetReadMethod()
         {
-            return typeof(Reader).GetTypeInfo().GetMethod("ReadSByte");
+            return typeof(BinaryReader).GetTypeInfo().GetMethod("ReadSByte");
         }
     }
 }

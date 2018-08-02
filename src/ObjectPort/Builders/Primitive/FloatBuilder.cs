@@ -23,13 +23,14 @@
 namespace ObjectPort.Builders.Primitive
 {
     using Common;
+    using System.IO;
     using System.Reflection;
 
     internal class FloatBuilder : PrimitiveBuilder<float>
     {
         protected override MethodInfo GetReadMethod()
         {
-            return typeof(Reader).GetTypeInfo().GetMethod("ReadFloat");
+            return typeof(BinaryReader).GetTypeInfo().GetMethod("ReadSingle");
         }
     }
 }

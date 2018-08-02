@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
 
     public class SerializerWrapper<SerT> : ISerializerWrapper
         where SerT : ISerializer, new()
@@ -34,6 +35,12 @@
         {
             _stream.Seek(0, SeekOrigin.Begin);
             _serializer.Serialize(_stream, obj);
+        }
+
+        public void Serialize<T>(Stream stream, T obj)
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+            _serializer.Serialize(stream, obj);
         }
 
         public T Deserialize<T>()
