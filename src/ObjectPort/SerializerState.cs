@@ -32,12 +32,17 @@ namespace ObjectPort
 
     internal class SerializerState
     {
+        internal struct TypeDescriptionHolder
+        {
+            public TypeDescription Description;
+        }
+
         internal const ushort CustomTypeIdsStart = 65000;
 
         private AdaptiveHashtable<TypeDescription> _descriptions;
         internal Dictionary<Type, TypeDescription> AllTypeDescriptions;
         internal ushort LastTypeId = 1;
-        internal TypeDescription[] DescriptionsById;
+        internal TypeDescriptionHolder[] DescriptionsById;
 
         internal SerializerState()
         {

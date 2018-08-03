@@ -48,5 +48,11 @@
             _stream.Seek(0, SeekOrigin.Begin);
             return _serializer.Deserialize<T>(_stream);
         }
+
+        public T Deserialize<T>(Stream stream)
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+            return _serializer.Deserialize<T>(stream);
+        }
     }
 }

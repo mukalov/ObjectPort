@@ -75,7 +75,7 @@ namespace ObjectPort.Formatters
 
 #if !NETCORE
             var threadId = Thread.CurrentThread.ManagedThreadId;
-            if (threadId < _affinityCache.Length)
+            if (threadId < ShortcutsCapacity)
                 formatter = _affinityCache[threadId].Formatter;
             if (formatter == default(T))
 #endif

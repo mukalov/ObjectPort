@@ -13,6 +13,7 @@
 
             BenchmarkRunner.Run<ConcurrentSerializationBenchmark>();
             BenchmarkRunner.Run<ConcurrentSerializationBenchmarkCore>();
+            BenchmarkRunner.Run<ConcurrentDeserializationBenchmark>();
         }
     }
 }

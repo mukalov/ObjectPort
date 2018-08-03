@@ -90,9 +90,9 @@ namespace ObjectPort
                     description.Build();
 
                 var maxId = state.AllTypeDescriptions.Max(i => i.Value.TypeId);
-                state.DescriptionsById = new TypeDescription[maxId + 1];
+                state.DescriptionsById = new SerializerState.TypeDescriptionHolder[maxId + 1];
                 foreach (var item in state.AllTypeDescriptions)
-                    state.DescriptionsById[item.Value.TypeId] = item.Value;
+                    state.DescriptionsById[item.Value.TypeId].Description = item.Value;
                 Interlocked.Exchange(ref _state, state);
             }
         }
@@ -127,9 +127,9 @@ namespace ObjectPort
                     description.Build();
 
                 var maxId = state.AllTypeDescriptions.Max(i => i.Value.TypeId);
-                state.DescriptionsById = new TypeDescription[maxId + 1];
+                state.DescriptionsById = new SerializerState.TypeDescriptionHolder[maxId + 1];
                 foreach (var item in state.AllTypeDescriptions)
-                    state.DescriptionsById[item.Value.TypeId] = item.Value;
+                    state.DescriptionsById[item.Value.TypeId].Description = item.Value;
                 Interlocked.Exchange(ref _state, state);
             }
         }
@@ -220,7 +220,7 @@ namespace ObjectPort
                 if (typeId >= state.DescriptionsById.Length)
                     state.UnknownTypeId(typeId);
 
-                var description = state.DescriptionsById[typeId];
+                var description = state.DescriptionsById[typeId].Description;
                 var obj = description.Deserialize(reader);
                 return obj;
             }
@@ -237,7 +237,7 @@ namespace ObjectPort
             if (typeId >= state.DescriptionsById.Length)
                 state.UnknownTypeId(typeId);
 
-            var description = state.DescriptionsById[typeId];
+            var description = state.DescriptionsById[typeId].Description;
             var obj = description.Deserialize(reader);
             return obj;
         }
@@ -252,7 +252,7 @@ namespace ObjectPort
                 if (typeId >= state.DescriptionsById.Length)
                     state.UnknownTypeId(typeId);
 
-                var description = state.DescriptionsById[typeId];
+                var description = state.DescriptionsById[typeId].Description;
                 var obj = ((SpecializedTypeDescription<T>)description).DeserializeHandler(reader);
                 return obj;
             }
@@ -269,7 +269,7 @@ namespace ObjectPort
             if (typeId >= state.DescriptionsById.Length)
                 state.UnknownTypeId(typeId);
 
-            var description = state.DescriptionsById[typeId];
+            var description = state.DescriptionsById[typeId].Description;
             var obj = ((SpecializedTypeDescription<T>)description).DeserializeHandler(reader);
             return obj;
         }
@@ -279,7 +279,7 @@ namespace ObjectPort
             lock (Locker)
             {
                 var state = new SerializerState();
-                state.DescriptionsById = new TypeDescription[1];
+                state.DescriptionsById = new SerializerState.TypeDescriptionHolder[1];
                 Interlocked.Exchange(ref _state, state);
             }
         }

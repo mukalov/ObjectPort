@@ -12,5 +12,6 @@
         void Serialize<T>(T obj);
         void Serialize<T>(Stream stream, T obj);
         T Deserialize<T>();
+        T Deserialize<T>(Stream stream);
     }
 }

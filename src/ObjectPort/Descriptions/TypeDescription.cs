@@ -22,11 +22,9 @@
 
 namespace ObjectPort.Descriptions
 {
-    using Common;
     using System;
     using System.IO;
     using System.Linq.Expressions;
-    using System.Reflection;
 
     internal abstract class TypeDescription
     {

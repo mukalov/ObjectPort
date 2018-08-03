@@ -2,6 +2,8 @@
 {
     using BenchmarkDotNet.Attributes;
     using ObjectPort.Benchmarks.Serializers;
+    using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
@@ -10,15 +12,16 @@
     [IterationTime(5000)]
     [AllStatisticsColumn]
     [MarkdownExporter, AsciiDocExporter, HtmlExporter, CsvExporter, RPlotExporter]
-    public class ConcurrentSerializationBenchmarkCore : SerializationBenchmarks
+    public class ConcurrentDeserializationBenchmarkCore : SerializationBenchmarks
     {
         private const int NumberOfParallelsTasks = 1000;
 
         private TestClass _testObj;
-        private Stream[] _streams;
+        private Dictionary<Type, Stream[]> _streams;
 
-        public ConcurrentSerializationBenchmarkCore()
+        public ConcurrentDeserializationBenchmarkCore()
         {
+            _streams = new Dictionary<Type, Stream[]>();
             Inititalize(new[] { typeof(TestClass), typeof(TestClass2), typeof(TestClass3) });
         }
 
@@ -27,12 +30,18 @@
         {
             _testObj = TestClass.Create();
             foreach (var serializer in _serializers)
+            {
                 serializer.Value.InitializeIteration();
+                var serializerStreams = Enumerable
+                    .Range(1, NumberOfParallelsTasks)
+                    .Select(i => new MemoryStream())
+                    .ToArray();
 
-            _streams = Enumerable
-                .Range(1, NumberOfParallelsTasks)
-                .Select(i => new MemoryStream())
-                .ToArray();
+                foreach (var serializerStream in serializerStreams)
+                    serializer.Value.Serialize(serializerStream, _testObj);
+
+                _streams.Add(serializer.Key, serializerStreams);
+            }
         }
 
         [GlobalCleanup]
@@ -45,26 +54,27 @@
         [Benchmark]
         public void Protobuf()
         {
-            Serialize<ProtobufSerializer>();
+            Deserialize<ProtobufSerializer>();
         }
 
         [Benchmark]
         public void Wire()
         {
-            _serializers[typeof(WireSerializer)].Serialize(_testObj);
-            Serialize<WireSerializer>();
+            Deserialize<WireSerializer>();
         }
 
         [Benchmark]
         public void ObjectPort()
         {
-            Serialize<ObjectPortSerializer>();
+            Deserialize<ObjectPortSerializer>();
         }
 
-        private void Serialize<T>()
+        private void Deserialize<T>()
         {
             var serializer = _serializers[typeof(T)];
-            Parallel.For(0, NumberOfParallelsTasks, i => serializer.Serialize(_streams[i], _testObj));
+            var streams = _streams[typeof(T)];
+            Parallel.For(0, NumberOfParallelsTasks, i => serializer.Deserialize<TestClass>(streams[i]));
         }
+
     }
 }
